@@ -99,6 +99,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 .header-end { display: flex; align-items: center; gap: 24px; }
 .header-caption, .eyebrow, footer { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 10px; line-height: 1.5; letter-spacing: 1.2px; }
 .header-caption { color: var(--fine); }
+.header-github { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 14px; text-decoration: none; }
+.header-github:hover { color: var(--text); text-decoration: underline; }
 .hero { display: grid; grid-template-columns: 1fr 1.07fr; min-height: 618px; gap: 4%; align-items: center; padding: 42px 0; }
 .hero-copy { padding-bottom: 8px; }
 .eyebrow { color: var(--muted); }
