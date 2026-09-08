@@ -14,5 +14,10 @@ export const ManifestSchema = z.object({
   checks: z.array(CheckSchema), changeSummary: z.string(), units: z.literal('mm'),
   artifacts: z.array(ArtifactSchema),
 }).strict();
+export const AcceptanceHistorySchema = z.object({
+  contractVersion: z.literal(CONTRACT_VERSION),
+  acceptances: z.array(AcceptanceSchema), manifests: z.array(ManifestSchema),
+}).strict();
 export type Acceptance = z.infer<typeof AcceptanceSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
+export type AcceptanceHistory = z.infer<typeof AcceptanceHistorySchema>;

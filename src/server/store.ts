@@ -111,7 +111,9 @@ export class RunStore {
   }
   listCandidates() { return structuredClone([...this.snapshot.candidates].reverse()); }
   getAcceptance(acceptanceId: string) { return structuredClone(this.snapshot.acceptances.find(a => a.acceptanceId === acceptanceId) ?? null); }
+  listAcceptances() { return structuredClone([...this.snapshot.acceptances].reverse()); }
   getManifest(manifestId: string) { return structuredClone(this.snapshot.manifests.find(m => m.manifestId === manifestId) ?? null); }
+  listManifests() { return structuredClone([...this.snapshot.manifests].reverse()); }
   getEvents(runId?: string, afterEventId = 0) {
     if (runId) requireRun(this.snapshot, runId);
     if (!Number.isSafeInteger(afterEventId) || afterEventId < 0) throw new StoreError(400, 'INVALID_REQUEST', safeError('INVALID_REQUEST').message);

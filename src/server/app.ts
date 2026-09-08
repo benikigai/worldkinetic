@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AcceptanceRequestSchema, RequirementsUpdateRequestSchema, ExportRequestSchema, BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, parseStrictJson, safeError, ErrorCodeSchema } from '../shared/contracts.js';
+import { AcceptanceHistorySchema } from '../shared/state-v2.js';
 import { RunStore, StoreError } from './store.js';
 import { ArtifactStore } from './artifacts.js';
 import { Executor, type SelectedOperation } from './execution.js';
@@ -96,6 +97,11 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
         return json(response, 200, { contractVersion: CONTRACT_VERSION, events: store.getEvents(undefined, Number(after)) });
       }
       if (request.method === 'GET' && pathname === '/api/runs') return json(response, 200, { contractVersion: CONTRACT_VERSION, runs: store.listRuns() });
+      if (request.method === 'GET' && pathname === '/api/acceptances') {
+        return json(response, 200, AcceptanceHistorySchema.parse({
+          contractVersion: CONTRACT_VERSION, acceptances: store.listAcceptances(), manifests: store.listManifests(),
+        }));
+      }
       const resource = /^\/api\/(candidates|acceptances|manifests)\/([^/]+)$/.exec(pathname);
       if (request.method === 'GET' && resource) {
         if (!IdSchema.safeParse(resource[2]).success) throw new StoreError(404, 'INVALID_REQUEST', 'Unknown identity.');
