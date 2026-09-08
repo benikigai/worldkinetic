@@ -1,0 +1,49 @@
+{
+  "scope": "Actual isolated fixed-source developer trial; not product model generation or repair",
+  "accepted": false,
+  "physicallyTested": false,
+  "nativeHistory": false,
+  "executionMode": "live",
+  "sourceSha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107",
+  "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+  "checkBundleHash": "d68e58fd4c37b80ed3ae2cd0e4e6a50bced23ea657fbf9f85d8381bea7769b16",
+  "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+  "regeneratedStepSha256": "f214423b9b086314e5fc9f983ecfba912c9c5072a592ebe4b59d599e7e66d35d",
+  "engine": {
+    "name": "build123d",
+    "version": "0.11.1",
+    "imageDigest": "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440"
+  },
+  "files": [
+    {
+      "file": "source.py",
+      "bytes": 335,
+      "sha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107"
+    },
+    {
+      "file": "editable.py",
+      "bytes": 335,
+      "sha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107"
+    },
+    {
+      "file": "candidate.step",
+      "bytes": 38972,
+      "sha256": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d"
+    },
+    {
+      "file": "preview.stl",
+      "bytes": 77084,
+      "sha256": "168e25612117fe44de77b20dddfbe4df4ddbd7939326d871c9cceef62a83f473"
+    },
+    {
+      "file": "result.json",
+      "bytes": 57925,
+      "sha256": "2444991390546c27c2dc6a11341019774b48093889f73b62f7cf7232f571bf46"
+    },
+    {
+      "file": "core-result.json",
+      "bytes": 28185,
+      "sha256": "5c21c4696dabaa8b81894c2394a735e6c73108768d32758d7cc055d73b842b0d"
+    }
+  ]
+}

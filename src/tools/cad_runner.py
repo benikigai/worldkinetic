@@ -1,4 +1,4 @@
-"""Internal numeric plate CLI. Host Python 3.9+, standard library only."""
+"""Internal isolated plate candidate CLI. Host Python 3.9+, standard library only."""
 import argparse
 import fcntl
 import hashlib
@@ -236,10 +236,11 @@ def execute(args, runtime):
     if sha(ref) != args.reference_sha256.lower():
         raise CoreError("INPUT_REVISION_MISMATCH", "Reference STEP SHA-256 mismatch")
     binding_bytes = None
+    setup_id = "resize_centered_v1"
     if args.requirements_json:
         binding_bytes = read_regular(safe_path(args.requirements_json), 128 * 1024)
         try:
-            validate_binding(binding_bytes, args.length_mm, sha(ref))
+            setup_id = validate_binding(binding_bytes, args.length_mm, sha(ref))["setupId"]
         except (ValueError, KeyError, TypeError) as exc:
             raise CoreError("EVIDENCE_CONFLICT", "Requirements binding mismatch") from exc
     output = safe_path(args.output_dir)
@@ -248,12 +249,17 @@ def execute(args, runtime):
     if output.exists():
         raise CoreError("INVALID_PARAMETERS", "Output directory already exists")
     engine = runtime.inspect_image()
-    source = source_for(args.length_mm)
+    source = read_regular(safe_path(args.source_file), 65536) if args.source_file else source_for(args.length_mm)
+    try:
+        source.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise CoreError("INVALID_PARAMETERS", "Source must be UTF-8") from exc
     if len(source) > 65536:
         raise CoreError("INVALID_PARAMETERS", "Source exceeds 64 KiB")
-    generated = runtime.stage("generator", {"source.py": source}, {"candidate.step"})
-    regenerated = runtime.stage("regenerator", {"source.py": source}, {"candidate.step"})
-    config = {"length": args.length_mm, "referenceSha256": sha(ref),
+    candidate_inputs = {"source.py": source, "reference.step": ref}
+    generated = runtime.stage("generator", candidate_inputs, {"candidate.step"})
+    regenerated = runtime.stage("regenerator", candidate_inputs, {"candidate.step"})
+    config = {"length": args.length_mm, "setupId": setup_id, "referenceSha256": sha(ref),
               "regeneratedSha256": sha(regenerated["candidate.step"]),
               "geometryHash": sha(generated["candidate.step"]), "sourceSha256": sha(source)}
     trusted = {"verify.py": (HERE / "verify.py").read_bytes(), "mesh_checks.py": (HERE / "mesh_checks.py").read_bytes(),
@@ -270,7 +276,7 @@ def execute(args, runtime):
     if first["engine"] != final["engine"] or first["engine"] != {"version": engine["version"], "ocpVersion": engine["ocpVersion"]}:
         raise CoreError("TOOL_UNAVAILABLE", "Measured engine versions differ from selected runtime")
     checks = first["checks"] + final["checks"]
-    value = {"executionMode": "live", "scope": "numeric_fixture_core", "setupId": "resize_centered_v1",
+    value = {"executionMode": "live", "scope": "python_source_candidate" if args.source_file else "numeric_fixture_core", "setupId": setup_id,
              "registrySha256": "d9de0bbe0c6a03f101d5f9562360ac10d0a4216401533eb9be0b4148c8a9aa33",
              "units": "mm", "frame": {"handedness": "right", "z": "up", "origin": "min_plate_corner"},
              "lengthMm": args.length_mm, "sourceSha256": sha(source), "geometryHash": config["geometryHash"],
@@ -318,6 +324,7 @@ def main():
         parser.add_argument("--reference-sha256", required=True)
         parser.add_argument("--deadline-seconds", required=True, type=float)
         parser.add_argument("--requirements-json")
+        parser.add_argument("--source-file", help="Exact UTF-8 candidate source; no host execution")
         args = parser.parse_args()
         if not math.isfinite(args.deadline_seconds) or args.deadline_seconds <= 0:
             raise CoreError("INVALID_PARAMETERS", "Deadline must be finite and positive")

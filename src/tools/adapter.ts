@@ -21,7 +21,7 @@ const coreSchema = z.object({
   checks: z.array(z.object({
     checkId: z.string(), state: z.enum(['passed', 'failed', 'not_evaluated']),
     method: z.string(), measured: JsonValueSchema, measuredValue: JsonValueSchema.optional(),
-  })).length(7),
+  })).min(7).max(9),
   artifacts: z.array(z.object({ name: z.string(), sha256: z.string(), bytes: z.number().int().positive() })).length(4),
 });
 const point = z.tuple([z.number().finite(), z.number().finite(), z.number().finite()]);
@@ -143,7 +143,7 @@ export const cadToolAdapter: ToolAdapter = async input => {
   let staging: string | undefined;
   try {
     if (signal.aborted || remaining() <= 0) throw new AdapterError('RUN_TIMEOUT');
-    if (r.validatorVersion !== 'plate-validator-v1' || data.proposal.kind !== 'numeric_operation') {
+    if (r.validatorVersion !== 'plate-validator-v1') {
       throw new AdapterError('TOOL_UNAVAILABLE');
     }
     const references = data.inputArtifacts.filter(a => a.kind === 'reference' && a.sha256 === r.referenceHash);
@@ -171,16 +171,23 @@ export const cadToolAdapter: ToolAdapter = async input => {
     await fs.writeFile(requirementsFile, JSON.stringify({
       requirements: r, registryCanonicalJson: data.registryCanonicalJson, setupCanonicalJson: data.setupCanonicalJson,
     }), { flag: 'wx', mode: 0o444 });
+    const sourceArgs: string[] = [];
+    if (data.proposal.kind === 'python_source') {
+      const sourceFile = path.join(staging, 'source.py');
+      await fs.writeFile(sourceFile, Buffer.from(data.proposal.source, 'utf8'), { flag: 'wx', mode: 0o444 });
+      sourceArgs.push('--source-file', sourceFile);
+    }
+    const length = r.setup.dimensions.lengthMm;
     const budget = remaining();
     const raw = await invoke([
-      '--length-mm', String(data.proposal.operation.parameters.lengthMm), '--output-dir', output,
+      '--length-mm', String(length), '--output-dir', output, ...sourceArgs,
       '--reference-step', referenceFile, '--reference-sha256', r.referenceHash,
       '--requirements-json', requirementsFile, '--deadline-seconds', String(budget / 1000),
     ], signal, budget);
     const parsedCore = coreSchema.safeParse(raw);
     if (!parsedCore.success) throw new AdapterError('CHECK_FAILED');
     const core = parsedCore.data;
-    if (core.lengthMm !== data.proposal.operation.parameters.lengthMm || core.referenceSha256 !== r.referenceHash
+    if (core.lengthMm !== length || core.referenceSha256 !== r.referenceHash
       || core.stages.map(s => s.role).join(',') !== 'generator,regenerator,verifier,export_verifier') {
       throw new AdapterError('EVIDENCE_CONFLICT');
     }
@@ -213,11 +220,16 @@ export const cadToolAdapter: ToolAdapter = async input => {
         executionMode: 'live', state: c.state, label: c.checkId, ...checkDefinition(c.checkId),
         expected: expectedForCheck(r, c.checkId),
         measured: { measurement: c.measured, coreMethod: c.method, ...(c.measuredValue === undefined ? {} : { measuredValue: c.measuredValue }) },
-        details: 'Measured by the isolated numeric plate verifier against sealed geometry.',
+        details: 'Measured by the isolated plate verifier against sealed geometry and frozen requirements.',
       };
       if (c.checkId === 'margin.end_material') {
         const measured = z.object({ closestPointPairs: pointPairs }).parse(c.measured);
         check.diagnostics = { pointPairs: measured.closestPointPairs };
+      }
+      if (c.checkId === 'feature.requested_change' || c.checkId === 'interface.protected_region') {
+        const measured = z.object({ closestPointPairs: pointPairs, diagnosticBounds: z.tuple([point, point]).nullable() }).parse(c.measured);
+        check.diagnostics = { pointPairs: measured.closestPointPairs,
+          ...(measured.diagnosticBounds ? { box: measured.diagnosticBounds } : {}) };
       }
       return check;
     });
