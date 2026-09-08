@@ -20,6 +20,7 @@ const mediaTypes: Record<string, string> = {
   '.otf': 'font/otf',
   '.zip': 'application/zip',
   '.stl': 'model/stl',
+  '.mp4': 'video/mp4',
 };
 
 export function isPublicSegment(name: string): boolean {
@@ -36,7 +37,7 @@ export async function readPublicFile(clientDir: string, requestPath: string) {
   catch { return null; }
   if (!decoded.startsWith('/')) return null;
   const relative = decoded === '/' ? 'index.html'
-    : ['/workspace', '/workspace/', '/brand', '/brand/'].includes(decoded)
+    : ['/workspace', '/workspace/', '/brand', '/brand/', '/demo', '/demo/'].includes(decoded)
       ? `${decoded.slice(1).replace(/\/$/, '')}/index.html` : decoded.slice(1);
   const segments = relative.split('/');
   if (segments[0] === 'api' || !segments.every(isPublicSegment)) return null;

@@ -22,6 +22,7 @@ test('build copies exact public bytes, bundles workspace TS locally and excludes
       'workspace/workspace.css': 'canvas { display: block; }',
       'workspace/assets/reference.stl': 'solid reference\nendsolid reference',
       'brand/index.html': '<h1>Brand</h1>', 'brand/kit.zip': 'zip-fixture-bytes',
+      'demo/index.html': '<h1>Recorded demo</h1>', 'demo/handle-demo.mp4': 'synthetic-video-bytes',
       'workspace/main.ts': 'import { Scene } from "three"; const scene: Scene = new Scene(); globalThis.console.log(scene.type);',
       'brand/globe-study/private.svg': '<svg>unselected</svg>',
       'brand/wireframe-study/private.html': 'unselected', '.env': 'SYNTHETIC_SENTINEL',
@@ -61,6 +62,8 @@ test('HTTP serves built workspace and nested assets, preserves root bytes and re
     'workspace/assets/reference.stl': ['solid test\nendsolid test', 'model/stl'],
     'brand/index.html': ['<h1>Brand</h1>', 'text/html'],
     'brand/kit.zip': ['ZIP_BYTES', 'application/zip'],
+    'demo/index.html': ['<h1>Recorded demo</h1>', 'text/html'],
+    'demo/handle-demo.mp4': ['SYNTHETIC_VIDEO_BYTES', 'video/mp4'],
   };
   for (const [name, [text]] of Object.entries(files)) {
     await mkdir(path.dirname(path.join(clientDir, name)), { recursive: true });
@@ -82,10 +85,10 @@ test('HTTP serves built workspace and nested assets, preserves root bytes and re
       assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
       assert.equal(hash(Buffer.from(await response.arrayBuffer())), hash(Buffer.from(text)), url);
     }
-    for (const url of ['/workspace', '/workspace/', '/brand', '/brand/']) {
+    for (const url of ['/workspace', '/workspace/', '/brand', '/brand/', '/demo', '/demo/']) {
       const response = await fetch(base + url);
       assert.equal(response.status, 200, url);
-      assert.equal(await response.text(), files[url.startsWith('/workspace') ? 'workspace/index.html' : 'brand/index.html'][0]);
+      assert.equal(await response.text(), files[url.slice(1).replace(/\/$/, '') + '/index.html'][0]);
     }
     for (const url of ['/leak.svg', '/.env', '/%2eenv', '/workspace/%2e%2e/%2e%2e/secret.txt', '/workspace/%2F..%2F..%2Fsecret.txt', '/workspace/missing.js', '/workspace/%00.js']) {
       const response = await fetch(base + url);
