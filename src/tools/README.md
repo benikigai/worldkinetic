@@ -64,7 +64,10 @@ by symmetric difference, bounds and applicable checks, and reads binary STL
 independently. Mesh checks cover finite vertices, edge pairing, winding,
 components, positive signed volumes, bounds, pad rims, contact-layer volume by the
 divergence theorem, clipped central-column gap and oriented planar section areas.
-STL tessellation uses linear tolerance 0.00001 mm and angular tolerance 0.01.
+STL tessellation uses absolute boundary deflection 0.0001 mm, interior deflection
+0.003 mm and angular limits 0.1 rad, with OCP meshing parallelism disabled. Exact
+zero-area float32 pole triangles are removed before the unchanged independent
+topology, volume, section and clearance checks. Memory and triangle caps remain.
 It does not reuse the plate bore assumptions. Unsupported or unestablished
 geometry cannot produce a passing export. Missing section contours and
 geometric conflicts retain failed records; malformed files or failed execution

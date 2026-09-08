@@ -2,7 +2,8 @@
 import importlib.metadata
 import json
 from pathlib import Path
-from build123d import export_stl, import_step
+from build123d import import_step
+from handle_export import export_handle_stl
 from handle_binding import DATUM_HASH, digest, validate
 from handle_geometry import reference_measurement, inspect, compare, record, solid_measurement
 from handle_mesh import inspect_mesh
@@ -23,7 +24,7 @@ if config.get('referenceOnly'):
     if (ROOT / 'preview.stl').exists():
         result['mesh'] = inspect_mesh(ROOT / 'preview.stl', ref, reference_only=True)
     else:
-        export_stl(reference, '/out/preview.stl', tolerance=0.00001, angular_tolerance=0.01)
+        result['meshing'] = export_handle_stl(reference, '/out/preview.stl')
 else:
     baseline_bytes = (ROOT / 'baseline.step').read_bytes() if (ROOT / 'baseline.step').exists() else None
     r = validate((ROOT / 'requirements.json').read_bytes(), ref_bytes, datums, baseline_bytes)
@@ -37,7 +38,7 @@ else:
     checks = inspect(shape, reference, g, baseline, initial)
     if not (ROOT / 'checked.step').exists():
         result['checks'] = checks
-        export_stl(shape, '/out/preview.stl', tolerance=0.00001, angular_tolerance=0.01)
+        result['meshing'] = export_handle_stl(shape, '/out/preview.stl')
     else:
         if digest((ROOT / 'checked.step').read_bytes()) != config['geometryHash']:
             raise ValueError('Export byte identity mismatch')
