@@ -1,0 +1,13 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "accessMode": "invite",
+  "runsPerSession": 4,
+  "runsPerLaunch": 12,
+  "authenticated": true,
+  "workspaceId": "workspace_fixture_only",
+  "runsRemaining": 4,
+  "launchRunsRemaining": 12,
+  "busy": false,
+  "expiresAt": "2026-09-09T06:00:00.000Z",
+  "canStartNewDesign": true
+}

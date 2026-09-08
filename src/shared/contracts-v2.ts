@@ -40,6 +40,10 @@ const errorMessages = {
   EXECUTION_FAILED: 'The engineering operation failed.',
   CHECK_FAILED: 'The required checks could not be completed.',
   EXPORT_FAILED: 'The checked export is unavailable.',
+  ACCESS_REQUIRED: 'Enter the demo access code to continue.',
+  ACCESS_DENIED: 'Demo access was denied.',
+  DEMO_BUSY: 'Another design is running. Try again after it finishes.',
+  DEMO_LIMIT: 'The demo limit has been reached.',
 } as const;
 export const ErrorCodeSchema = z.enum(Object.keys(errorMessages) as [keyof typeof errorMessages, ...(keyof typeof errorMessages)[]]);
 export const ErrorSchema = z.object({ code: ErrorCodeSchema, message: z.string().max(200), retryable: z.boolean() }).strict()
