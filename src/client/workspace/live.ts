@@ -1,6 +1,6 @@
 import { expectedForCheck } from '../../shared/contracts-v2.js';
 import type { LiveWorkspaceController } from './live-state.js';
-import { createLivePresentation, type LivePresentationUpdate } from './live-presentation.js';
+import { createLivePresentation, endMaterialMeasurement, type LivePresentationUpdate } from './live-presentation.js';
 
 const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const text = (id: string, value: string) => { element(id).textContent = value; };
@@ -80,9 +80,11 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
         details.append(summary, evidence); heading.append(details);
         const state = document.createElement('span'); state.className = 'wk-check-state'; state.dataset.state = check?.state ?? 'not_evaluated'; state.textContent = state.dataset.state;
         cell.append(state);
-        if (id === 'margin.end_material' && check?.measured && typeof check.measured === 'object' && !Array.isArray(check.measured)) {
+        if (id === 'margin.end_material') {
           const margin = document.createElement('p'); margin.className = 'wk-margin-evidence';
-          margin.textContent = `${check.measured.minimumEndMaterialMm} mm measured / ${r.setup.minimumEndMaterialMm} mm minimum`; cell.append(margin);
+          const measured = endMaterialMeasurement(check?.measured);
+          margin.textContent = measured === null ? 'Measurement unavailable'
+            : `${measured} mm measured / ${r.setup.minimumEndMaterialMm} mm minimum`; cell.append(margin);
         }
         row.append(heading, cell); return row;
       }) ?? []));
