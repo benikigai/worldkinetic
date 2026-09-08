@@ -2,7 +2,7 @@
 
 **Prompt to product.**
 
-Customize everyday products without learning CAD.
+Design and customize physical products without learning CAD.
 
 **Repair it. Make it fit. Make it yours.**
 
@@ -35,6 +35,18 @@ flowchart TB
 ```
 
 The model cannot change checks, lower thresholds or accept a candidate. Failed or incomplete required evidence blocks acceptance. Generated, checked, accepted, exported and physically tested are separate states. Downloads must preserve the exact checked files and revision identity.
+
+## Why WorldKinetics?
+
+**More than a model. A design you can check.**
+
+Astra proposes designs. WorldKinetics is building toward a guided, checkable workflow around those proposals:
+
+- **Keep what fits:** preserve confirmed measurements and requirements as you refine a design.
+- **See what changed:** make targeted edits and review a before-and-after comparison.
+- **Check before you make:** review independent measured checks, give explicit approval for the exact revision, and export that revision's checked files.
+
+These describe the intended experience; the evidence below covers the narrower numeric plate demonstration.
 
 ## Current evidence and limits
 
