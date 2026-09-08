@@ -47,6 +47,7 @@ const messageSchema = z.object({
 }).strict();
 const reasoningSchema = z.object({
   type: z.literal('reasoning'), id: z.string(),
+  content: z.array(z.never()).optional(),
   summary: z.array(z.object({ type: z.literal('summary_text'), text: z.string() }).strict()),
   status: z.literal('completed').optional(), encrypted_content: z.string().nullable().optional(),
 }).strict();

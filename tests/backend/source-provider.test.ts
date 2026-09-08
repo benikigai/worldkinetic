@@ -91,3 +91,16 @@ test('concurrent duplicate attempts and aborted/failed transport cannot retry in
   try {await failure.generate(bad,new AbortController().signal);}catch{}assert.equal(calls,2);
   assert.equal((await allText(runtimeDir)).includes(secret),false);
 });
+
+test('observed empty reasoning content metadata is accepted without retaining encrypted context',async()=>{
+  const {ResponsesSourcePlanner}=await import(modulePath);
+  const runtimeDir=await mkdtemp(path.join(os.tmpdir(),'wk-source-reasoning-'));
+  const reasoning={type:'reasoning',id:'rs_synthetic',content:[],summary:[],encrypted_content:'synthetic-encrypted-context'};
+  const good=response();good.output.unshift(reasoning as any);
+  const planner=new ResponsesSourcePlanner({runtimeDir,apiKey:secret,fetchImpl:async()=>new Response(JSON.stringify(good))});
+  assert.deepEqual(await planner.generate(await input('empty_reasoning'),new AbortController().signal),proposal);
+  assert.equal((await allText(runtimeDir)).includes(reasoning.encrypted_content),false);
+  const bad=response();bad.output.unshift({...reasoning,content:[{type:'unrecognized',text:'not accepted'}]} as any);
+  const invalid=new ResponsesSourcePlanner({runtimeDir,apiKey:secret,fetchImpl:async()=>new Response(JSON.stringify(bad))});
+  await assert.rejects(invalid.generate(await input('invalid_reasoning'),new AbortController().signal));
+});
