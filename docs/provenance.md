@@ -1,33 +1,50 @@
 # Prototype provenance
 
-WorldKinetics is an early open-source prototype developed for the September 8, 2026 Astra hackathon. The repository distinguishes working code, separate CAD experiments and proposed features.
+WorldKinetics is an early prototype developed for the September 8, 2026 Astra hackathon. The public repository is [benikigai/worldkinetic](https://github.com/benikigai/worldkinetic). Implementation observations and pending statuses throughout this document describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8` on September 8, 2026, around 13:14 PDT, not whichever commit includes this documentation. Newer accepted commits may supersede these snapshot statuses. At that snapshot, the root site was a design preview; repository publication did not establish a working CAD product demo.
 
-## Original contribution
+## Original work and external components
 
-- The TypeScript request, run-state and artifact scaffold, its tests, and the original Frost/Graphite/Canvas placeholder assets were created for this prototype.
-- The included FreeCAD plate and its separate resized revision were generated during the event. Their saved verification results establish geometry and export checks, not an integrated application or a physical fit test.
-- The proposed next contribution is the conversational generation/inspection/repair workflow, independent protected checks, explicit revision acceptance and changed-requirement handling. These remain planned until demonstrated by code and evidence.
+Event work includes the TypeScript HTTP/run/artifact scaffold and tests, the original landing design and theme assets, and generated FreeCAD plate examples. The [plate README](../examples/plate/README.md), [generation script](../examples/plate/create_original.py) and [sanitized measurements](../examples/plate/verification.json) identify the example work and its limits. The [approved brand assets](../src/client/brand/README.md) are separate from any image-generation experiment.
 
-Commit times record repository publication, not proof of when every line was authored. Preserve actual development receipts and identify the exact demonstrated commit. Do not attribute features to the hackathon build before they work.
+At the cited snapshot, the proposed conversational generation/repair workflow, protected checks and explicit revision acceptance remained integration work. Do not attribute a planned feature to a demonstrated build. Commit/publication timestamps do not establish when every line was authored.
 
-## Dependencies and attribution
+| External component | Attribution and use at the cited snapshot |
+| --- | --- |
+| Node.js, TypeScript, Zod, tsx | Existing scaffold/build tools; see [package.json](../package.json) and [lockfile](../package-lock.json) for declared and resolved dependencies. |
+| Three.js 0.186.0 and esbuild 0.28.2 | Integrated viewer dependency and bundle wiring; a functional viewer was pending. [Three.js](https://threejs.org/docs/), [esbuild](https://esbuild.github.io/). |
+| FreeCAD 1.1.3 | External CAD application used for the native examples. [FreeCAD](https://www.freecad.org/). |
+| CREATeNG/freecad-mcp-bridge | External bridge used in the local FreeCAD experiment, reviewed at commit `5a4ecdde8492a315d8de4fe8aa08e579484cba60`; not copied into this project. [Bridge source](https://github.com/CREATeNG/freecad-mcp-bridge). |
+| build123d 0.11.1 and cadquery-ocp-novtk 7.9.3.1.1 | Separate local arm64 CAD runtime proof; product packaging pending. [build123d source](https://github.com/gumyr/build123d), [import/export documentation](https://build123d.readthedocs.io/en/stable/import_export.html). |
+| GPT-6 Astra | External model selected for product reasoning and Python generation through Responses API. [Official model guide](https://developers.openai.com/api/docs/guides/latest-model). |
+| Images 2.5 | Optional proposed `gpt-image-2.5-flare` visual-intent path. [Official image guide](https://developers.openai.com/api/docs/guides/image-generation), [launch](https://openai.com/index/introducing-chatgpt-images-2-5/). |
 
-- Current application dependencies are listed in `package.json` and pinned in `package-lock.json`; their licenses remain their own.
-- FreeCAD is the external CAD application used for the included experiment. It is not vendored here. [FreeCAD](https://www.freecad.org/).
-- The local experiment used the existing MIT-licensed `CREATeNG/freecad-mcp-bridge`, reviewed at commit `5a4ecdde8492a315d8de4fe8aa08e579484cba60`. The bridge implementation is not WorldKinetics' original work and is not copied into this repository. [Bridge source](https://github.com/CREATeNG/freecad-mcp-bridge).
-- build123d is the proposed worker dependency, not installed or runtime-verified by the planning work. Add its exact version and dependency/license inventory when the runtime gate passes. [build123d](https://github.com/gumyr/build123d).
-- GPT-6 Astra provides model reasoning/generation through the selected provider. Record requested and reported model identities separately when a runtime does not expose both.
+The project's public source is [MIT licensed](../LICENSE). External dependencies, services and supplied assets retain their own licenses and terms. Record provenance and reuse rights before including external reference geometry. No new dependency or license inventory is implied by this documentation update.
 
-The prototype's own source is MIT-licensed. Dependency software, provider services and externally supplied reference assets retain their own terms. No external reference asset should be included without recorded provenance and reuse rights.
+## Evidence snapshot
 
-## Evidence status
+Historical snapshot dated September 8, 2026. The integrated code reference for these observations is [`4090c8166a2e52eb3e16e094d42c7bd1423407a8`](https://github.com/benikigai/worldkinetic/commit/4090c8166a2e52eb3e16e094d42c7bd1423407a8), around 13:14 PDT. Local capability outcomes below were reported separately that day; their precise times are not asserted. This document update inspected source and public example evidence, but did not rerun those capability experiments.
 
-At baseline publication, type checking, 45 backend tests and the static build passed. Most backend tests use synthetic adapters or a fake provider process; they do not prove real CAD generation or live API steering. A separate owner-reported constrained CLI provider probe and the included real FreeCAD trial are different evidence paths.
+| Evidence path | Observed result and scope | What it does not establish |
+| --- | --- | --- |
+| Integrated scaffold at the cited revision | BACKEND reported 47 backend/static tests, typecheck/build and 14 ephemeral HTTP asset checks passed. [Backend tests](../tests/backend) exercise schemas, state, synthetic adapters/provider processes and serving. | Full CAD workflow, browser interaction or deployed state. The existing long-running port 4310 listener was not reloaded for that evidence. Test counts describe this revision only. |
+| Historical numeric CLI probe | Requested `gpt-6-astra`; constrained response completed through a compatible Codex CLI. Reported model identity is unknown. [Probe source](../scripts/verify-astra.ts), [provider adapter](../src/server/astra.ts). | Responses API access, Python generation, CAD execution, native steering or image generation. |
+| Separate one-shot Responses API probe | Access passed on the development host with requested and reported `gpt-6-astra`. | Integrated API orchestration, generation/repair, applied native steering or image generation. |
+| Separate build123d isolation gate | Real plate generated, generator stopped, sealed STEP reopened in a fresh trusted verifier: 50 x 35 x 5 mm, one valid solid, volume 8467.25666117691 mm3, empty nominal bore keepouts. STL byte layout, bounds and volume checked. Non-root, network, root/reference/host-access and process-timeout probes passed. | Complete product check registry, integrated adapter, public reproducible runtime image, new FCStd history or physical testing. |
+| Preserved FreeCAD examples | Public verification timestamp `20260908T184754410753Z`; native and STEP reopening, STL integrity, original hash unchanged. Revised plate volume 8467.256661176916 mm3. [Measurements and hashes](../examples/plate/verification.json). | Product API execution, strength, printing or fit. The portable script path adaptation was syntax-checked, not separately rerun. |
+| Separate frontend image experiment | Provider reported Images 2.5/Flare for a standalone marketing visual experiment. | Product direct API integration, checked CAD, measured dimensions or replacement of the approved SVG logo. |
 
-The checked plate revision is 50 x 35 x 5 mm, with two 6 mm through-holes centered 20 mm apart. Its original is preserved. Native FreeCAD and STEP reopening and STL integrity were tested. See `examples/plate/verification.json` for the sanitized experiment results and hashes.
+The local CAD capability image identity was `sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440`. This identifies the reported local proof; it is not a published image address or a complete reproduction recipe.
 
-No live product CAD interaction, isolated generated-code worker, physical printing/fit, supplier quote, manufacturing approval or structural analysis is established by these examples. The public placeholder is a design preview.
+At the cited snapshot, executable transport was `wk-backend-draft-0.1`. PLAN-01 semantics were released, but BACKEND's `wk-prototype-0.2` schemas/state, real CAD adapter, functional workspace viewer and integrated DEMO acceptance were pending. Newer accepted commits may supersede those statuses. The [architecture](architecture.md) states the target requirements without claiming they are active.
 
-## Publication boundary
+## Development evidence versus product evidence
 
-This repository contains product source, build documentation, tests and owned CAD examples. Keep private research, competitor assessments, model-review packets, credentials, local runtime output and private provider logs outside it. Only deliberately sanitized evidence belongs in public examples or demo material.
+The [Astra development workflow](development-evidence.md) governs bounded development tasks and protected checks. Its wrapper launches a development worker; it is separate from the product's model/CAD runtime. Requested and reported models are distinct fields, and unavailable reported identities stay unknown. Earlier work and manual acceptance setup are not retroactively wrapper-attributed. Receipts are execution evidence, not provider-signed authorship certificates.
+
+The protected public documentation checker covers links, anchors, script names, structure, required terms and selected privacy patterns. A pass is not source-truth verification, Mermaid rendering or a product runtime test. BACKEND must separately review claims, diagrams and the combined revision before publication.
+
+## Publication and remaining gaps
+
+Private review/research, competitor findings, credentials and raw provider/runtime receipts remain outside the public product. Public examples contain only deliberately sanitized evidence. The public repository documents the proposed local workflow and owned reference files without exposing private source paths.
+
+Generated, checked, accepted, exported and physically tested are different states. At the cited snapshot, complete runtime packaging, integrated repair/acceptance, consumer attachment and travel measurements, printing, physical fit, strength, simulation, supplier handoff and public live CAD hosting were unverified. A static site or a recording cannot establish live CAD access. No supplier upload, order, fabrication or submission is implied by this publication.
