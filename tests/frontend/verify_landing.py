@@ -85,10 +85,12 @@ class OverviewAcceptance(unittest.TestCase):
         header = next(node for node in self.page.nodes if node.tag == 'header')
         buttons = [node for node in self.page.nodes if 'data-set-theme' in node.attrs]
         self.assertEqual([node.attrs['data-set-theme'] for node in buttons], list(POLISH['theme_colors']))
-        header_nodes = list(header.all())
+        footer = next(node for node in self.page.nodes if node.tag == 'footer')
+        footer_nodes = list(footer.all())
+        self.assertFalse(any('data-set-theme' in node.attrs for node in header.all()))
         for button in buttons:
             name = button.attrs['data-set-theme']
-            self.assertIn(button, header_nodes)
+            self.assertIn(button, footer_nodes)
             self.assertEqual(button.tag, 'button', 'Native buttons retain keyboard activation')
             self.assertEqual(button.attrs.get('type'), 'button')
             self.assertIn(name, button.attrs.get('aria-label', '').lower())
@@ -96,7 +98,7 @@ class OverviewAcceptance(unittest.TestCase):
             self.assertEqual(button.attrs.get('aria-pressed'), str(name == 'frost').lower())
             self.assertEqual(button.text(), '', 'Theme names belong in accessible labels, not a large description')
             self.assertTrue(any(n.attrs.get('aria-hidden') == 'true' for n in button.all() if n is not button))
-        self.assertTrue(any(n.attrs.get('role') == 'group' and n.attrs.get('aria-label') for n in header_nodes))
+        self.assertTrue(any(n.attrs.get('role') == 'group' and n.attrs.get('aria-label') for n in footer_nodes))
         self.assertFalse(any(n.attrs.get('id') == 'directions' for n in self.page.nodes))
         self.assertNotRegex(self.content, r'(?i)explore (?:the )?design direction|FORM STUDY|WK\s*/?\s*001|ABSTRACT MATERIAL|material-chip|material-title|material-detail|theme-description')
 
