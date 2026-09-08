@@ -16,7 +16,7 @@ const files = [
 ] as const;
 const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 
-async function checkDirectory(directory: string): Promise<void> {
+export async function checkDirectory(directory: string): Promise<void> {
   let parent = directory;
   while (true) {
     const info = await lstat(parent);
@@ -27,20 +27,31 @@ async function checkDirectory(directory: string): Promise<void> {
   }
 }
 
-async function readRegular(file: string): Promise<Buffer> {
+export async function readRegular(file: string): Promise<Buffer> {
   await checkDirectory(path.dirname(file));
   const handle = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const before = await handle.stat();
     if (!before.isFile() || before.nlink !== 1 || before.size < 1 || before.size > 25 * 1024 * 1024) throw new Error('Invalid reference file');
-    const bytes = await handle.readFile();
+    const bytes = Buffer.alloc(before.size);
+    let offset = 0;
+    while (offset < bytes.length) {
+      const { bytesRead } = await handle.read(bytes, offset, bytes.length - offset, offset);
+      if (!bytesRead) throw new Error('Reference changed during read');
+      offset += bytesRead;
+    }
     const after = await handle.stat();
-    if (bytes.length !== before.size || after.size !== before.size || before.mtimeMs !== after.mtimeMs) throw new Error('Reference changed during read');
+    if (bytes.length !== before.size || after.size !== before.size || before.mtimeMs !== after.mtimeMs || before.ctimeMs !== after.ctimeMs) throw new Error('Reference changed during read');
     return bytes;
   } finally { await handle.close(); }
 }
 
-export class SavedPlateReference {
+export interface PublicReference {
+  describe(): Promise<Reference>;
+  read(artifactId: string): Promise<{ artifact: ReferenceArtifact; bytes: Buffer }>;
+}
+
+export class SavedPlateReference implements PublicReference {
   private constructor(readonly directory: string, private readonly reference: Reference) {}
 
   static async register(runtimeDir: string, requirements: Requirements): Promise<SavedPlateReference> {

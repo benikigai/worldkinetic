@@ -6,7 +6,7 @@ import { HANDLE_DATUM_CANONICAL_JSON } from '../shared/requirements-handle-v2.js
 
 const MAX_ARTIFACT_BYTES = 25 * 1024 * 1024;
 
-async function verifyFile(filePath: string, expectedHash: string, canonicalBytes?: string): Promise<void> {
+export async function verifyFile(filePath: string, expectedHash: string, canonicalBytes?: string): Promise<void> {
   const absolute = path.resolve(filePath);
   const entry = await lstat(absolute);
   if (!entry.isFile() || entry.isSymbolicLink() || entry.size > MAX_ARTIFACT_BYTES) throw new Error('Dispatch artifact must be a bounded regular nonsymlink file.');

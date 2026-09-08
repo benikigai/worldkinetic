@@ -92,7 +92,8 @@ async function validateRequest(input: SourceRequest): Promise<{ request: SourceR
   boundedJson(input);
   const literal = canonicalize(input);
   if (Buffer.byteLength(literal) > MAX_CONTEXT_BYTES) throw new Error('Context exceeds bounds');
-  const request = requestSchema.parse(parseStrictJson(literal));
+  // Canonicalization binds the fingerprint; dispatch retains the supplied check order.
+  const request = requestSchema.parse(structuredClone(input));
   const requirements = await verifyRequirements(request.requirements);
   if (request.designId !== requirements.designId) throw new Error('Requirements identity mismatch');
   if (request.acceptedSource && (request.acceptedSource.revisionId !== request.inputRevisionId
@@ -271,6 +272,7 @@ export class ResponsesSourcePlanner {
       signal.throwIfAborted();
       receipt.status = 'completed';
       await writePrivate(claimed.root, claimed.directory, 'receipt.json', receipt);
+      signal.throwIfAborted();
       return proposal;
     } catch {
       if (claimed && receipt) {

@@ -9,7 +9,7 @@ import { ArtifactStore } from './artifacts.js';
 import { Executor, type SelectedOperation } from './execution.js';
 import { readPublicFile } from './static-files.js';
 import { ReferenceResponseSchema } from '../shared/reference-v2.js';
-import type { SavedPlateReference } from './reference.js';
+import type { PublicReference } from './reference.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = BootstrapSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/reviewable.fixture.json'), 'utf8')));
@@ -34,7 +34,7 @@ async function readRequest(request: IncomingMessage): Promise<unknown> {
   catch { throw new StoreError(400, 'INVALID_JSON', 'Request body is not valid JSON.'); }
 }
 
-export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string; reference?: SavedPlateReference } = {}) {
+export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string; reference?: PublicReference } = {}) {
   const artifacts = new ArtifactStore(path.join(runtimeDir, 'artifacts'));
   const executor = new Executor(store, artifacts, runtimeDir, selected, timeoutMs);
   return createServer(async (request, response) => {
@@ -61,11 +61,12 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       }
       const referenceRoute = /^\/api\/reference\/artifacts\/([^/]+)$/.exec(pathname);
       if (request.method === 'GET' && referenceRoute && options.reference) {
+        const reference = await options.reference.describe();
         const { artifact, bytes } = await options.reference.read(referenceRoute[1]!);
         response.writeHead(200, { 'Content-Type': artifact.mediaType, 'Content-Length': bytes.length,
           'Content-Disposition': `attachment; filename="${artifact.fileName}"`, 'Cache-Control': 'no-store',
-          'X-Content-Type-Options': 'nosniff', 'X-WorldKinetics-Applicability': 'saved_reference',
-          'X-WorldKinetics-Revision': 'baseline_50' });
+          'X-Content-Type-Options': 'nosniff', 'X-WorldKinetics-Applicability': reference.provenance,
+          'X-WorldKinetics-Revision': reference.revisionId });
         return response.end(bytes);
       }
       if (request.method === 'GET' && pathname === '/api/fixtures/run') return json(response, 200, fixtureRun);

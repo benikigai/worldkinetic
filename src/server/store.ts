@@ -11,6 +11,7 @@ import {
   type Requirements, type RequirementsUpdateRequest, type Run, type RunEvent, type RunRequest,
 } from '../shared/contracts.js';
 import { ArtifactStore } from './artifacts.js';
+import { createHandleRequirements, type AcceptedInitial, type HandleRequirements } from '../shared/requirements-handle-v2.js';
 
 const requestRecord = z.object({
   requestId: z.string(), operation: z.enum(['run', 'accept', 'requirements', 'export']),
@@ -41,6 +42,39 @@ function requireRun(s: Snapshot, runId: string): Run {
   const run = s.runs.find(r => r.runId === runId);
   if (!run) throw new StoreError(404, 'INVALID_REQUEST', safeError('INVALID_REQUEST').message);
   return run;
+}
+function activeCandidate(s: Snapshot, run: Run): Candidate {
+  const candidate = s.candidates.find(c => c.runId === run.runId && c.attemptId === run.activeAttemptId);
+  if (!candidate) conflict();
+  return candidate;
+}
+function compatibleInput(s: Snapshot, r: Requirements, inputRevisionId: string): boolean {
+  const d = s.design!;
+  if (inputRevisionId !== (d.acceptedRevisionId ?? d.baselineRevisionId)) return false;
+  if (r.registryId !== 'handle_sample_v1') return true;
+  return r.setupId === 'handle_initial_v1'
+    ? d.acceptedRevisionId === null && inputRevisionId === r.setup.reference.revisionId
+    : r.setup.acceptedInitial?.revisionId === inputRevisionId
+      && s.acceptances.at(-1)?.acceptanceId === r.setup.acceptedInitial.acceptanceId;
+}
+function initialAcceptance(s: Snapshot, r: HandleRequirements, acceptanceId: string) {
+  const a = s.acceptances.find(a => a.acceptanceId === acceptanceId);
+  if (!a || a.candidate.designId !== r.designId || a.requirements.registryId !== 'handle_sample_v1'
+    || a.requirements.setupId !== 'handle_initial_v1' || a.candidate.inputRevisionId !== r.setup.reference.revisionId
+    || a.candidate.status !== 'reviewable'
+    || a.candidate.executionMode !== 'live' || a.candidate.engine?.name === 'fixture'
+    || canonicalize(a.requirements.setup.reference) !== canonicalize(r.setup.reference)
+    || a.candidate.checks.length !== 8 || a.candidate.checks.some(c => c.state !== 'passed')
+    || sha(canonicalize(checkBundleHashPayload(a.candidate))) !== a.candidate.checkBundleHash) conflict('EVIDENCE_CONFLICT');
+  return a;
+}
+function initialDescriptor(s: Snapshot, r: HandleRequirements, acceptanceId: string): AcceptedInitial {
+  const a = initialAcceptance(s, r, acceptanceId), c = a.candidate;
+  const step = c.artifacts.find(a => a.kind === 'export' && a.mediaType === 'model/step' && a.sha256 === c.geometryHash);
+  if (!step || !c.sourceSha256 || !c.checkBundleHash) conflict('EVIDENCE_CONFLICT');
+  return { acceptanceId: a.acceptanceId, revisionId: c.revisionId, artifactId: step.artifactId, sha256: step.sha256,
+    requirementsId: c.requirementsId, requirementsVersion: c.requirementsVersion, setupHash: c.setupHash,
+    sourceSha256: c.sourceSha256, checkBundleHash: c.checkBundleHash };
 }
 function currentRequirements(s: Snapshot): Requirements {
   const r = s.requirements.find(r => r.requirementsVersion === s.design?.activeRequirementsVersion);
@@ -79,6 +113,9 @@ export class RunStore {
         requirements: initialRequirements ? [structuredClone(initialRequirements)] : [], runs: [], candidates: [], events: [], requests: [], acceptances: [], manifests: [] };
       this.commit(this.snapshot);
     }
+    if (this.snapshot.design && initialDesign && (this.snapshot.design.designId !== initialDesign.designId
+      || this.snapshot.design.referenceId !== initialDesign.referenceId || this.snapshot.design.referenceHash !== initialDesign.referenceHash
+      || this.snapshot.design.baselineRevisionId !== initialDesign.baselineRevisionId)) conflict('IDENTITY_CONFLICT');
     const next = structuredClone(this.snapshot);
     let changed = false;
     if (!next.design && initialDesign && initialRequirements) {
@@ -134,54 +171,97 @@ export class RunStore {
   }
   enqueueRun(input: RunRequest) {
     const request = RunRequestSchema.parse(structuredClone(input));
-    return this.serialize(s => {
+    return this.serialize(async s => {
       const retry = this.retry(s, 'run', request);
       if (retry) return { run: requireRun(s, retry.identity), reused: true };
       const d = s.design; const r = currentRequirements(s);
       if (!d || request.designId !== d.designId || request.inputRevisionId !== (d.acceptedRevisionId ?? d.baselineRevisionId)
-        || request.requirementsVersion !== r.requirementsVersion || request.setupId !== r.setupId) conflict();
+        || request.requirementsVersion !== r.requirementsVersion || request.setupId !== r.setupId
+        || !compatibleInput(s, r, request.inputRevisionId)) conflict();
+      if (r.registryId === 'handle_sample_v1' && r.setup.acceptedInitial) {
+        await this.verifyFiles(initialAcceptance(s, r, r.setup.acceptedInitial.acceptanceId).candidate);
+      }
       d.stateVersion++;
       this.supersede(s, false);
       const now = new Date().toISOString(); const attemptId = id('attempt'); const revisionId = id('revision');
       const run: Run = { ...request, ...requirementIdentity(r), runId: id('run'), status: 'queued', executionMode: 'live',
         attemptIds: [attemptId], candidateRevisionIds: [revisionId], activeAttemptId: attemptId, createdAt: now, updatedAt: now, error: null };
-      const candidate: Candidate = { contractVersion: CONTRACT_VERSION, ...requirementIdentity(r), runId: run.runId,
-        requestId: request.requestId, designId: d.designId, attemptId, revisionId, inputRevisionId: run.inputRevisionId,
-        requirements: r, units: 'mm', executionMode: 'live', status: 'building', createdAt: now, updatedAt: now,
-        changeSummary: 'Candidate generation is pending.', engine: null, sourceSha256: null, proposalHash: null,
-        geometryHash: null, checkBundleHash: null, checks: [], artifacts: [], error: null };
-      s.runs.push(run); s.candidates.push(candidate); d.activeRunId = run.runId; d.selectedCandidateRevisionId = null;
+      s.runs.push(run);
+      const candidate = this.reserveCandidate(s, run, r, attemptId, revisionId, now);
+      d.activeRunId = run.runId; d.selectedCandidateRevisionId = null;
       this.remember(s, 'run', request, run.runId);
       this.event(s, 'run.queued', run, candidate); this.event(s, 'candidate.building', run, candidate);
       return { run, reused: false };
     });
   }
-  planning(runId: string) { return this.transition(runId, 'planning'); }
-  running(runId: string) { return this.transition(runId, 'running'); }
-  private transition(runId: string, status: 'planning' | 'running') {
+  private reserveCandidate(s: Snapshot, run: Run, r: Requirements, attemptId: string, revisionId: string, now: string) {
+    const candidate: Candidate = { contractVersion: CONTRACT_VERSION, ...requirementIdentity(r), runId: run.runId,
+        requestId: run.requestId, designId: run.designId, attemptId, revisionId, inputRevisionId: run.inputRevisionId,
+        requirements: r, units: 'mm', executionMode: 'live', status: 'building', createdAt: now, updatedAt: now,
+        changeSummary: 'Candidate generation is pending.', engine: null, sourceSha256: null, proposalHash: null,
+        geometryHash: null, checkBundleHash: null, checks: [], artifacts: [], error: null };
+    s.candidates.push(candidate);
+    return candidate;
+  }
+  isCurrentRun(runId: string, expectedAttemptId?: string): boolean {
+    const s = this.snapshot, run = requireRun(s, runId), d = s.design;
+    return Boolean(d && pending(run) && d.activeRunId === runId && run.activeAttemptId
+      && (!expectedAttemptId || run.activeAttemptId === expectedAttemptId)
+      && run.requirementsVersion === d.activeRequirementsVersion && run.setupHash === d.setupHash
+      && compatibleInput(s, currentRequirements(s), run.inputRevisionId));
+  }
+  async verifiedAcceptedInput(runId: string, expectedAttemptId: string): Promise<Candidate | null> {
+    if (!this.isCurrentRun(runId, expectedAttemptId)) conflict();
+    const s = this.snapshot, run = requireRun(s, runId), r = currentRequirements(s);
+    const a = s.acceptances.at(-1);
+    if (r.registryId === 'handle_sample_v1' && r.setup.acceptedInitial) {
+      initialAcceptance(s, r, r.setup.acceptedInitial.acceptanceId);
+    }
+    if (a) {
+      if (a.candidate.revisionId !== run.inputRevisionId) conflict();
+      await this.verifyFiles(a.candidate);
+    }
+    if (!this.isCurrentRun(runId, expectedAttemptId)) conflict();
+    return a ? structuredClone(a.candidate) : null;
+  }
+  private async verifyFiles(candidate: Candidate) {
+    try {
+      await verifyCandidateEvidence(candidate);
+      if (candidate.executionMode !== 'live' || candidate.engine?.name === 'fixture') conflict('EVIDENCE_CONFLICT');
+      for (const artifact of candidate.artifacts) await this.artifacts.read(artifact);
+    } catch { conflict('EVIDENCE_CONFLICT'); }
+  }
+  async verifyAcceptedFiles() {
+    for (const a of this.snapshot.acceptances) await this.verifyFiles(a.candidate);
+  }
+  planning(runId: string, expectedAttemptId?: string) { return this.transition(runId, 'planning', expectedAttemptId); }
+  running(runId: string, expectedAttemptId?: string) { return this.transition(runId, 'running', expectedAttemptId); }
+  private transition(runId: string, status: 'planning' | 'running', expectedAttemptId?: string) {
     return this.serialize(s => {
       const run = requireRun(s, runId);
-      if (!pending(run) || (status === 'planning' && run.status !== 'queued') || (status === 'running' && run.status === 'running')) conflict();
+      if ((expectedAttemptId && run.activeAttemptId !== expectedAttemptId) || !pending(run)
+        || (status === 'planning' && run.status !== 'queued') || (status === 'running' && run.status === 'running')) conflict();
       run.status = status; run.updatedAt = new Date().toISOString(); s.design!.stateVersion++;
-      this.event(s, `run.${status}`, run, s.candidates.find(c => c.runId === runId)!); return run;
+      this.event(s, `run.${status}`, run, activeCandidate(s, run)); return run;
     });
   }
-  checking(runId: string) {
+  checking(runId: string, expectedAttemptId?: string) {
     return this.serialize(s => {
-      const run = requireRun(s, runId); const c = s.candidates.find(c => c.runId === runId)!;
-      if (run.status !== 'running' || c.status !== 'building') conflict();
+      const run = requireRun(s, runId); const c = activeCandidate(s, run);
+      if ((expectedAttemptId && run.activeAttemptId !== expectedAttemptId) || run.status !== 'running' || c.status !== 'building') conflict();
       c.status = 'checking'; c.updatedAt = new Date().toISOString(); s.design!.stateVersion++;
       this.event(s, 'candidate.checking', run, c); return c;
     });
   }
-  completeCandidate(input: Candidate, signal?: AbortSignal) {
+  completeCandidate(input: Candidate, signal?: AbortSignal, options: { retryRejected?: boolean } = {}) {
     const isolated = structuredClone(input);
+    const retryRejected = options.retryRejected === true;
     return this.serialize(async s => {
       let candidate: Candidate;
       try { signal?.throwIfAborted(); candidate = await verifyCandidateEvidence(isolated); signal?.throwIfAborted(); } catch { conflict('EVIDENCE_CONFLICT'); }
       const run = requireRun(s, candidate.runId);
       const draft = s.candidates.find(c => c.revisionId === candidate.revisionId);
-      if (!draft || !['building', 'checking', 'superseded'].includes(draft.status)
+      if (!draft || candidate.revisionId !== run.candidateRevisionIds.at(-1) || draft.checkBundleHash !== null || !['building', 'checking', 'superseded'].includes(draft.status)
         || !['reviewable', 'rejected'].includes(candidate.status)
         || ['failed', 'cancelled', 'completed'].includes(run.status)) conflict();
       for (const key of ['runId', 'requestId', 'designId', 'revisionId', 'attemptId', 'inputRevisionId', 'createdAt'] as const) {
@@ -190,36 +270,57 @@ export class RunStore {
       if (canonicalize(candidate.requirements) !== canonicalize(draft.requirements)) conflict('EVIDENCE_CONFLICT');
       if (candidate.artifacts.some(a => s.candidates.some(c => c.revisionId !== candidate.revisionId && c.artifacts.some(b => b.artifactId === a.artifactId)))) conflict('IDENTITY_CONFLICT');
       const d = s.design!;
-      const compatible = pending(run) && d.activeRunId === run.runId && d.activeRequirementsVersion === run.requirementsVersion
-        && run.inputRevisionId === (d.acceptedRevisionId ?? d.baselineRevisionId) && candidate.setupHash === d.setupHash;
+      const compatible = pending(run) && run.activeAttemptId === candidate.attemptId && d.activeRunId === run.runId && d.activeRequirementsVersion === run.requirementsVersion
+        && compatibleInput(s, candidate.requirements, run.inputRevisionId) && candidate.setupHash === d.setupHash;
       if (!compatible) candidate.status = 'superseded';
       candidate.updatedAt = new Date().toISOString();
       s.candidates[s.candidates.indexOf(draft)] = candidate;
-      run.status = compatible ? 'completed' : 'superseded'; run.activeAttemptId = null; run.updatedAt = candidate.updatedAt;
-      if (compatible) { d.selectedCandidateRevisionId = candidate.revisionId; d.activeRunId = null; }
       d.stateVersion++;
-      this.event(s, `candidate.${candidate.status}`, run, candidate);
-      this.event(s, compatible ? 'run.completed' : 'run.superseded', run, candidate);
+      if (compatible && retryRejected && candidate.status === 'rejected' && candidate.error === null
+        && candidate.checks.some(c => c.state === 'failed') && candidate.checks.every(c => ['passed', 'failed'].includes(c.state))
+        && run.attemptIds.length < 3) {
+        await this.verifyFiles(candidate);
+        signal?.throwIfAborted();
+        const attemptId = id('attempt'), revisionId = id('revision');
+        run.attemptIds.push(attemptId); run.candidateRevisionIds.push(revisionId);
+        run.activeAttemptId = attemptId; run.status = 'queued'; run.updatedAt = candidate.updatedAt;
+        const next = this.reserveCandidate(s, run, candidate.requirements, attemptId, revisionId, candidate.updatedAt);
+        this.event(s, 'candidate.rejected', run, candidate);
+        this.event(s, 'run.queued', run, next); this.event(s, 'candidate.building', run, next);
+      } else {
+        run.status = compatible ? 'completed' : 'superseded'; run.activeAttemptId = null; run.updatedAt = candidate.updatedAt;
+        if (compatible) { d.selectedCandidateRevisionId = candidate.revisionId; d.activeRunId = null; }
+        this.event(s, `candidate.${candidate.status}`, run, candidate);
+        this.event(s, compatible ? 'run.completed' : 'run.superseded', run, candidate);
+      }
       return candidate;
     });
   }
-  fail(runId: string, error: ApiError) {
+  fail(runId: string, error: ApiError, expectedAttemptId?: string) {
     const isolated = safeError(error.code);
-    return this.serialize(s => { const run = requireRun(s, runId); if (pending(run)) this.failIn(s, run, isolated); return run; });
+    return this.serialize(s => { const run = requireRun(s, runId); if (pending(run) && (!expectedAttemptId || run.activeAttemptId === expectedAttemptId)) this.failIn(s, run, isolated); return run; });
   }
   private failIn(s: Snapshot, run: Run, error: ApiError) {
+    const c = activeCandidate(s, run);
     run.status = 'failed'; run.activeAttemptId = null; run.error = error; run.updatedAt = new Date().toISOString();
-    const c = s.candidates.find(c => c.runId === run.runId)!; c.status = 'failed'; c.error = error; c.updatedAt = run.updatedAt;
+    c.status = 'failed'; c.error = error; c.updatedAt = run.updatedAt;
     if (s.design!.activeRunId === run.runId) s.design!.activeRunId = null;
     s.design!.stateVersion++; this.event(s, 'candidate.failed', run, c); this.event(s, 'run.failed', run, c);
   }
   private supersede(s: Snapshot, requirementsChanged: boolean) {
-    for (const c of s.candidates) {
-      const run = requireRun(s, c.runId);
-      if ((requirementsChanged && c.requirementsVersion !== s.design!.activeRequirementsVersion) || pending(run)) {
-        c.status = 'superseded'; c.updatedAt = new Date().toISOString();
-        if (pending(run)) { run.status = 'superseded'; run.activeAttemptId = null; run.updatedAt = c.updatedAt; this.event(s, 'run.superseded', run, c); }
-        this.event(s, 'candidate.superseded', run, c);
+    for (const run of s.runs) {
+      const wasPending = pending(run);
+      const current = wasPending ? activeCandidate(s, run) : null;
+      for (const c of s.candidates.filter(c => c.runId === run.runId)) {
+        if ((wasPending && ['building', 'checking'].includes(c.status))
+          || (requirementsChanged && c.requirementsVersion !== s.design!.activeRequirementsVersion)) {
+          c.status = 'superseded'; c.updatedAt = new Date().toISOString();
+          this.event(s, 'candidate.superseded', run, c);
+        }
+      }
+      if (wasPending) {
+        run.status = 'superseded'; run.activeAttemptId = null; run.updatedAt = new Date().toISOString();
+        this.event(s, 'run.superseded', run, current);
       }
     }
   }
@@ -234,9 +335,24 @@ export class RunStore {
       }
       const d = s.design; const old = currentRequirements(s);
       if (!d || request.expectedStateVersion !== d.stateVersion || request.expectedRequirementsVersion !== old.requirementsVersion) conflict();
-      if (request.setupId === 'handle_initial_v1' || request.setupId === 'handle_refine_v1') conflict();
-      const requirements = await createRequirements({ designId: d.designId, requirementsVersion: old.requirementsVersion + 1,
-        setupId: request.setupId, ...(request.setupId === 'resize_centered_v1' ? { lengthMm: request.confirmedIntent.lengthMm } : {}), validatorVersion: old.validatorVersion });
+      let requirements: Requirements;
+      if (old.registryId === 'handle_sample_v1') {
+        const common = { designId: d.designId, requirementsVersion: old.requirementsVersion + 1,
+          reference: old.setup.reference, validatorVersion: old.validatorVersion };
+        if (request.setupId === 'handle_refine_v1') {
+          const a = s.acceptances.at(-1);
+          if (!a || a.candidate.revisionId !== d.acceptedRevisionId) conflict();
+          const acceptedInitial = initialDescriptor(s, old, a.acceptanceId);
+          await this.verifyFiles(a.candidate);
+          requirements = await createHandleRequirements({ ...common, setupId: request.setupId, acceptedInitial });
+        } else if (request.setupId === 'handle_initial_v1' && d.acceptedRevisionId === null) {
+          requirements = await createHandleRequirements({ ...common, setupId: request.setupId });
+        } else conflict();
+      } else {
+        if (request.setupId === 'handle_initial_v1' || request.setupId === 'handle_refine_v1') conflict();
+        requirements = await createRequirements({ designId: d.designId, requirementsVersion: old.requirementsVersion + 1,
+          setupId: request.setupId, ...(request.setupId === 'resize_centered_v1' ? { lengthMm: request.confirmedIntent.lengthMm } : {}), validatorVersion: old.validatorVersion });
+      }
       s.requirements.push(requirements); d.activeRequirementsVersion = requirements.requirementsVersion;
       d.setupId = requirements.setupId; d.setupHash = requirements.setupHash; d.stateVersion++;
       d.activeRunId = null; d.selectedCandidateRevisionId = null; d.acceptedRequirementsMatch = false;
@@ -307,14 +423,31 @@ export class RunStore {
     s.events.push(event); return event;
   }
   private validateSnapshot(s: Snapshot) {
-    for (const values of [s.runs.map(r => r.runId), s.candidates.map(c => c.revisionId), s.requests.map(r => r.requestId), s.requirements.map(r => r.requirementsVersion), s.acceptances.map(a => a.acceptanceId), s.manifests.map(m => m.manifestId)]) {
+    for (const values of [s.runs.map(r => r.runId), s.runs.flatMap(r => r.attemptIds), s.candidates.map(c => c.revisionId), s.requests.map(r => r.requestId), s.requirements.map(r => r.requirementsVersion), s.acceptances.map(a => a.acceptanceId), s.manifests.map(m => m.manifestId)]) {
       if (new Set<string | number>(values).size !== values.length) throw this.corrupt();
     }
-    for (const r of s.requirements) { checkRequirements(r); if (r.designId !== s.design?.designId) throw this.corrupt(); }
+    for (const r of s.requirements) {
+      checkRequirements(r);
+      if (r.designId !== s.design?.designId || r.referenceId !== s.design.referenceId || r.referenceHash !== s.design.referenceHash) throw this.corrupt();
+      if (r.registryId === 'handle_sample_v1') {
+        if (s.design.baselineRevisionId !== r.setup.reference.revisionId) throw this.corrupt();
+        const descriptor = r.setup.acceptedInitial;
+        if (descriptor) {
+          if (canonicalize(descriptor) !== canonicalize(initialDescriptor(s, r, descriptor.acceptanceId))) throw this.corrupt();
+          const acceptance = initialAcceptance(s, r, descriptor.acceptanceId);
+          if (!s.events.some(e => e.type === 'requirements.updated' && e.requirementsVersion === r.requirementsVersion
+            && e.stateVersion > acceptance.stateVersion)) throw this.corrupt();
+        }
+      }
+    }
     BootstrapSchema.parse({ contractVersion: CONTRACT_VERSION, design: s.design, requirements: s.design ? currentRequirements(s) : null,
       scopeStatus: s.design ? 'selected' : 'not_selected', executionMode: 'unavailable', runs: s.runs, candidates: s.candidates, unavailableReason: 'Runtime validation.' });
     for (const c of [...s.candidates, ...s.events.flatMap(e => e.candidate ? [e.candidate] : []), ...s.acceptances.map(a => a.candidate)]) {
       checkRequirements(c.requirements);
+      if (c.requirements.registryId === 'handle_sample_v1') {
+        const setup = c.requirements.setup;
+        if (c.inputRevisionId !== (setup.acceptedInitial?.revisionId ?? setup.reference.revisionId)) throw this.corrupt();
+      }
       if (!s.requirements.some(r => canonicalize(r) === canonicalize(c.requirements))) throw this.corrupt();
       if (c.checkBundleHash !== null) {
         CandidateSchema.parse({ ...c, status: c.checks.every(check => check.state === 'passed') ? 'reviewable' : 'rejected' });
@@ -322,11 +455,18 @@ export class RunStore {
       }
     }
     for (const run of s.runs) {
-      if (run.attemptIds.length !== 1 || run.candidateRevisionIds.length !== 1) throw this.corrupt();
-      const c = s.candidates.find(c => c.revisionId === run.candidateRevisionIds[0]);
-      if (!c || c.runId !== run.runId || c.attemptId !== run.attemptIds[0] || c.executionMode !== run.executionMode
-        || (pending(run) && !['building', 'checking'].includes(c.status))
-        || (run.status === 'completed' && !['reviewable', 'rejected', 'superseded'].includes(c.status))) throw this.corrupt();
+      if (run.attemptIds.length < 1 || run.attemptIds.length > 3 || run.candidateRevisionIds.length !== run.attemptIds.length
+        || (pending(run) && run.activeAttemptId !== run.attemptIds.at(-1))) throw this.corrupt();
+      for (const [index, revisionId] of run.candidateRevisionIds.entries()) {
+        const c = s.candidates.find(c => c.revisionId === revisionId);
+        const last = index === run.attemptIds.length - 1;
+        if (!c || c.runId !== run.runId || c.attemptId !== run.attemptIds[index] || c.executionMode !== run.executionMode
+          || (!last && !['rejected', 'superseded', 'failed'].includes(c.status))
+          || (last && pending(run) && !['building', 'checking'].includes(c.status))
+          || (last && run.status === 'completed' && !['reviewable', 'rejected', 'superseded'].includes(c.status))
+          || (last && run.status === 'failed' && !['failed', 'superseded'].includes(c.status))
+          || (last && run.status === 'superseded' && c.status !== 'superseded')) throw this.corrupt();
+      }
     }
     for (const [i, e] of s.events.entries()) {
       if (e.eventId !== i + 1 || e.stateVersion > s.design!.stateVersion || (i && e.stateVersion < s.events[i - 1]!.stateVersion)
