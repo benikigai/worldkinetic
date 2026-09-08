@@ -21,7 +21,7 @@ The [evidence snapshot](docs/provenance.md#evidence-snapshot) records revisions 
 This diagram describes the proposed integrated workflow. Its individual capability proofs are separate from the running scaffold.
 
 ```mermaid
-flowchart LR
+flowchart TB
     U["Request and confirmed requirements"] --> A["Astra proposes Python"]
     A --> G["Backend runs isolated CAD"]
     G --> S["Stop generator and seal STEP"]
