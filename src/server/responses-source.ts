@@ -263,7 +263,21 @@ export class ResponsesSourcePlanner {
         receipt.usage = usage.success ? usage.data : null;
         receipt.providerStatus = status.success ? status.data : null;
       }
-      const parsed = responseSchema.parse(raw);
+      const validated = responseSchema.safeParse(raw);
+      if (!validated.success) {
+        // Diagnose provider shape changes without retaining source text or reasoning.
+        const shape = (value: unknown, depth = 0): unknown => {
+          if (depth > 4) return typeof value;
+          if (Array.isArray(value)) return value.slice(0, 8).map(item => shape(item, depth + 1));
+          if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).slice(0, 40)
+            .map(([key, item]) => [key.slice(0, 80), ['type', 'phase', 'status'].includes(key) && typeof item === 'string'
+              ? item.slice(0, 80) : shape(item, depth + 1)]));
+          return value === null ? 'null' : typeof value;
+        };
+        await writePrivate(claimed.root, claimed.directory, 'response-shape.json', shape(raw));
+        throw new Error('Unexpected provider response shape');
+      }
+      const parsed = validated.data;
       const messages = parsed.output.filter(item => item.type === 'message');
       if (messages.length !== 1 || parsed.output.at(-1)?.type !== 'message') throw new Error('Unexpected output');
       const proposal = sourceProposalSchema.parse(parseStrictJson(messages[0]!.content[0]!.text));
