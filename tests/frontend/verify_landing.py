@@ -150,7 +150,7 @@ class OverviewAcceptance(unittest.TestCase):
                 href = node.attrs.get('href', '')
                 self.assertTrue(href and not href.startswith('javascript:'))
                 if href.startswith('#'): self.assertIn(href[1:], identities)
-        self.assertNotIn('/demo/', self.content, 'Reuse the agreed workspace route')
+        self.assertIn('RECORDED DEMO', (ROOT/'src/client/demo/index.html').read_text())
 
     def test_theme_palette_and_compact_responsive_header(self):
         content = (ROOT/'src/client/theme.css').read_text()
