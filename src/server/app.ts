@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AcceptanceRequestSchema, RequirementsUpdateRequestSchema, ExportRequestSchema, BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, parseStrictJson, safeError, ErrorCodeSchema } from '../shared/contracts.js';
+import { AcceptanceRequestSchema, RequirementsUpdateRequestSchema, ExportRequestSchema, BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, parseStrictJson, safeError, ErrorCodeSchema, type RunRequest } from '../shared/contracts.js';
 import { AcceptanceHistorySchema } from '../shared/state-v2.js';
 import { RunStore, StoreError } from './store.js';
 import { ArtifactStore } from './artifacts.js';
@@ -36,19 +36,31 @@ async function readRequest(request: IncomingMessage): Promise<unknown> {
   catch { throw new StoreError(400, 'INVALID_JSON', 'Request body is not valid JSON.'); }
 }
 
-export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string; reference?: PublicReference } = {}) {
+export interface AppOptions {
+  clientDir?: string;
+  reference?: PublicReference;
+  publicOrigin?: string;
+  includeFixtures?: boolean;
+  packageGate?: { busy: boolean };
+  dispatchRun?: (store: RunStore, input: RunRequest, execute: (runId: string) => Promise<void>) => ReturnType<RunStore['enqueueRun']>;
+}
+export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: AppOptions = {}) {
   const artifacts = new ArtifactStore(path.join(runtimeDir, 'artifacts'));
   const executor = new Executor(store, artifacts, runtimeDir, selected, timeoutMs);
-  let preparingPackage = false;
+  const packageGate = options.packageGate ?? { busy: false };
   return createServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
       const pathname = url.pathname;
       const available = Boolean(selected && (!selected.baselineOnly || (store.getDesign()?.acceptedRevisionId === null
         && store.getRequirements()?.setupId === 'resize_centered_v1')));
-      // The demo is loopback-only. Reject browser requests from unrelated origins.
+      // Public hosts must supply an exact configured origin, never forwarded Host.
       const origin = request.headers.origin;
-      if (origin && origin !== `http://${request.headers.host}`) throw new StoreError(403, 'ORIGIN_REJECTED', 'Use the application origin.');
+      if ((origin && origin !== (options.publicOrigin ?? `http://${request.headers.host}`))
+        || (options.publicOrigin && !['GET', 'HEAD'].includes(request.method ?? '') && origin !== options.publicOrigin)) {
+        throw new StoreError(403, 'ACCESS_DENIED', 'Use the application origin.');
+      }
+      if (options.includeFixtures === false && pathname.startsWith('/api/fixtures')) throw new StoreError(404, 'INVALID_REQUEST', 'Fixture routes are disabled.');
       if (request.method === 'GET' && pathname === '/api/health') {
         return json(response, 200, { status: 'ok', contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', providerConfigured: Boolean(selected), executionMode: available ? 'live' : 'unavailable' });
       }
@@ -87,8 +99,10 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
         if (!available) {
           throw new StoreError(503, 'TOOL_UNAVAILABLE', safeError('TOOL_UNAVAILABLE').message);
         }
-        const { run, reused } = await store.enqueueRun(parsed.data);
-        if (!reused) queueMicrotask(() => { void executor.execute(run.runId); });
+        const { run, reused } = options.dispatchRun
+          ? await options.dispatchRun(store, parsed.data, runId => executor.execute(runId))
+          : await store.enqueueRun(parsed.data);
+        if (!reused && !options.dispatchRun) queueMicrotask(() => { void executor.execute(run.runId); });
         return json(response, reused ? 200 : 202, { contractVersion: CONTRACT_VERSION, reused, run });
       }
       const updateRoute = /^\/api\/designs\/([^/]+)\/requirements$/.exec(pathname);
@@ -102,8 +116,8 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       if (request.method === 'POST' && packageRoute) {
         const parsed = PackageRequestSchema.safeParse(await readRequest(request));
         if (!parsed.success || !IdSchema.safeParse(packageRoute[1]).success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid package request.');
-        if (preparingPackage) throw new StoreError(503, 'EXPORT_FAILED', 'Another package is being prepared.');
-        preparingPackage = true;
+        if (packageGate.busy) throw new StoreError(503, 'EXPORT_FAILED', 'Another package is being prepared.');
+        packageGate.busy = true;
         try {
           const result = await buildPrototypePackage(store, artifacts, options.reference, packageRoute[1]!, parsed.data);
           store.assertCurrentExport(packageRoute[1]!, result.identity);
@@ -115,7 +129,7 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
             [PACKAGE_HEADERS.manifestHash]: parsed.data.manifestHash, [PACKAGE_HEADERS.sha256]: result.sha256,
             [PACKAGE_HEADERS.applicability]: 'current' });
           return response.end(result.bytes);
-        } finally { preparingPackage = false; }
+        } finally { packageGate.busy = false; }
       }
       const revisionRoute = /^\/api\/revisions\/([^/]+)\/(accept|export)$/.exec(pathname);
       if (request.method === 'POST' && revisionRoute) {
@@ -162,7 +176,8 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       const artifactRoute = /^\/api\/artifacts\/([^/]+)$/.exec(pathname);
       if (request.method === 'GET' && artifactRoute) {
         const id = IdSchema.safeParse(artifactRoute[1]);
-        const artifact = id.success ? [...store.listCandidates().flatMap(c => c.artifacts), ...fixture.candidates.flatMap(c => c.artifacts), ...fixtureRejected.candidates.flatMap(c => c.artifacts)].find(item => item.artifactId === id.data) : undefined;
+        const fixtureArtifacts = options.includeFixtures === false ? [] : [...fixture.candidates.flatMap(c => c.artifacts), ...fixtureRejected.candidates.flatMap(c => c.artifacts)];
+        const artifact = id.success ? [...store.listCandidates().flatMap(c => c.artifacts), ...fixtureArtifacts].find(item => item.artifactId === id.data) : undefined;
         if (!artifact) throw new StoreError(404, 'ARTIFACT_NOT_FOUND', 'Artifact not found.');
         const bytes = artifact.executionMode === 'fixture' ? Buffer.from(fixtureBytes[artifact.artifactId]!) : await artifacts.read(artifact);
         response.writeHead(200, {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { createHandleRequirements, type Design, type ToolAdapter } from '../shared/contracts.js';
 import { cadToolAdapter } from '../tools/adapter.js';
-import { createApp } from './app.js';
+import { createApp, type AppOptions } from './app.js';
 import { RunStore } from './store.js';
 import { ResponsesSourcePlanner } from './responses-source.js';
 import { SavedHandleReference, type HandleReferenceFiles } from './handle-reference.js';
@@ -12,6 +12,7 @@ import type { SelectedOperation } from './execution.js';
 
 export async function createHandleApplication(options: {
   runtimeDir: string; referenceFiles: HandleReferenceFiles; apiKey?: string; fetchImpl?: typeof fetch; tool?: ToolAdapter; timeoutMs?: number;
+  appOptions?: Omit<AppOptions, 'reference'>; manageProcessExit?: boolean;
 }) {
   await mkdir(options.runtimeDir, { recursive: true, mode: 0o700 });
   if ((await lstat(options.runtimeDir)).isSymbolicLink()) throw new Error('Runtime directory cannot be a symlink.');
@@ -25,7 +26,7 @@ export async function createHandleApplication(options: {
     if (released) return;
     released = true; closeSync(lock); unlinkSync(lockPath); process.removeListener('exit', release);
   };
-  process.once('exit', release);
+  if (options.manageProcessExit !== false) process.once('exit', release);
   try {
     writeFileSync(lock, String(process.pid));
     const reference = await SavedHandleReference.register(runtimeDir, options.referenceFiles);
@@ -53,7 +54,7 @@ export async function createHandleApplication(options: {
         } },
       tool: options.tool ?? cadToolAdapter,
     } : null;
-    const server = createApp(store, runtimeDir, selected, options.timeoutMs ?? 180_000, { reference });
+    const server = createApp(store, runtimeDir, selected, options.timeoutMs ?? 180_000, { ...options.appOptions, reference });
     server.once('close', release);
     return { server, store, planner, reference, runtimeDir };
   } catch (error) { release(); throw error; }

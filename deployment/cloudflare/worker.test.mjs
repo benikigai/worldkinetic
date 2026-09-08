@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import worker from './worker.mjs';
+const env = { API_ORIGIN: 'https://dedicated.example', UPSTREAM_KEY: 'test-only-key', ASSETS: { fetch: async () => new Response('static') } };
+
+test('static routes retain the assets binding', async () => {
+  assert.equal(await (await worker.fetch(new Request('https://worldkinetics.app/demo/'), env)).text(), 'static');
+});
+for (const config of [{}, { API_ORIGIN: 'https://dedicated.example' }, { API_ORIGIN: 'http://localhost:4318', UPSTREAM_KEY: 'test-only-key' }, { API_ORIGIN: 'https://user:password@example.com', UPSTREAM_KEY: 'test-only-key' }]) {
+  test('unconfigured or unsafe upstream fails closed', async t => {
+    const call = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Must not fetch'); });
+    assert.equal((await worker.fetch(new Request('https://worldkinetics.app/api/runs', { method: 'POST', body: '{}' }), config)).status, 503);
+    assert.equal(call.mock.callCount(), 0);
+  });
+}
+test('exact custom request and trusted headers reach only the configured origin', async t => {
+  t.mock.method(globalThis, 'fetch', async (target, init) => {
+    assert.equal(String(target), 'https://dedicated.example/api/runs?test=1');
+    assert.equal(init.redirect, 'manual'); assert.equal(init.cache, 'no-store');
+    assert.equal(init.headers.get('cookie'), 'session=test');
+    assert.equal(init.headers.get('origin'), 'https://worldkinetics.app');
+    assert.equal(init.headers.get('X-WorldKinetics-Upstream-Key'), 'test-only-key');
+    assert.equal(init.headers.get('X-WorldKinetics-Client-IP'), '192.0.2.1');
+    assert.equal(init.headers.get('authorization'), null);
+    assert.equal(await new Response(init.body).text(), '{"instruction":"thicker in the middle"}');
+    return new Response('{"status":"queued"}', { status: 202 });
+  });
+  const response = await worker.fetch(new Request('https://worldkinetics.app/api/runs?test=1', { method: 'POST', body: '{"instruction":"thicker in the middle"}', headers: { Cookie: 'session=test', Origin: 'https://worldkinetics.app', 'CF-Connecting-IP': '192.0.2.1', 'X-WorldKinetics-Upstream-Key': 'forged', 'X-WorldKinetics-Client-IP': 'forged', Authorization: 'forged' } }), env);
+  assert.equal(response.status, 202);
+});
+test('streams exact bytes, download identity and session cookie without caching', async t => {
+  const bytes = new Uint8Array([0, 255, 80, 75]);
+  t.mock.method(globalThis, 'fetch', async () => new Response(bytes, { headers: { 'Content-Type': 'application/zip', 'Content-Length': '4', 'Content-Disposition': 'attachment; filename="package.zip"', 'X-WorldKinetics-Revision': 'test-revision', 'Set-Cookie': 'session=test; HttpOnly; Secure; SameSite=Strict; Path=/', 'Cache-Control': 'public', 'X-WorldKinetics-Upstream-Key': 'test-only-key' } }));
+  const response = await worker.fetch(new Request('https://worldkinetics.app/api/revisions/test/package', { method: 'POST', body: '{}' }), env);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()), bytes);
+  assert.equal(response.headers.get('Content-Length'), '4');
+  assert.equal(response.headers.get('X-WorldKinetics-Revision'), 'test-revision');
+  assert.match(response.headers.get('Set-Cookie'), /HttpOnly; Secure; SameSite=Strict/);
+  assert.equal(response.headers.get('Cache-Control'), 'no-store');
+  assert.equal(response.headers.get('X-WorldKinetics-Upstream-Key'), null);
+});
+test('upstream auth errors pass through, redirects and failures fail closed', async t => {
+  const call = t.mock.method(globalThis, 'fetch', async () => new Response('Unauthorized', { status: 401 }));
+  assert.equal((await worker.fetch(new Request('https://worldkinetics.app/api/session'), env)).status, 401);
+  call.mock.mockImplementation(async () => Response.redirect('https://elsewhere.example', 302));
+  const redirect = await worker.fetch(new Request('https://worldkinetics.app/api/session'), env);
+  assert.equal(redirect.status, 503); assert.equal(redirect.headers.get('Location'), null);
+  call.mock.mockImplementation(async () => { throw new Error('private origin detail'); });
+  const failure = await worker.fetch(new Request('https://worldkinetics.app/api/session'), env);
+  assert.equal(await failure.text(), 'Demo service unavailable.');
+});
