@@ -50,3 +50,20 @@ test('developer instructions and linked evidence remain available', () => {
     assert.ok(body.includes(phrase), phrase);
   }
 });
+
+test('explains workflow value beyond generation with scoped benefits', () => {
+  const section = body.match(/^## Why WorldKinetics\?\n([\s\S]*?)(?=^## |$(?![\s\S]))/m)?.[1];
+  assert.ok(section, 'Why WorldKinetics section required');
+  assert.ok(body.indexOf('## Why WorldKinetics?') < body.indexOf('## Current evidence'));
+  for (const phrase of ['Keep what fits', 'See what changed', 'Check before you make']) {
+    assert.ok(section.includes(phrase), phrase);
+  }
+  assert.match(section, /(?:measur|requirement)/i);
+  assert.match(section, /(?:before.and.after|comparison|compare)/i);
+  assert.match(section, /(?:independent|independently)/i);
+  assert.match(section, /(?:approv|accept)/i);
+  assert.match(section, /exact revision/i);
+  assert.match(section, /(?:intended|building toward|planned)/i);
+  assert.match(section, /Astra/);
+  assert.doesNotMatch(section, /unlike (?:Astra|other)|only (?:we|WorldKinetics)|cannot (?:design|generate) CAD/i);
+});
