@@ -40,8 +40,10 @@ export function mountReview(fixtures: { history: unknown; feature: unknown; even
     }
 
     const active = bootstrap.requirements;
-    element('review-requirement').textContent = `${active.setup.dimensions.lengthMm} mm length · v${active.requirementsVersion}`;
-    element('review-minimum').textContent = `${active.setup.minimumEndMaterialMm} mm minimum end material · frozen`;
+    element('review-requirement').textContent = active.registryId === 'plate_requirements_v1'
+      ? `${active.setup.dimensions.lengthMm} mm length · v${active.requirementsVersion}` : `Requirements v${active.requirementsVersion}`;
+    element('review-minimum').textContent = active.registryId === 'plate_requirements_v1'
+      ? `${active.setup.minimumEndMaterialMm} mm minimum end material · frozen` : 'End material summary unavailable for this setup.';
     element('review-server-selection').textContent = `Selected: ${bootstrap.design.selectedCandidateRevisionId ?? 'No candidate'}`;
     element('review-accepted').textContent = bootstrap.design.acceptedRevisionId
       ? `Accepted: ${bootstrap.design.acceptedRevisionId}` : 'No accepted revision';
@@ -49,7 +51,9 @@ export function mountReview(fixtures: { history: unknown; feature: unknown; even
       const option = document.createElement('option');
       option.value = item.revisionId;
       const selected = item.revisionId === bootstrap.design?.selectedCandidateRevisionId;
-      option.textContent = `${item.requirements.setup.dimensions.lengthMm} mm · ${item.status} · v${item.requirementsVersion} · ${selected ? 'server-selected' : 'history'}`;
+      const label = item.requirements.registryId === 'plate_requirements_v1'
+        ? `${item.requirements.setup.dimensions.lengthMm} mm` : 'Candidate';
+      option.textContent = `${label} · ${item.status} · v${item.requirementsVersion} · ${selected ? 'server-selected' : 'history'}`;
       return option;
     }));
     if (snapshot.viewedRevisionId) revision.value = snapshot.viewedRevisionId;
@@ -58,13 +62,17 @@ export function mountReview(fixtures: { history: unknown; feature: unknown; even
     }
     element('review-binding').textContent = candidate
       ? `${projection.isHistorical ? 'Local historical inspection' : 'Inspecting server-selected candidate'} · ${candidate.executionMode} evidence · requirements v${candidate.requirementsVersion}. Server state is unchanged.`
-      : 'Feature requirements only. No candidate or measured geometry is supplied.';
+      : requirements.registryId === 'plate_requirements_v1'
+        ? 'Feature requirements only. No candidate or measured geometry is supplied.'
+        : 'Requirements only. No candidate or measured geometry is supplied.';
+    const candidateLength = candidate?.requirements.registryId === 'plate_requirements_v1'
+      ? ` · ${candidate.requirements.setup.dimensions.lengthMm} mm length` : '';
     element('review-candidate').textContent = candidate
-      ? `${candidate.revisionId} · ${candidate.status} · ${candidate.requirements.setup.dimensions.lengthMm} mm length` : 'Candidate revision: unavailable';
+      ? `${candidate.revisionId} · ${candidate.status}${candidateLength}` : 'Candidate revision: unavailable';
     element('review-check-count').textContent = `${rows.filter(row => row.state === 'passed').length}/${rows.length} passed`;
     element('review-checks').innerHTML = rows.map(({ checkId, state, check }) => {
-      const definition = checkDefinition(checkId);
-      const margin = checkId === 'margin.end_material' && check?.measured && typeof check.measured === 'object' && !Array.isArray(check.measured)
+      const definition = checkDefinition(checkId, requirements.registryId);
+      const margin = requirements.registryId === 'plate_requirements_v1' && checkId === 'margin.end_material' && check?.measured && typeof check.measured === 'object' && !Array.isArray(check.measured)
         ? `<p class="wk-margin-evidence">${escape(String(check.measured.minimumEndMaterialMm))} mm measured / ${requirements.setup.minimumEndMaterialMm} mm minimum</p>` : '';
       return `<tr><th scope="row"><details><summary>${escape(check?.label ?? checkId)}<span class="wk-check-id">${escape(checkId)}</span></summary>${margin}
         <dl class="wk-check-detail"><dt>Measured / synthetic</dt><dd><pre>${check ? json(check.measured) : 'Unavailable. This check has not been evaluated.'}</pre></dd>
