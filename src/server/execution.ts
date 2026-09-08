@@ -1,14 +1,15 @@
-import { mkdir } from 'node:fs/promises';
+import { mkdir, lstat, readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { z } from 'zod';
-import { OperationSchema, ToolResultSchema, ToolExecutionError, type Artifact, type InputArtifact, type Operation, type Run, type ToolAdapter } from '../shared/contracts.js';
+import { ErrorCodeSchema, ProviderProposalSchema, safeError, verifyToolInput, verifyToolResult, type Artifact, type InputArtifact, type ProviderProposal, type Requirements, type Run, type ToolAdapter } from '../shared/contracts.js';
+import { ExecutionError } from './errors.js';
 import type { RunStore } from './store.js';
 import { ArtifactStore } from './artifacts.js';
-import { ExecutionError } from './errors.js';
 
 export interface Planner {
-  identity: NonNullable<Run['provider']>;
-  propose(run: Run, signal: AbortSignal): Promise<Operation>;
+  identity: { name: string; requestedModel: string; reportedModel: string | null };
+  propose(run: Run, signal: AbortSignal, requirements: Requirements): Promise<ProviderProposal>;
 }
 export interface SelectedOperation {
   name: string;
@@ -17,73 +18,67 @@ export interface SelectedOperation {
   tool: ToolAdapter;
   baselineArtifacts?: InputArtifact[];
 }
-
 export class Executor {
-  constructor(
-    readonly store: RunStore, readonly artifacts: ArtifactStore, readonly runtimeDir: string,
-    readonly selected: SelectedOperation | null, readonly timeoutMs = 120_000,
-  ) {}
-
+  constructor(readonly store: RunStore, readonly artifacts: ArtifactStore, readonly runtimeDir: string,
+    readonly selected: SelectedOperation | null, readonly timeoutMs = 120_000) {}
   async execute(runId: string): Promise<void> {
     const run = this.store.getRun(runId);
-    if (!run || !this.selected) return;
+    if (!this.selected || run.status !== 'queued') return;
+    const candidate = this.store.getCandidate(run.candidateRevisionIds[0]!);
     const abort = new AbortController();
     let imported: Artifact[] = [];
-    const timer = setTimeout(() => abort.abort(new Error('Run timed out')), this.timeoutMs);
-    let removeAbort: (() => void) | undefined;
+    const deadline = Date.now() + this.timeoutMs;
+    const timer = setTimeout(() => abort.abort(), this.timeoutMs);
+    let listener!: () => void;
     const timeout = new Promise<never>((_, reject) => {
-      const listener = () => reject(new Error('Run timed out'));
+      listener = () => reject(new Error('Deadline exceeded'));
       abort.signal.addEventListener('abort', listener, { once: true });
-      removeAbort = () => abort.signal.removeEventListener('abort', listener);
     });
     try {
-      this.store.planning(runId, this.selected.planner.identity);
-      const operation = OperationSchema.parse(await Promise.race([this.selected.planner.propose(run, abort.signal), timeout]));
-      if (operation.name !== this.selected.name) throw new ExecutionError('UNSUPPORTED_OPERATION', 'Astra requested an operation outside the selected scope.');
-      this.selected.parameters.parse(operation.parameters);
-      this.store.running(runId, operation);
+      await this.store.planning(runId);
+      const proposal = ProviderProposalSchema.parse(await Promise.race([
+        this.selected.planner.propose(structuredClone(run), abort.signal, structuredClone(candidate.requirements)), timeout,
+      ]));
+      if (proposal.kind === 'numeric_operation') {
+        if (proposal.operation.name !== this.selected.name) throw new Error('Unsupported operation');
+        this.selected.parameters.parse(proposal.operation.parameters);
+      }
+      const prior = this.store.listCandidates().find(c => c.revisionId === run.inputRevisionId && c.executionMode === 'live');
+      const inputArtifacts: InputArtifact[] = prior ? prior.artifacts.map(a => ({ artifactId: a.artifactId, revisionId: a.revisionId,
+        kind: a.kind, units: a.units, path: path.resolve(this.artifacts.root, a.artifactId), sha256: a.sha256 })) : structuredClone(this.selected.baselineArtifacts ?? []);
+      for (const a of inputArtifacts) {
+        if ((await lstat(a.path)).isSymbolicLink() || !(await lstat(a.path)).isFile()
+          || createHash('sha256').update(await readFile(a.path)).digest('hex') !== a.sha256) throw new Error('Input artifact integrity mismatch');
+      }
       const outputDir = path.join(this.runtimeDir, 'runs', runId, 'tool-output');
+      const data = await verifyToolInput({ contractVersion: run.contractVersion, runId, requestId: run.requestId, designId: run.designId,
+        inputRevisionId: run.inputRevisionId, outputRevisionId: candidate.revisionId, attemptId: candidate.attemptId,
+        units: run.units, requirements: candidate.requirements, registryCanonicalJson: candidate.requirements.registryCanonicalJson,
+        setupCanonicalJson: candidate.requirements.setupCanonicalJson, proposal, outputDir, deadline: new Date(deadline).toISOString(), inputArtifacts });
+      await this.store.running(runId);
       await mkdir(outputDir, { recursive: true, mode: 0o700 });
-      const priorRun = this.store.listRuns().find(item => item.designId === run.designId && item.outputRevisionId === run.inputRevisionId && item.status === 'succeeded' && item.executionMode === 'live');
-      const inputArtifacts = priorRun ? priorRun.artifacts.map(artifact => ({
-        artifactId: artifact.artifactId, revisionId: artifact.revisionId, kind: artifact.kind,
-        path: path.resolve(this.artifacts.root, artifact.artifactId), sha256: artifact.sha256, units: artifact.units,
-      })) : this.selected.baselineArtifacts ?? [];
-      if (inputArtifacts.some(item => item.revisionId !== run.inputRevisionId || item.units !== run.units)) {
-        throw new ExecutionError('INPUT_REVISION_MISMATCH', 'Input artifacts do not match the requested design revision.');
-      }
       abort.signal.throwIfAborted();
-      const result = ToolResultSchema.parse(await Promise.race([this.selected.tool({
-        contractVersion: run.contractVersion, runId, designId: run.designId,
-        inputRevisionId: run.inputRevisionId, outputRevisionId: run.outputRevisionId,
-        units: run.units, operation: structuredClone(operation), outputDir, signal: abort.signal, inputArtifacts,
-      }), timeout]));
-      if (result.executionMode !== 'live') throw new ExecutionError('TOOL_NOT_LIVE', 'A fixture tool result cannot complete a live request.');
-      for (const key of ['contractVersion', 'runId', 'designId', 'inputRevisionId', 'outputRevisionId', 'units'] as const) {
-        if (result[key] !== run[key]) throw new Error(`Tool result identity mismatch: ${key}`);
-      }
-      if (result.operation.name !== operation.name || JSON.stringify(Object.entries(result.operation.parameters).sort()) !== JSON.stringify(Object.entries(operation.parameters).sort())) {
-        throw new Error('Tool applied a different operation');
-      }
-      if (result.checks.some(check => check.revisionId !== run.outputRevisionId)) throw new Error('Check revision mismatch');
-      if (new Set(result.checks.map(check => check.checkId)).size !== result.checks.length) throw new Error('Duplicate check identity');
-      if (!result.artifacts.some(artifact => artifact.kind === 'editable')) throw new Error('Missing editable artifact');
-      const refs = await Promise.race([this.artifacts.import(run, outputDir, result.artifacts, abort.signal), timeout]);
-      imported = refs;
-      this.store.complete(runId, result.checks, refs);
+      const raw = await Promise.race([this.selected.tool({ ...structuredClone(data), signal: abort.signal }), timeout]);
+      const result = await verifyToolResult(structuredClone(raw), data);
+      abort.signal.throwIfAborted();
+      if (result.error) throw new ExecutionError(result.error.code, result.error.message, result.error.retryable);
+      if (result.status !== 'completed' || result.executionMode !== 'live') throw new Error('Tool did not complete live evidence');
+      await this.store.checking(runId);
+      const importJob = this.artifacts.import(candidate, outputDir, result.artifacts, abort.signal).then(async refs => {
+        if (abort.signal.aborted) { await this.artifacts.discard(refs); throw new Error('Late import'); }
+        return refs;
+      });
+      imported = await Promise.race([importJob, timeout]);
+      abort.signal.throwIfAborted();
+      await this.store.completeCandidate({ ...candidate, status: result.checks.every(c => c.state === 'passed') ? 'reviewable' : 'rejected',
+        engine: result.engine, sourceSha256: result.sourceSha256, proposalHash: result.proposalHash, geometryHash: result.geometryHash,
+        checkBundleHash: result.checkBundleHash, checks: result.checks, artifacts: imported,
+        changeSummary: proposal.kind === 'python_source' ? proposal.changeSummary : 'Applied the confirmed plate dimensions.' }, abort.signal);
+      imported = [];
     } catch (error) {
       await this.artifacts.discard(imported);
-      // Provider/tool errors may contain credentials or private subprocess output.
-      const timedOut = abort.signal.aborted;
-      const safeError = error instanceof ExecutionError || error instanceof ToolExecutionError ? error : null;
-      this.store.fail(runId, {
-        code: timedOut ? 'RUN_TIMEOUT' : safeError?.code ?? 'EXECUTION_FAILED',
-        message: timedOut ? 'The run exceeded its execution deadline.' : safeError?.message ?? 'The provider or tool failed validation or execution. No revision was promoted.',
-        retryable: timedOut || Boolean(safeError?.retryable),
-      });
-    } finally {
-      clearTimeout(timer);
-      removeAbort?.();
-    }
+      const code = error instanceof ExecutionError ? ErrorCodeSchema.safeParse(error.code) : null;
+      await this.store.fail(runId, safeError(abort.signal.aborted ? 'RUN_TIMEOUT' : code?.success ? code.data : 'EXECUTION_FAILED'));
+    } finally { clearTimeout(timer); abort.signal.removeEventListener('abort', listener); }
   }
 }

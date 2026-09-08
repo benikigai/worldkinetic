@@ -2,29 +2,33 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, RunSchema } from '../shared/contracts.js';
+import { AcceptanceRequestSchema, RequirementsUpdateRequestSchema, ExportRequestSchema, BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, parseStrictJson, safeError, ErrorCodeSchema } from '../shared/contracts.js';
+import { AcceptanceHistorySchema } from '../shared/state-v2.js';
 import { RunStore, StoreError } from './store.js';
 import { ArtifactStore } from './artifacts.js';
 import { Executor, type SelectedOperation } from './execution.js';
 import { readPublicFile } from './static-files.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const fixtureRun = RunSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/run.fixture.json'), 'utf8')));
+const fixture = BootstrapSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/reviewable.fixture.json'), 'utf8')));
+const fixtureRun = fixture.runs[0]!;
+const fixtureRejected = BootstrapSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/rejected.fixture.json'), 'utf8')));
+const fixtureBytes = JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/synthetic-artifact-bytes.fixture.json'), 'utf8')).artifacts as Record<string, string>;
 
 function json(response: ServerResponse, status: number, body: unknown) {
   response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   response.end(JSON.stringify(body));
 }
 async function readRequest(request: IncomingMessage): Promise<unknown> {
-  if (!request.headers['content-type']?.startsWith('application/json')) throw new StoreError(415, 'CONTENT_TYPE', 'Use application/json.');
+  if (!request.headers['content-type']?.match(/^application\/json(?:\s*;|$)/i)) throw new StoreError(415, 'CONTENT_TYPE', 'Use application/json.');
   let size = 0;
   const chunks: Buffer[] = [];
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > 16_384) throw new StoreError(413, 'REQUEST_TOO_LARGE', 'Request body exceeds 16 KiB.');
+    if (size > 8192) throw new StoreError(413, 'REQUEST_TOO_LARGE', 'Request body exceeds 8 KiB.');
     chunks.push(chunk);
   }
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+  try { return parseStrictJson(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))); }
   catch { throw new StoreError(400, 'INVALID_JSON', 'Request body is not valid JSON.'); }
 }
 
@@ -39,23 +43,71 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       const origin = request.headers.origin;
       if (origin && origin !== `http://${request.headers.host}`) throw new StoreError(403, 'ORIGIN_REJECTED', 'Use the application origin.');
       if (request.method === 'GET' && pathname === '/api/health') {
-        return json(response, 200, { status: 'ok', contractVersion: CONTRACT_VERSION, scopeStatus: selected ? 'selected' : 'not_selected', providerConfigured: Boolean(selected), executionMode: selected ? 'live' : 'unavailable' });
+        return json(response, 200, { status: 'ok', contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', providerConfigured: Boolean(selected), executionMode: selected ? 'live' : 'unavailable' });
       }
       if (request.method === 'GET' && pathname === '/api/bootstrap') {
         return json(response, 200, BootstrapSchema.parse({
-          contractVersion: CONTRACT_VERSION, scopeStatus: selected ? 'selected' : 'not_selected', executionMode: selected ? 'live' : 'unavailable',
-          design: store.getDesign(), runs: store.listRuns(), unavailableReason: selected ? null : 'PLAN has not selected the object and operation; the live tool adapter is not connected.',
+          contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', executionMode: selected ? 'live' : 'unavailable',
+          design: store.getDesign(), requirements: store.getRequirements(), runs: store.listRuns(), candidates: store.listCandidates(),
+          unavailableReason: selected ? null : store.getDesign() ? 'The engineering runtime and generation provider are unavailable.' : 'A design is not selected and the engineering runtime is unavailable.',
         }));
       }
       if (request.method === 'GET' && pathname === '/api/fixtures/run') return json(response, 200, fixtureRun);
-      if (request.method === 'GET' && pathname === '/api/fixtures/events') return json(response, 200, JSON.parse(await readFile(path.join(root, 'fixtures/api/events.fixture.json'), 'utf8')));
+      if (request.method === 'GET' && pathname === '/api/fixtures/events') return json(response, 200, { contractVersion: CONTRACT_VERSION, events: [JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/event.fixture.json'), 'utf8'))] });
+      if (request.method === 'GET' && pathname === '/api/fixtures/bootstrap') {
+        const state = url.searchParams.get('state') ?? 'reviewable';
+        if (!['reviewable', 'rejected'].includes(state)) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid fixture state.');
+        return json(response, 200, state === 'rejected' ? fixtureRejected : fixture);
+      }
       if (request.method === 'POST' && pathname === '/api/runs') {
         const parsed = RunRequestSchema.safeParse(await readRequest(request));
         if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Request does not match the shared contract. Check version, IDs, units and instruction.');
-        if (!selected) throw new StoreError(503, 'SCOPE_NOT_SELECTED', 'A selected operation and live tool adapter are required.');
-        const { run, reused } = store.accept(parsed.data);
+        if (!selected) {
+          const retry = store.getRunRetry(parsed.data);
+          if (retry) return json(response, 200, { contractVersion: CONTRACT_VERSION, ...retry });
+          throw new StoreError(503, 'TOOL_UNAVAILABLE', safeError('TOOL_UNAVAILABLE').message);
+        }
+        const { run, reused } = await store.enqueueRun(parsed.data);
         if (!reused) queueMicrotask(() => { void executor.execute(run.runId); });
         return json(response, reused ? 200 : 202, { contractVersion: CONTRACT_VERSION, reused, run });
+      }
+      const updateRoute = /^\/api\/designs\/([^/]+)\/requirements$/.exec(pathname);
+      if (request.method === 'PATCH' && updateRoute) {
+        const parsed = RequirementsUpdateRequestSchema.safeParse(await readRequest(request));
+        if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid request.');
+        if (store.getDesign()?.designId !== updateRoute[1]) throw new StoreError(409, 'IDENTITY_CONFLICT', 'Design identity mismatch.');
+        return json(response, 200, { contractVersion: CONTRACT_VERSION, ...await store.updateRequirements(parsed.data) });
+      }
+      const revisionRoute = /^\/api\/revisions\/([^/]+)\/(accept|export)$/.exec(pathname);
+      if (request.method === 'POST' && revisionRoute) {
+        const body = await readRequest(request);
+        if (revisionRoute[2] === 'accept') {
+          const parsed = AcceptanceRequestSchema.safeParse(body);
+          if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid request.');
+          if (parsed.data.candidateRevisionId !== revisionRoute[1]) throw new StoreError(409, 'IDENTITY_CONFLICT', 'Revision identity mismatch.');
+          return json(response, 200, { contractVersion: CONTRACT_VERSION, ...await store.acceptRevision(parsed.data) });
+        }
+        const parsed = ExportRequestSchema.safeParse(body);
+        if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid request.');
+        return json(response, 200, { contractVersion: CONTRACT_VERSION, ...await store.exportRevision(revisionRoute[1]!, parsed.data) });
+      }
+      if (request.method === 'GET' && pathname === '/api/events') {
+        const after = url.searchParams.get('after') ?? '0';
+        if (!/^\d+$/.test(after)) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid cursor.');
+        return json(response, 200, { contractVersion: CONTRACT_VERSION, events: store.getEvents(undefined, Number(after)) });
+      }
+      if (request.method === 'GET' && pathname === '/api/runs') return json(response, 200, { contractVersion: CONTRACT_VERSION, runs: store.listRuns() });
+      if (request.method === 'GET' && pathname === '/api/acceptances') {
+        return json(response, 200, AcceptanceHistorySchema.parse({
+          contractVersion: CONTRACT_VERSION, acceptances: store.listAcceptances(), manifests: store.listManifests(),
+        }));
+      }
+      const resource = /^\/api\/(candidates|acceptances|manifests)\/([^/]+)$/.exec(pathname);
+      if (request.method === 'GET' && resource) {
+        if (!IdSchema.safeParse(resource[2]).success) throw new StoreError(404, 'INVALID_REQUEST', 'Unknown identity.');
+        const value = resource[1] === 'candidates' ? store.getCandidate(resource[2]!) : resource[1] === 'acceptances' ? store.getAcceptance(resource[2]!) : store.getManifest(resource[2]!);
+        if (!value) throw new StoreError(404, 'INVALID_REQUEST', 'Unknown identity.');
+        return json(response, 200, value);
       }
       const runRoute = /^\/api\/runs\/([^/]+)(\/events)?$/.exec(pathname);
       if (request.method === 'GET' && runRoute) {
@@ -71,13 +123,14 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       const artifactRoute = /^\/api\/artifacts\/([^/]+)$/.exec(pathname);
       if (request.method === 'GET' && artifactRoute) {
         const id = IdSchema.safeParse(artifactRoute[1]);
-        const artifact = id.success ? [...store.listRuns().flatMap(run => run.artifacts), ...fixtureRun.artifacts].find(item => item.artifactId === id.data) : undefined;
+        const artifact = id.success ? [...store.listCandidates().flatMap(c => c.artifacts), ...fixture.candidates.flatMap(c => c.artifacts), ...fixtureRejected.candidates.flatMap(c => c.artifacts)].find(item => item.artifactId === id.data) : undefined;
         if (!artifact) throw new StoreError(404, 'ARTIFACT_NOT_FOUND', 'Artifact not found.');
-        const bytes = artifact.executionMode === 'fixture' ? await readFile(path.join(root, 'fixtures/api/fixture-design.json')) : await artifacts.read(artifact);
+        const bytes = artifact.executionMode === 'fixture' ? Buffer.from(fixtureBytes[artifact.artifactId]!) : await artifacts.read(artifact);
         response.writeHead(200, {
           'Content-Type': artifact.mediaType, 'Content-Length': bytes.length,
           'Content-Disposition': `attachment; filename="${artifact.fileName}"`,
           'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-store',
+          'X-WorldKinetics-Applicability': artifact.executionMode === 'fixture' ? 'fixture' : store.getDesign()?.acceptedRevisionId === artifact.revisionId && store.getDesign()?.acceptedRequirementsMatch ? 'current' : 'historical',
           'X-WorldKinetics-Revision': artifact.revisionId, 'X-WorldKinetics-Execution': artifact.executionMode,
         });
         return response.end(bytes);
@@ -95,7 +148,7 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       const known = error instanceof StoreError;
       json(response, known ? error.status : 500, {
         contractVersion: CONTRACT_VERSION,
-        error: { code: known ? error.code : 'INTERNAL_ERROR', message: known ? error.message : 'The request failed. No internal provider details are exposed.', retryable: false },
+        error: safeError(known && ErrorCodeSchema.safeParse(error.code).success ? ErrorCodeSchema.parse(error.code) : known ? 'INVALID_REQUEST' : 'EXECUTION_FAILED'),
       });
     }
   });

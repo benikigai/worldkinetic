@@ -1,8 +1,8 @@
 # v0.2 contract fixtures
 
-These are **SYNTHETIC conformance fixtures**, not live CAD measurements, executed requests, accepted revisions, or downloadable geometry. Every bootstrap, run, candidate, check and artifact is labeled `fixture`. Both designs have `acceptedRevisionId: null` and `acceptedRequirementsMatch: false`. `reviewable` describes the synthetic check state only; fixture evidence is never eligible for live acceptance.
+These are **SYNTHETIC conformance fixtures**, not live CAD measurements, executed requests, accepted revisions, or downloadable CAD geometry. Every bootstrap, run, candidate, check and artifact is labeled `fixture`. Both designs have `acceptedRevisionId: null` and `acceptedRequirementsMatch: false`. `reviewable` describes the synthetic check state only; fixture evidence is never eligible for live acceptance.
 
-The existing server and `src/shared/contracts.ts` still use `wk-backend-draft-0.1`. This additive release implements schemas and pure helpers only. It does not implement v0.2 HTTP handlers, compare-and-swap, idempotency, acceptance, export manifests, provider execution or CAD isolation.
+The server and `src/shared/contracts.ts` now use `wk-prototype-0.2`. The local API implements serialized candidate state, explicit acceptance, confirmed requirements updates, registered artifact delivery and export manifests. The normal server initializes the plate reference and requirements but reports unavailable adapters. Live CAD and Responses API wiring remain unconnected.
 
 ## Files
 
@@ -12,25 +12,107 @@ The existing server and `src/shared/contracts.ts` still use `wk-backend-draft-0.
 - `*.check-bundle.fixture.json`: full hash payload, exact canonical string and SHA-256 for each candidate.
 - `registry-hashes.fixture.json`: exact registry file hash, distinct registry semantic hash, and whole canonical registry bytes as a JSON string.
 - `canonical-hashes.fixture.json`: valid raw JSON, canonical text, UTF-8 hex and hashes; rejected raw JSON and non-JSON JavaScript cases.
-- `synthetic-artifact-bytes.fixture.json`: the synthetic strings used to reproduce artifact descriptor byte counts and hashes. STEP/STL strings are deliberately labeled non-CAD content. No artifact routes are registered by these files.
+- `synthetic-artifact-bytes.fixture.json`: the synthetic strings used to reproduce artifact descriptor byte counts and hashes. STEP/STL strings are deliberately labeled non-CAD content. The explicit fixture endpoints register these synthetic descriptors for fixture-only downloads.
 - Request, event, provider and tool examples below contain concrete fixture identities. Acceptance/export requests are hypothetical payloads, not evidence that those actions occurred.
 
 The approved registry's reference hashes are preserved identities. This task does not rehash or reopen the actual reference CAD files.
 
-## Proposed public transport
+## Current public transport
 
-Import schemas and inferred types from `src/shared/contracts-v2.ts`. All objects are strict. The table documents consumer shapes for the next migration, not endpoints enabled by this release.
+Import released schemas and inferred types from `src/shared/contracts-v2.ts`; acceptance, manifest and history schemas are in `src/shared/state-v2.ts`. `src/shared/contracts.ts` re-exports both. All schema objects are strict. The table documents the current local routes. Fixture responses have no live fallback.
 
-| Proposed surface | Schema and exact example |
+| Surface | Schema and exact example |
 | --- | --- |
 | `GET /api/bootstrap` | `BootstrapSchema`; `reviewable.fixture.json`, `rejected.fixture.json` |
 | `POST /api/runs` | `RunRequestSchema`; `run-request.fixture.json` |
-| Run polling | `RunSchema`; each bootstrap's `runs` array. Existing v0.1 polling is not migrated. |
-| Event delivery | `EventSchema`; `event.fixture.json`. No new v0.2 stream route is implemented. |
+| Run polling | `RunSchema`; each bootstrap's `runs` array. `GET /api/runs/:runId`; `GET /api/runs` returns `{contractVersion,runs}`. |
+| Event delivery | `EventSchema`; `event.fixture.json`. `GET /api/runs/:runId/events?after=0` and `GET /api/events?after=0` return `{contractVersion,events}`; polling only, no SSE. |
 | `PATCH /api/designs/:designId/requirements` | `RequirementsUpdateRequestSchema`; `requirements-update-request.fixture.json`. Design identity is in the route. |
 | `POST /api/revisions/:revisionId/accept` | `AcceptanceRequestSchema`; `acceptance-request.fixture.json`. Route revision must equal `candidateRevisionId`. |
 | `POST /api/revisions/:revisionId/export` | `ExportRequestSchema`; `export-request.fixture.json`. The server must resolve and bind revision, acceptance and manifest. |
-| `GET /api/artifacts/:artifactId` | `ArtifactSchema` descriptors in the bootstrap; immutable registered ID URL. No private path in public descriptors. |
+| `GET /api/acceptances` | `AcceptanceHistorySchema`: `{contractVersion,acceptances,manifests}`. Full persisted acceptance history and matching manifests, including after restart. |
+| `GET /api/artifacts/:artifactId` | `ArtifactSchema` descriptors in the bootstrap; immutable registered ID URL. No private path in public descriptors. Downloads include execution and current/historical applicability headers. |
+
+`GET /api/fixtures/bootstrap?state=reviewable|rejected` returns the corresponding frozen bootstrap. `GET /api/fixtures/run` and `/api/fixtures/events` return v2 fixture DTOs. Registered fixture artifact URLs serve the exact labeled synthetic bytes, never CAD geometry.
+
+The exact success envelopes below use `contractVersion: "wk-prototype-0.2"`. Object names denote their schema values, not extra nesting. JSON responses use `Content-Type: application/json; charset=utf-8` and `Cache-Control: no-store`.
+
+| Route | HTTP status | Response body |
+| --- | --- | --- |
+| `GET /api/health` | 200 | `{status:"ok",contractVersion,scopeStatus,providerConfigured,executionMode}` |
+| `GET /api/bootstrap` | 200 | `{contractVersion,scopeStatus,executionMode,design,requirements,runs,candidates,unavailableReason}` |
+| `POST /api/runs` | 202 first queue; 200 retry | `{contractVersion,reused,run}` |
+| `GET /api/runs` | 200 | `{contractVersion,runs}` |
+| `GET /api/runs/:runId` | 200 | `RunSchema` directly |
+| `GET /api/events`, `GET /api/runs/:runId/events` | 200 | `{contractVersion,events}` |
+| `PATCH /api/designs/:designId/requirements` | 200 | `{contractVersion,reused,design,requirements}` |
+| `POST /api/revisions/:revisionId/accept` | 200 | `{contractVersion,reused,acceptance,manifest}` |
+| `POST /api/revisions/:revisionId/export` | 200 | `{contractVersion,reused,acceptance,manifest}` |
+| `GET /api/acceptances` | 200 | `{contractVersion,acceptances,manifests}` |
+| `GET /api/candidates/:revisionId` | 200 | `CandidateSchema` directly |
+| `GET /api/acceptances/:acceptanceId` | 200 | `AcceptanceSchema` directly |
+| `GET /api/manifests/:manifestId` | 200 | `ManifestSchema` directly |
+| `GET /api/artifacts/:artifactId` | 200 | Exact registered bytes, not JSON; descriptor MIME type and attachment filename |
+
+History arrays are newest first in acceptance commit order. Join manifests to acceptances by `acceptanceId`, not array position. With no acceptance, the exact response is `{"contractVersion":"wk-prototype-0.2","acceptances":[],"manifests":[]}`. Both arrays come from the same committed store snapshot without an intervening asynchronous operation. Store list getters return deep clones. This route has no pagination, does not create an acceptance or manifest and works with unavailable adapters. Per-ID routes remain available. History contains public artifact descriptors, never runtime filesystem paths.
+
+An acceptance stores the exact request, accepted timestamp/state version, full candidate and requirements. A manifest binds its ID and acceptance ID to design/run/revision, requirements, geometry/source/proposal/check-bundle hashes, engine, checks, change summary, millimeter units and registered artifact descriptors. `manifestHash` hashes canonical JSON of the complete manifest with only `manifestHash` omitted. Packaging references existing checked bytes. Export revalidates the current accepted revision, exact acceptance/manifest and all artifact bytes. A requirements change blocks current export but preserves labeled historical artifact GETs. An old acceptance retry returns its original record without restoring current state.
+
+History reads return immutable records captured at acceptance, even if the corresponding current candidate is later superseded. They do not recheck artifact availability or establish that historical evidence meets today's requirements. Acceptance and export recheck registered byte counts and SHA-256 hashes; artifact GET also verifies the bytes. STEP/source hashes, required checks, editable and STL deliverables, and live provenance remain acceptance gates.
+
+## Errors and retries
+
+Every HTTP error has exactly `{contractVersion,error:{code,message,retryable}}`; no provider output, internal exception or schema diagnostics are returned. For example, a stale CAS returns HTTP 409 with `{"contractVersion":"wk-prototype-0.2","error":{"code":"STATE_CONFLICT","message":"The design state changed. Refresh before retrying.","retryable":false}}`.
+
+| Condition | HTTP status | Public code |
+| --- | --- | --- |
+| Invalid JSON/UTF-8, duplicate keys, wrong contract, extra fields, invalid cursor | 400 | `INVALID_REQUEST` |
+| Unrelated browser origin | 403 | `INVALID_REQUEST` |
+| Unknown route or resource ID | 404 | `INVALID_REQUEST` |
+| Changed payload or operation for a recorded request ID; route/body identity mismatch | 409 | `IDENTITY_CONFLICT` |
+| Stale state/requirements/selected revision or incompatible export identity | 409 | `STATE_CONFLICT` |
+| Mismatched, missing, failed, fixture or altered acceptance evidence/bytes | 409 | `EVIDENCE_CONFLICT` |
+| Mutation body exceeds 8192 bytes | 413 | `INVALID_REQUEST` |
+| Mutation content type is not `application/json` | 415 | `INVALID_REQUEST` |
+| New run without configured adapters | 503 | `TOOL_UNAVAILABLE` |
+| Unexpected server failure, including unreadable or altered artifact download | 500 | `EXECUTION_FAILED` |
+
+Internal error names such as `INVALID_CURSOR`, `RUN_NOT_FOUND` and `CONTENT_TYPE` normalize to the frozen public `INVALID_REQUEST` code. Use HTTP status to distinguish these cases. The exact safe error values, also used in run/candidate error fields, are:
+
+| Code | Message | retryable |
+| --- | --- | --- |
+| `INVALID_REQUEST` | The request is invalid. | false |
+| `IDENTITY_CONFLICT` | The request identity conflicts with existing data. | false |
+| `EVIDENCE_CONFLICT` | The evidence does not match the current requirements. | false |
+| `STATE_CONFLICT` | The design state changed. Refresh before retrying. | false |
+| `PROVIDER_UNAVAILABLE` | The generation provider is unavailable. | true |
+| `TOOL_UNAVAILABLE` | The engineering runtime is unavailable. | true |
+| `RUN_TIMEOUT` | The run exceeded its deadline. | true |
+| `EXECUTION_FAILED` | The engineering operation failed. | false |
+| `CHECK_FAILED` | The required checks could not be completed. | false |
+| `EXPORT_FAILED` | The checked export is unavailable. | false |
+
+Request IDs share one persisted namespace across mutations. Reusing an ID requires the same operation and canonical parsed payload, including `userActionId`; export also binds the route revision. A successful retry returns `reused:true`. Run retries return the original run identity with its current status. Requirements retries return the original update's design/requirements snapshot; acceptance retries return the original acceptance/manifest. Neither retry rolls current state back. Export retries still require current applicability and intact registered bytes. A failed mutation does not reserve its request ID.
+
+Acceptance requires an explicit `userActionId`, exact selected candidate and hashes, plus CAS against `expectedStateVersion`, `expectedAcceptedRevisionId` and the active requirements version. Requirements confirmation uses `expectedStateVersion` and `expectedRequirementsVersion`. After a conflict, fetch current bootstrap before deciding on another explicit action; do not silently refresh CAS fields and accept. Generation never autoaccepts. There is no selection endpoint.
+
+## Event cursors and reload recovery
+
+Events are persisted observations, not authoritative state replacements. `eventId` is a positive, globally increasing integer across all runs and design-level events in this runtime. IDs start at 1 and continue after restart; multiple events may share one `stateVersion`. `stateVersion` is the design mutation version, not an event cursor. Events carry optional run/candidate snapshots and an optional acceptance ID, but do not carry full updated design or requirements. In particular, `requirements.updated` has null run/candidate fields. A superseded run's event can identify its older requirements even though the design has newer requirements.
+
+Both event endpoints accept `after`, defaulting to `0`. It must be decimal digits representing a nonnegative safe integer. Responses contain all matching events with `eventId > after` in increasing order. No SSE, pagination, cursor token or high-water field is supplied. An empty response leaves the cursor unchanged; a cursor beyond the latest ID also returns an empty array. Run-filtered events retain their global IDs and can have gaps. Do not advance a global-feed cursor from a run-filtered feed, which omits other runs and design-level updates.
+
+On initial load or reconnect:
+
+1. Fetch `/api/events?after=0` on a fresh load, or use the last processed global event ID when reconnecting to the same persisted runtime. Save the largest returned ID, retaining the prior cursor if empty. Keep these events as observations.
+2. Fetch `/api/bootstrap` for authoritative current design, active requirements, runs and candidates. Fetch `/api/acceptances` separately to recover immutable acceptance/manifest history. Bootstrap intentionally has no history arrays or event cursor. Match current acceptance to `design.acceptedRevisionId` and use `acceptedRequirementsMatch` to distinguish current applicability from historical acceptance.
+3. Poll `/api/events?after=<saved-global-id>`. Deduplicate by `eventId`. Refresh bootstrap when new events arrive; refresh history for `revision.accepted` or when a bootstrap's accepted revision is missing from local history. Replace current UI state from bootstrap, not old event snapshots or replayed mutation responses. Persist a processed cursor after handling the response.
+
+Reading the event cursor before bootstrap ensures mutations racing with the snapshot fetch remain visible to the next poll. Bootstrap and history are separate requests, so a concurrent mutation may require another refresh to reconcile them. Events already reflected in bootstrap may still arrive; they must not regress displayed state. If an event's `stateVersion` is newer than the loaded design, fetch bootstrap again. With no known saved cursor, reconnect from `0` and deduplicate; never infer a cursor from run count, timestamps or `stateVersion`.
+
+A fresh runtime is a new event sequence. Discard a saved cursor when changing runtime/session; the API has no session token and cannot detect a cursor from a different runtime, so uncertain clients should restart from `0`. No event replay may create acceptance or change selection.
+
+Default startup uses `.runtime/backend-v2-<port>`. A supplied storageVersion 1 runtime throws a new-session error without changing its bytes. Interrupted v2 runs fail once on restart. No legacy automatic promotion is inferred to be human acceptance.
 
 `parsePublicRequest(raw, schema)` caps raw UTF-8 mutation bodies at 8192 bytes, rejects duplicate JSON keys, then parses the selected strict schema. Instructions and change summaries are capped at 2000 characters. HTTP integration must apply the body cap while reading too. Do not apply this small public-request helper to internal tool or evidence responses.
 
@@ -94,4 +176,4 @@ node node_modules/typescript/bin/tsc --noEmit
 node --import tsx scripts/build.ts
 ```
 
-Phase B must atomically migrate existing store/HTTP/provider/tool/frontend callers and v0.1 history, implement acceptance and requirements serialization, register checked artifacts, enforce trusted provenance, and exercise stale/racing/replayed requests. Old automatic revision advancement is not proof of prior human acceptance. Live isolated generation/verification, feature feasibility, real exports, browser downloads and physical testing remain outside this schema release.
+The server migration preserves v0.1 history by requiring a fresh runtime, migrates owned server/CLI callers and supplies v2 routes for the frontend handoff. Frontend integration and live tool/provider wiring remain separate tasks. Old automatic revision advancement is not proof of prior human acceptance. Live isolated generation/verification, feature feasibility, real exports, browser downloads and physical testing remain outside this schema release.
