@@ -1,154 +1,220 @@
 # WorldKinetics architecture
 
-Proposal `wk-plan-0.2`, September 8, 2026. This describes the next prototype. The implemented transport remains `wk-backend-draft-0.1`; a planning document does not enable a disconnected tool or establish a passing product run.
+Design `wk-plan-0.2`, September 8, 2026. PLAN-01 semantics are released for implementation. The executable transport remains `wk-backend-draft-0.1`; `wk-prototype-0.2` is the target. All diagrams below describe intended integration, not a completed product run. See the timestamped [evidence snapshot](provenance.md#evidence-snapshot).
 
-## Product
+## Product and components
 
-WorldKinetics lets someone adapt an accessory for an object they own through conversation. Astra creates editable CAD, examines the resulting geometry and rendered views, responds to measured conflicts, and revises the design with the user. Requirements, check evidence and accepted revisions live in the application.
+Help someone customize an owned accessory while retaining known interfaces and obtaining editable CAD with independent numerical checks. Start with the owned plate and a newly generated tactile feature. Consumer attachment, neighboring geometry and travel must be measured before a controller accessory can become the demonstration. No measured stand reference or physical-fit evidence is established.
 
-The target experience is: "Make this controller key easier to find by touch. Keep its attachment and leave the neighboring keys usable." A photo identifies the object and intended change. Precise attachment geometry and clearances come from measurements or a reliable dimensional reference.
+| Component | Selected approach | State at the documented snapshot |
+| --- | --- | --- |
+| Application | Node 22, TypeScript, Zod, atomic JSON state and immutable artifact files | Integrated HTTP/run/artifact scaffold; proposed acceptance migration pending. |
+| Landing | Existing 2D Precision layout, artwork, typography and themes | Integrated design preview, preserved separately from the CAD workspace. |
+| Workspace | `/workspace`, Three.js 0.186.0, millimeters and Z-up | Dependency and esbuild 0.28.2 bundle wiring integrated; workspace source/viewer not integrated. |
+| Product model | `gpt-6-astra` through Responses API | Separate one-shot access passed with matching requested/reported model; orchestration, generation and repair pending. |
+| CAD | build123d 0.11.1, cadquery-ocp-novtk 7.9.3.1.1 in a pinned arm64 container | Separate local isolation/geometry proof passed; runtime packaging and product adapter pending. |
+| Verification | Fresh trusted invocation against sealed STEP and immutable requirements | Local capability proof passed; complete product check registry pending. |
+| Preview feedback | Trusted STL export from checked STEP; fixed isometric/top/side renders | Proposed viewer and capture integration. Candidate HTML/scripts are never rendered. |
+| FreeCAD | Preserved native reference examples and inspection | Separate verified examples; build123d does not promise new FCStd history. |
+| Images 2.5 | Optional `gpt-image-2.5-flare` visual concepts | Proposed direct API path; separate marketing image experiment is not integration. |
+| Native steering | Optional Responses WebSocket continuation | Integrated applied continuation unverified; not a core dependency. |
 
-The first release is one supported accessory, one reference setup and one fabrication profile. Scope the object tightly while allowing Astra to create features through the CAD engine's existing Python API. Avoid making three numeric controls the ceiling of the product.
+Current [contracts](../src/shared/contracts.ts), [execution](../src/server/execution.ts) and [store](../src/server/store.ts) implement numeric operations, not candidate Python or explicit user acceptance. A compatible successful tool result advances `currentRevisionId` without requiring all engineering checks to pass. `run.accepted` means a request was admitted, not that a user accepted geometry. The [entry point](../src/server/index.ts) configures no selected design or tool. Build support in [scripts/build.ts](../scripts/build.ts) does not establish a working workspace.
 
-## Current evidence and next milestone
+## System and trust boundaries
 
-The TypeScript backend serves a static design preview, validates requests, records runs, handles incompatible completions and registers artifacts. The current provider proposes one numeric operation. It does not implement iterative CAD generation, image feedback or API-native steering. The store currently advances `currentRevisionId` after a compatible successful tool execution; it does not implement explicit human acceptance or require every engineering check to pass. Fix that distinction before presenting a review workflow.
-
-A separate FreeCAD trial created an editable two-hole plate and a revised copy. It checked solid validity, analytical volume, native/STEP reopening and STL integrity. See [CAD examples](../examples/plate/README.md). The product API has not yet called that CAD path.
-
-The next milestone is one browser request producing a real candidate, before/after views, independent measurements, explicit acceptance and usable exports. Reuse the plate as a known integration reference; it is not evidence of consumer-product fit.
-
-## System map
+The application scaffold exists. The model/CAD/check/review connections and new application records shown here are proposed; the CAD boundary has only a separate local capability proof.
 
 ```mermaid
-flowchart LR
-    U[User: intent, references, refinements] --> W[Workspace: model, conversation, changes]
-    W --> B[TypeScript backend: requirements, runs, revisions]
-    B <--> A[GPT-6 Astra: propose, inspect, revise]
-    A --> C[Candidate Python source]
-    C --> G[Isolated CAD worker]
-    R[Immutable reference geometry] --> G
-    G --> S[Untrusted candidate STEP]
-    S --> V[Separate trusted verifier]
-    R --> V
-    Q[Versioned requirements] --> V
-    V --> E[Measured checks and failure locations]
-    S --> P[Trusted preview export and rendering]
-    P --> A
-    E --> A
+flowchart TB
+    U["User"] --> W["Proposed workspace"]
+    subgraph APP["Application authority"]
+        B["Backend dispatcher"]
+        Q["Immutable requirements and reference"]
+        S["Stop generator and seal bytes"]
+        H["Selection and accepted history"]
+        P["Checked artifact store"]
+    end
+    W --> B
+    B --> A["Astra proposes tool calls"]
+    A --> B
+    subgraph GEN["Untrusted isolated job"]
+        G["Candidate Python and build123d"]
+    end
+    B --> G
+    Q --> G
+    G --> S
+    subgraph VERIFY["Fresh trusted job"]
+        V["STEP checks and trusted exports"]
+    end
+    S --> V
+    Q --> V
+    V --> B
+    V --> P
+    B --> W
+    B --> H
+    H --> P
     P --> W
-    E --> W
-    B --> H[Explicit user acceptance]
-    H --> X[Revision package: source, CAD, checks]
 ```
 
-The backend dispatches every operation. The arrows from Astra denote requests, not direct authority over the verifier, application state or user's filesystem.
+Backend dispatches model tool calls and controls job lifetimes. Astra has no direct verifier, filesystem, requirement-update or acceptance authority. The trusted job parses candidate geometry but never runs candidate Python. Generation and verification may use the same CAD library; independence comes from separate execution and authority.
 
-## Stack decisions
+## Request, repair and acceptance
 
-| Area | Proposed decision | Reason and gate |
-| --- | --- | --- |
-| Application | Existing Node 22, TypeScript and Zod scaffold | Keep the tested state, HTTP and artifact machinery. |
-| UI | Existing visual system; a separate `/workspace/` route with Three.js | Preserve the public placeholder's layout, artwork, typography and theme options. Add an actual CAD workspace without replacing it. |
-| Product model | `gpt-6-astra` through Responses API | Needed for the selected async/steering experiment; verify event credentials and access first. |
-| CAD generation | build123d in a pinned Linux container | It provides a direct Python modeling API and STEP/STL interchange. Pass a clean build/edit/export/reopen test on the actual host before committing to it. |
-| Verification | A separate invocation using trusted code and the same pinned CAD library | Independence comes from execution and authority separation. A second geometric kernel is unnecessary for this prototype. |
-| Preview | STL geometry in a millimeter, Z-up Three.js scene | Avoid a second mesh conversion path. Generate preview geometry from the same sealed STEP that was checked. |
-| Model image feedback | Trusted renderer loads that preview and captures fixed isometric/top/side views | The renderer must not execute candidate HTML or scripts. Test a reusable Playwright/browser capture before depending on it. |
-| Storage | Existing atomic JSON state plus immutable local artifact files | One demo operator and serialized state updates do not require a database, Redis or a new queue service. |
-| FreeCAD | Existing reference and inspection application | Preserve the working native examples. Do not operate a second product CAD runtime in parallel. |
+Proposed sequence for a compatible request. Trusted exports and checks finish before review. The backend rechecks applicability on each completion and on acceptance; an incompatible completion stays historical.
 
-build123d is a Python modeling framework over OpenCASCADE; its documented export interfaces support this proposal. A local runtime is not yet verified. [build123d](https://build123d.readthedocs.io/en/stable/), [export documentation](https://build123d.readthedocs.io/en/stable/import_export.html).
+```mermaid
+sequenceDiagram
+    actor U as "User"
+    participant B as "Backend"
+    participant A as "Astra"
+    participant G as "Isolated generator"
+    participant V as "Trusted verifier"
+    participant H as "Application records"
+    U->>B: Request with confirmed requirements
+    B->>H: Capture version and source revision
+    loop At most three candidates within deadline
+        B->>A: Intent, source and current evidence
+        A-->>B: Candidate Python tool call
+        B->>G: Dispatch bounded CAD job
+        G-->>B: Candidate STEP
+        B->>B: Terminate job and seal exact bytes
+        B->>V: Sealed STEP and trusted inputs
+        V-->>B: Measurements and checked exports
+        alt Required check fails
+            B-->>A: Numerical feedback for a new candidate
+            B-->>U: Show measured failure
+        else All required checks pass and evidence is current
+            B->>H: Select reviewable candidate
+            B-->>U: Actual preview and checks
+        end
+    end
+    U->>B: Accept exact selected revision and evidence
+    B->>H: Serialized compare and swap
+    alt Selection, requirements and checks still match
+        H-->>B: Write separate acceptance record
+        B-->>U: Package already checked source, STEP and STL
+    else Evidence is stale or ineligible
+        B-->>U: Reject acceptance with conflict
+    end
+```
 
-The build123d source package is Python plus parameters and reference geometry. Importing its STEP into FreeCAD does not reconstruct a native sketch/history tree. Existing FreeCAD examples retain their actual `.FCStd` files; native-history export is not promised for the proposed worker.
+Stop generation when a candidate is ready for review, input needs clarification, the attempt/deadline budget is exhausted, or a user update makes work incompatible. A repair creates a new candidate and retains the failed one. Never fabricate a failure or silently substitute fixture geometry.
 
-At planning inspection Docker CLI and Docker Desktop were installed, but the daemon was unreachable. The first runtime gate is operational, not an invitation to execute generated Python unrestricted on the desktop. If the isolated path fails its timebox, stop adding infrastructure and report the tradeoff: use the trusted, reviewed FreeCAD plate path for a reduced integration demo, or select one other verified isolated runtime. Do not silently label the reduced path autonomous generation.
+Proposed candidate states are separate from run status and accepted history:
 
-## The model loop
+```mermaid
+stateDiagram-v2
+    state "building" as building
+    state "checking" as checking
+    state "reviewable" as reviewable
+    state "rejected" as rejected
+    state "superseded" as superseded
+    state "failed" as failed
+    [*] --> building
+    building --> checking: Sealed output
+    building --> failed: Execution failure
+    checking --> failed: Verification cannot finish
+    checking --> rejected: Required evidence fails
+    checking --> reviewable: All required evidence passes
+    building --> superseded: Incompatible update
+    checking --> superseded: Incompatible update
+    reviewable --> superseded: Incompatible update
+    note right of reviewable
+        User acceptance writes a separate application record.
+        acceptedRevisionId references exact checked evidence.
+        Accepted history survives later requirement updates.
+        Acceptance is not a candidate enum value.
+    end note
+```
 
-1. Backend creates a run with the current requirements version, reference identity and selected source revision. It supplies Astra with the request, reference dimensions, protected regions, source code, compact API guidance and available evidence.
-2. Astra proposes a candidate program through `build_candidate`. The payload contains Python source and a short public change description. It cannot contain replacement checks, acceptance thresholds, container commands or host paths.
-3. The CAD worker executes the candidate in a fresh restricted job and produces STEP. Candidate-generated measurements and "passed" statements are untrusted output.
-4. After the generator has exited and its process group/container is gone, trusted code seals the candidate bytes and computes hashes. A fresh verifier imports that STEP without executing the candidate source. Trusted exports and preview views are produced from the sealed geometry.
-5. Astra receives numerical checks, spatial failure evidence and actual rendered views. It can call `build_candidate` again with a corrected source. Keep at most three candidates per user request initially, with visible attempts and a total request deadline. Stop on an unresolved input, exhausted budget or incompatible user update.
-6. Passing a check makes a candidate eligible for review. Only the user can accept it. Failed candidates remain inspectable and cannot replace the accepted design.
+## Execution and runtime budget
 
-Start with `build_candidate` and `inspect_candidate` (structured dimensions/checks plus rendered views). Add `wait_for_jobs` only when native async tooling is enabled. Requirements edits and acceptance are application/user actions. Do not build a CAD DSL or hundreds of feature wrappers. The fixed transport and trust boundary do not restrict the geometric API to presets.
+Candidate source uses the existing build123d Python API through a proposed `build_candidate` tool; `inspect_candidate` returns trusted measurements and actual views. No CAD DSL or preset ridge implementation is needed. Candidate payloads cannot replace validators, thresholds, container commands or host paths. [build123d import/export documentation](https://build123d.readthedocs.io/en/stable/import_export.html) describes the STEP/STL interfaces used by the selected engine.
 
-Initial proposed runtime bounds: one CAD mutation at a time; generator 60 seconds, verifier 30 seconds, renderer 15 seconds; three attempts and 180 seconds total per request; 64 KB source, 25 MB artifact output, 100,000 preview triangles. These are prototype limits to tune from the first real run, not measured performance or user spending authorization. Provider requests must also obey available token/credit limits.
+Run generated code in a disposable non-root container with read-only root, no network, credentials, Docker socket or home/project mounts, dropped capabilities and resource limits. Mount only immutable reference inputs and a private output directory. Stop the generator and its remaining processes before sealing output. Reject symlinks, unexpected files, excess output and paths outside that directory. A subprocess or loopback MCP bridge alone is not isolation.
 
-## Execution boundary
+The verifier starts fresh with trusted validator code, immutable requirements/reference and read-only candidate STEP. Candidate measurements are untrusted. Reproduce boundary probes on the packaged runtime: non-root execution, network denial, root/reference write denial, host-access denial and process timeout. Passing the local gate does not certify a public multi-tenant service.
 
-Generated code runs in a disposable non-root container with a read-only root filesystem, no network, no credentials, no Docker socket, no home/project mounts, dropped capabilities and resource limits. Mount only its immutable reference inputs and private output directory. Candidate code cannot write requirements, validator code, another run or accepted artifacts. Build the image from reviewed dependency declarations, record its digest and use one engine version for generation and verification.
+| Proposed budget | Limit |
+| --- | --- |
+| CAD concurrency | One job at a time, including source regeneration |
+| Per-stage deadlines | Generator 60 s; verifier 30 s; renderer 15 s |
+| Per-request budget | At most three candidates and 180 s total; stop at the first exhausted limit |
+| Input/output | Source 64 KB; artifact output 25 MB; preview 100,000 triangles |
 
-Run the verifier in a fresh container with trusted validator code, trusted requirements/reference inputs and the candidate geometry mounted read-only. Stop the generator before verification to prevent changes between checking and export. Reject symlinks, excess outputs, unexpected file types and files outside the assigned directory. Treat CAD parsing as untrusted input too. Container controls and limits are documented by Docker; their actual enforcement must be tested on the chosen host. [Docker execution controls](https://docs.docker.com/engine/containers/run/).
+These are initial limits, not measured latency. Provider calls and continuations share the application deadline and available usage budget. There is no authorization to exceed account limits.
 
-Required boundary probes: attempts to read a host sentinel, write the reference, use the network, leave background work running or exceed the deadline fail; a valid model still completes. No test should contain real credentials. This is a gated prototype runner, not a claim of hardened public multi-tenant execution.
+## Reference setups and exact checks
 
-## Reference and checks
+The [plate examples](../examples/plate/README.md) preserve the 40 x 30 x 8 mm original and separate revised baseline. The proposed setups below are distinct immutable requirement versions; never apply resize semantics to the fixed feature case.
 
-Canonical integration baseline: `examples/plate/revised/plate-50x35x5.FCStd` and matching STEP. Dimensions 50 x 35 x 5 mm; two 6 mm through-holes; centers (15, 17.5) and (35, 17.5) mm; spacing 20 mm; volume 8467.256661176916 mm3. Preserve the separate 40 x 30 x 8 mm original. build123d can reconstruct this simple reference from exact supplied dimensions and must match the expected geometry/volume before further edits.
+| Contract item | Exact value or rule |
+| --- | --- |
+| Baseline | 50 x 35 x 5 mm; one solid; volume 8467.256661176916 mm3 |
+| Frame | Millimeters; right-handed; Z-up; X length, Y width; origin at minimum plate corner |
+| Bores | Two 6 mm through-bores at (15, 17.5) and (35, 17.5) mm; pitch 20 mm |
+| `resize_centered_v1` | Width 35 and thickness 5; centers move to ((L - 20) / 2, 17.5) and ((L + 20) / 2, 17.5); diameter and pitch stay fixed |
+| Resize conflict | Requested L = 30 gives analytic end material (L - 20 - 6) / 2 = 2 mm against the 5 mm demo rule. User-confirmed L = 36 gives 5 mm. Never clamp or claim 36 satisfies 30. Generate and measure both candidates. |
+| `tactile_feature_v1` | Freeze the 50 x 35 x 5 baseline, all baseline material and both full-extent open bores; allow only the requested addition |
+| Allowed addition box | x = 20..30, y = 25..30, z = 5..7 mm |
+| Required added geometry | Added spans X = 8..10, Y = 3..5, Z = 2 mm; positive added volume greater than 1 mm3; resulting shape remains one valid solid |
+| Appearance preference | Rounded appearance is a preference unless separately measured and confirmed as a requirement |
+| Linear tolerance | 0.01 mm |
+| Boolean difference tolerance | 0.01 mm3 |
+| Reopened volume tolerances | STEP relative error 1e-5; STL relative error 1e-3 |
 
-For the first conflict test explicitly establish minimum hole-to-edge material of 5 mm. Request length 30 mm while preserving hole diameter, centering and spacing. Measured end material must be 2 mm, so the candidate fails. The minimum compliant length is 36 mm. This threshold is a design requirement for the demonstration, not a structural strength criterion. The proposed correction must be generated and rechecked; no canned failure badge or cached success.
+These are demonstration numerical tolerances and an illustrative margin rule, not manufacturing certification or structural criteria. Full-extent bore keepouts prevent an added feature from capping a hole above the original plate. Evaluate added spans on candidate-minus-baseline geometry, not total part bounds.
 
-After integration, prefer the Codex Micro tactile keycap if a measured attachment, complete neighboring geometry and travel envelope are available. Use a 20-minute initial reference gate. If missing, a stand fallback requires an actual measured reference and the user's choice; no measured stand package was found in the project files inspected during fleet planning. Do not invent either geometry or silently switch the product. The plate can continue unblocking integration during that decision.
+Seven base check IDs are required. The feature setup adds two more:
 
-| Check | Computation and evidence | Acceptance meaning |
-| --- | --- | --- |
-| Geometry | Reimported valid nonempty solid, expected solid count, bounds, volume; requested numeric dimensions when specified | Numerical geometry validity, not physical strength. |
-| Protected interface | Compare candidate geometry clipped to a trusted protected region against the baseline using Boolean differences and appropriate geometric tolerances | Interface geometry preserved within recorded numerical tolerances. Do not rely on an object label or candidate report. |
-| Clearance / hole margin | Distance/intersection against trusted keep-out geometry; keycap motion uses an established swept envelope or explicitly bounded sampling method | Pass only for the checked setup. Include measured distance, threshold, units and closest-point/region evidence. |
-| Fabrication features | Check supported feature dimensions against a named, versioned process profile | The first profile and numeric thresholds must be confirmed or labeled illustrative; unsupported global thin-wall checks remain not evaluated. |
-| Exports | Reopen STEP, compare geometry/volume; validate STL connectivity/winding/volume; regenerate preview from checked shape | Files correspond to the checked revision and are usable in the tested readers. STL units are explicitly millimeters. |
+| Check ID | Trusted computation |
+| --- | --- |
+| `geometry.valid_single_solid` | Reopened geometry is valid, nonempty and exactly one solid. |
+| `geometry.requested_dimensions` | Bounds and dimensions match the chosen setup, including its permitted addition. |
+| `holes.layout` | Diameter, centers, pitch and open bores match the setup; centered motion is allowed only in resize. |
+| `margin.end_material` | Measure hole-to-end material against the unchanged 5 mm demo rule. |
+| `export.step_reopen` | Reopen exact sealed STEP; compare geometry and volume within recorded tolerances. |
+| `export.stl_reopen` | Read trusted STL; validate byte layout, bounds, volume and required mesh integrity checks. Record units as mm. |
+| `export.editable_reopen` | Regenerate delivered source in isolation, stop/seal that job, then compare its geometry in a fresh trusted verifier. |
+| `interface.protected_region` | Feature only: Boolean comparison preserves all baseline material and full-extent open bores; disallow changes outside the allowed addition. |
+| `feature.requested_change` | Feature only: measure the actual addition's location, spans and positive volume against the table. |
 
-Mandatory checks block acceptance if failed or not evaluated. Optional physical-fit, comfort and printing outcomes have separate unverified states and do not masquerade as geometry passes. The user may explicitly revise a requirement, creating a new version; Astra may not lower a threshold to repair a candidate. No FEA is required for a tactile feature. Add simulation only after a real load case, material, supports and validation method justify it.
+The local capability gate does not prove all these checks are implemented. For `export.editable_reopen`, the backend schedules the isolated regeneration; the verifier never executes candidate Python. Editable build123d delivery means source, parameters when applicable and references. A FreeCAD final-solid document is not automatically parametric history; preserve the actual native histories in the existing examples.
 
-## Revision and evidence contract
+## Requirements, evidence and concurrency
 
-BACKEND owns the executable migration from `wk-backend-draft-0.1` to proposed `wk-prototype-0.2`. Retain request idempotency, strict schemas, private artifact registration and monotonic events. Extend them narrowly:
+The application owns these proposed records; BACKEND owns their executable schemas and canonical JSON fixtures:
 
-- `Design`: reference identity/hash, `activeRequirementsVersion`, `acceptedRevisionId`, `selectedCandidateRevisionId` and `activeRunId`. Generation completion changes the candidate selection, never the accepted revision.
-- `Requirements`: immutable version, units, reference/setup hash, named checks, thresholds/tolerances, protected/keep-out regions and whether each check is required. Store proposed requirement changes separately until the user confirms consequential changes.
-- `Candidate`: source revision, requirements version, source hash, engine/image digest, attempt ID, artifact IDs and `building | checking | reviewable | rejected | superseded | failed`. User acceptance is a separate atomic record.
-- `CheckResult`: candidate revision, requirements/setup version, validator version, input geometry hash, method, measured value, threshold, units, state and optional `pointPair`/`box` region in the shared millimeter frame. Whole-object findings need no invented highlight.
-- `Acceptance`: exact candidate revision, requirements version and check-bundle hash. Accept only the current eligible candidate with all required checks passed; stale or changed evidence returns `409`.
+| Record | Required identity and meaning |
+| --- | --- |
+| Design | Reference identity/hash, `activeRequirementsVersion`, `selectedCandidateRevisionId`, `acceptedRevisionId`, `activeRunId` |
+| Requirements | Immutable version and setup hash, units/frame, required check IDs, thresholds, tolerances and protected/keepout geometry |
+| Request/run | Idempotent request ID and content; one orchestration run with captured requirements, input source revision and bounded candidate attempts |
+| Candidate revision | Unique attempt/revision ID, source hash, requirements/setup identity, engine/image digest and artifact references |
+| Check bundle | Candidate revision, requirements/setup version, validator version, exact input STEP hash, methods, measurements, thresholds, units and states |
+| Acceptance | Exact selected candidate revision, requirements version and check-bundle hash, recorded atomically by a user action |
 
-A requirement update increments the version immediately, marks incompatible pending work historical/superseded and leaves accepted history intact. Old jobs may finish, but their results cannot become evidence for the new requirements. Do not cache check passage in this first version. A changed requirement needs fresh verification. An accepted historical model may cease to satisfy the latest requirements; display that distinction.
+Keep candidate STEP byte identity distinct from geometry equivalence. Source, sealed STEP, each export, canonical requirements and check bundle have their own SHA-256 identities. BACKEND supplies canonical JSON encoding and test fixtures; Python consumers verify those supplied canonical bytes instead of using independent default JSON serialization. Checks cannot be reused across changed requirements in this first version.
 
-Keep `/api/runs`, run polling and registered artifact endpoints. Add only the needed operations: update design requirements, accept an exact revision, export an accepted revision, and steer a pending run. BACKEND chooses exact route names and migrates every fixture/caller atomically. The old numeric operation can remain for the integration fixture, but generated source needs a separate discriminated payload instead of being hidden inside numeric parameters.
+One failed required check, `not_evaluated`, missing or duplicate ID, unknown check/state, stale result or mismatched identity blocks acceptance. The expected registry comes from trusted requirements. The model cannot edit that registry, lower thresholds or auto-accept.
 
-Browser/model progress comes from real events such as candidate started, geometry available, check completed and candidate superseded. Show public action descriptions and actual tool results, not fabricated internal reasoning.
+Requirement updates and acceptance share one serialized compare-and-swap (CAS) state boundary. Acceptance compares expected requirements version, selected candidate and check-bundle identity inside the same transaction that records it. Changed or ineligible evidence returns `409`. An explicit user-confirmed requirement update increments the version and supersedes incompatible work while preserving accepted history. If acceptance wins the race first, it remains historical under the prior requirements; it does not certify the updated design.
 
-## Astra experiments
+Late tool/model completions retain their original request/run/revision identities and cannot replace the current selection or evidence. A changed selection cannot be overwritten by an obsolete completion. Identical retries reuse the original request/run even after a version change; changed content needs a new ID. A new requirement version requires fresh checks and a new eligible candidate before acceptance.
 
-| Experiment | Observable test | Status at planning |
-| --- | --- | --- |
-| New geometry | Ask for a raised tactile feature or cable relief that has no prewritten feature implementation; check it exists and preserves the protected region | Not tested in the product. |
-| Feedback repair | Generate an invalid candidate, return unchanged verifier results and actual views, then obtain a valid correction | Not tested in the product. |
-| Async tools | Dispatch a real CAD/check job; answer an independent question while it runs; consume its later result under the original call identity | Documented Astra feature; local product access unverified. |
-| Mid-turn steering | Change requirements during a pending response/job; continue with the update and prevent obsolete results from being accepted | Documented Astra feature; local product access unverified. |
-| Reasoning effort change | Use higher effort for a difficult repair while retaining conversation context | Optional after the core loop; do not spend the demo on configuration. |
+Keep existing run polling, monotonic event IDs and registered artifact endpoints. Add requirements update, exact acceptance and accepted-package operations only through the shared v0.2 migration. BACKEND selects route names and updates all callers/fixtures together. Documentation does not activate routes. The browser shows actual public actions and results, selected candidate versus accepted history, before/after geometry and spatial failure evidence.
 
-Async tools do not execute our workers or manage their lifecycle. Mid-turn steering over Responses WebSockets does not undo actions or cancel already-started tools, and an accepted steer only means it is queued. Track its acknowledgement, application and any disconnect separately. Reconcile queued input after reconnect before replaying it. [Astra guide](https://developers.openai.com/api/docs/guides/latest-model), [async tools](https://developers.openai.com/api/docs/guides/async-tool-calling), [steering](https://developers.openai.com/api/docs/guides/steering).
+## Optional images and native steering
 
-The existing Codex CLI authentication probe remains useful evidence of a constrained response. It does not verify the API key route, image feedback, async calling or steering. Probe the intended product transport early. If native steering is unavailable, expose ordinary queued follow-up requests honestly and retain application-level supersession. A CLI-based fallback requires its own generation/feedback test; do not describe the existing numeric planner as that fallback already working.
+Images 2.5 is optional visual intent support using planned API model `gpt-image-2.5-flare`: actual CAD render -> concept -> user selects direction -> separately confirmed explicit requirements -> generated CAD and independent checks. Keep concepts labeled as images. They neither supply dimensions nor enter geometry acceptance evidence. A separate provider-reported marketing experiment does not establish this direct API path or replace the approved SVG logo. See the official [image generation guide](https://developers.openai.com/api/docs/guides/image-generation) and [Images 2.5 launch](https://openai.com/index/introducing-chatgpt-images-2-5/).
 
-Astra accepts text/image inputs and emits text; voice requires a separate transcription/audio layer. Build text first and treat push-to-talk as a later input convenience. [Model documentation](https://developers.openai.com/api/docs/models/gpt-6-astra).
+Native steering is optional. The Responses API can queue a mid-turn update, but acknowledgement alone does not prove it was applied. An integrated test must observe the continuation incorporating the update and reject incompatible old results. Steering does not cancel started tools or undo actions; the backend still owns job cancellation and requirements CAS. Reconcile queued input after reconnect before replaying it. Ordinary queued follow-up requests must be labeled as such. See [official steering documentation](https://developers.openai.com/api/docs/guides/steering).
 
-## Workspace and fabrication handoff
+## Export and remaining gates
 
-The model occupies the main view. Keep a compact conversation panel, before/after toggle, requirements/checks list, failed-region highlight and candidate history. Distinguish the selected candidate from the accepted revision. The public landing page stays unchanged. Use the existing theme tokens in the new workspace.
+Before acceptance, trusted code prepares and checks `model.py`, optional `parameters.json`, reference geometry, `part.step`, `part.stl`, `requirements.json`, `checks.json` and revision metadata. The accepted download packages those exact checked bytes with a hash manifest and change summary. It must not perform a new unchecked CAD re-export. Record engine/validator versions, units and exact revision; confirm downloads match their registered hashes.
 
-The accepted package contains `model.py`, `parameters.json` when applicable, referenced baseline geometry, `part.step`, `part.stl`, `requirements.json`, `checks.json`, `change-summary.md` and a manifest with hashes/units/runtime versions. Add actual orthographic views and a one-part material/process specification once available. Exact drawing dimensions come from geometry; no decorative dimensions. BOM may contain one item. Supplier quoting and ordering are later integrations.
+Required integration evidence remains: one real edit, a newly generated feature, actual failure and repair, preserved original, working viewer, explicit acceptance, reopened exports, stale-result rejection and clean reset/repeat. Physical fit, strength, fabrication, simulation and supplier actions remain unverified. Public live CAD hosting needs a separately tested execution host and access controls; the static preview cannot run the CAD worker. Any replay must be labeled recorded execution.
 
-The prototype runs locally first. Before the deadline, choose and verify a separately hosted workspace or a public read-only replay of real exported runs. Hosted execution requires a container-capable host, server-side provider access, an authenticated demo session, request/concurrency limits and a verified HTTPS path. The current static Cloudflare placeholder cannot execute the local CAD worker. Do not expose the desktop bridge or an unrestricted generation endpoint. A replay is labeled recorded execution; it does not establish public live CAD access. Keep the live local demo reproducible in either case.
-
-## Acceptance and scope cuts
-
-Required: one real integrated edit; one newly generated feature beyond a preset resize; one genuine failed requirement and corrected candidate; original preserved; explicit acceptance; export/reopen integrity; late incompatible completion cannot accept/promote; restart/reset does not mix artifacts; working viewer and honest failure states. Run boundary probes before executing model-generated source.
-
-The live demonstration adds a changed requirement while work is pending if the native steering probe passes. Collect timings and attempts from actual runs. They are case results, not model-wide performance claims.
-
-Cut in order when time is short: supplier UI, voice output, dynamic reasoning controls, decorative drawings, extra candidate branches, second object, FEA. Preserve the actual generate/check/revise/review loop and technical evidence. If new-geometry generation or isolation fails, report that reduced scope directly and keep the last working demonstration.
-
-Parallel ownership and the evidence schedule are in [build plan](build-plan.md). Original work and dependency attribution are in [provenance](provenance.md).
+See [build plan](build-plan.md) for ownership and completion gates and [provenance](provenance.md) for attribution.
