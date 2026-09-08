@@ -1,0 +1,158 @@
+{
+  "scope": "Observed failed reference mesh resolution trial; no artifacts were delivered by the helper",
+  "reason": "Contact-layer mesh volume difference exceeded the unchanged 0.01 mm3 requirement",
+  "originalMeasurementSha256": "fa8d94a1cb650f1ed55f865a23e4a0b6913be924ac0930de2cb7e441593afb68",
+  "verifierSha256": {
+    "handle_geometry.py": "5de38a1bfac1883a5c37853fc295680e30f3efac6a2723e0acc0ade8770251af",
+    "handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58",
+    "handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "verify.py": "e6b9297a0b57a3ab15b82948d431018a93e0855402640a084969d78b5f1e8fa4"
+  },
+  "measurement": {
+    "engine": {
+      "version": "0.11.1",
+      "ocpVersion": "7.9.3.1.1"
+    },
+    "reference": {
+      "passed": true,
+      "contacts": [
+        {
+          "radiusMm": 7.0,
+          "centerMm": [
+            -48.0,
+            0.0,
+            0.0
+          ],
+          "areaMm2": 153.93804002589985
+        },
+        {
+          "radiusMm": 7.0,
+          "centerMm": [
+            48.0,
+            0.0,
+            0.0
+          ],
+          "areaMm2": 153.93804002589985
+        }
+      ],
+      "axes": [
+        {
+          "radiusMm": 7.0,
+          "centerMm": [
+            -48.0,
+            0.0,
+            0.0
+          ],
+          "axis": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "bounds": [
+            [
+              -55.0,
+              -7.0,
+              0.0
+            ],
+            [
+              -41.0,
+              7.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "radiusMm": 7.0,
+          "centerMm": [
+            48.0,
+            0.0,
+            0.0
+          ],
+          "axis": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "bounds": [
+            [
+              41.0,
+              -7.0,
+              0.0
+            ],
+            [
+              55.0,
+              7.0,
+              2.0
+            ]
+          ]
+        }
+      ],
+      "mountPitchMm": 96.0,
+      "solidCount": 2,
+      "volumeMm3": 615.7521601035996,
+      "bounds": [
+        [
+          -55.0,
+          -7.0,
+          0.0
+        ],
+        [
+          55.0,
+          7.0,
+          2.0
+        ]
+      ]
+    },
+    "checks": [],
+    "mesh": {
+      "sha256": "ad4791cf48af3362b4709b31d1a61b6f520ffce35d0e692ab53e2c08b044538a",
+      "bytes": 251284,
+      "passed": false,
+      "triangles": 5024,
+      "components": 2,
+      "componentVolumesMm3": [
+        307.8709556982207,
+        307.8709556982202
+      ],
+      "volumeMm3": 615.7419113964406,
+      "bounds": [
+        [
+          -54.99991226196289,
+          -6.999978065490723,
+          0.0
+        ],
+        [
+          55.0,
+          6.999978065490723,
+          2.0
+        ]
+      ],
+      "relativeVolumeDifference": 1.6644208210789344e-05,
+      "watertight": true,
+      "consistentlyOriented": true,
+      "contacts": [
+        {
+          "centerMm": [
+            -47.99999978669254,
+            2.194147393876917e-07
+          ],
+          "radiusMm": 6.999999786692573,
+          "radialResidualMm": 2.3377807059077327e-06
+        },
+        {
+          "centerMm": [
+            48.00000021330743,
+            2.194147393876917e-07
+          ],
+          "radiusMm": 6.999999786692545,
+          "radialResidualMm": 2.3377807059077327e-06
+        }
+      ],
+      "contactLayerWithinPads": true,
+      "contactLayerVolumeMm3": 615.7419113964404,
+      "contactLayerVolumeDifferenceMm3": 0.010248707159007608
+    }
+  }
+}

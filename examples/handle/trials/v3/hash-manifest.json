@@ -1,0 +1,177 @@
+{
+  "scope": "Actual direct-work strict threshold observations; OUTSIDE_WRAPPER; unchanged v1 and v2 historical artifacts",
+  "verifierHashes": {
+    "src/tools/adapter.ts": "fca08a0416d7911839de331364fb926af01bc7909ae462919b26ab7500229a14",
+    "src/tools/cad_runner.py": "f0151dae92cc051369bd54ca9d5ca691b123391424267c23224f41dd844c33cc",
+    "src/tools/handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "src/tools/handle_geometry.py": "b187a4763c20275642958dd25dd5242d98f8308a7e317bd4386d031015205d2c",
+    "src/tools/handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "src/tools/handle_pipeline.py": "dbfc243ed6f050af78e12fec4b8bd1d67fccba402966e280d9a3074f0c6cbca3",
+    "src/tools/handle_reference.ts": "ad7574534a932ec9653940dfa108433a3a25df562eb6502d6d31ec6f0f40604e",
+    "src/tools/handle_verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6",
+    "src/tools/requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "src/tools/mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58"
+  },
+  "files": {
+    "examples/handle/trials/v3/reference/reference.step": {
+      "sha256": "526b50820235ccb119d1d6d9872423e5c607feea5e410df417d70d6af47ce651",
+      "bytes": 12861
+    },
+    "examples/handle/trials/v3/reference/preview.stl": {
+      "sha256": "3e2c284fee68df261d3aaec51cd77d0c527502d4cdb3c6c42498e71e1f3755ca",
+      "bytes": 502484
+    },
+    "examples/handle/trials/v3/reference/datums.json": {
+      "sha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+      "bytes": 478
+    },
+    "examples/handle/trials/v3/reference/provenance.json": {
+      "sha256": "a22a918628c852a725746e517f023374633096a8ed98d23d323e0d3e5fc802c4",
+      "bytes": 3901
+    },
+    "examples/handle/trials/v3/valid_initial/source.py": {
+      "sha256": "54e96bae846ee88df3f934b0d2cd6882bbed6cd49c4fd7aadb65e755c65a724c",
+      "bytes": 662
+    },
+    "examples/handle/trials/v3/valid_initial/editable.py": {
+      "sha256": "54e96bae846ee88df3f934b0d2cd6882bbed6cd49c4fd7aadb65e755c65a724c",
+      "bytes": 662
+    },
+    "examples/handle/trials/v3/valid_initial/candidate.step": {
+      "sha256": "0f4a7aebc75dd71e4e4aaa27f3aaed670e12c58e894e82228d442f4c6ef39354",
+      "bytes": 39675
+    },
+    "examples/handle/trials/v3/valid_initial/preview.stl": {
+      "sha256": "0b701057c3b473ab59048efdb0adfd386eb9f69761f2a1bacdf8cbfa0d48c1c9",
+      "bytes": 1006684
+    },
+    "examples/handle/trials/v3/valid_initial/result.json": {
+      "sha256": "4f8a1770e982144c0ea57eb2865316be30d6a0a04798e39bfd2308c743d3e232",
+      "bytes": 63390
+    },
+    "examples/handle/trials/v3/valid_initial/provenance.json": {
+      "sha256": "20ae67bc58f3dc729ec278fd7a3472bf0ed579e72127e7bd4619c215b7648d72",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/source.py": {
+      "sha256": "29edcf3b8a990e5694d13b05c27fd56f1abdc538d014545acd4d4ae3da0b552a",
+      "bytes": 696
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/editable.py": {
+      "sha256": "29edcf3b8a990e5694d13b05c27fd56f1abdc538d014545acd4d4ae3da0b552a",
+      "bytes": 696
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/candidate.step": {
+      "sha256": "cfc112beae948c69653e8813cc13c9cdd5d22b4a607b64070d4d7dc970e2ab7e",
+      "bytes": 101041
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/preview.stl": {
+      "sha256": "62fbee24686cb60f2ef461e00bf5874bc97f5a4625605958cb96877dd01b7c60",
+      "bytes": 1387484
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/result.json": {
+      "sha256": "06c587f6935f211eb993244b03933bd32ff3c1835b2cebdef262efce531cb82f",
+      "bytes": 65815
+    },
+    "examples/handle/trials/v3/rotated_seam_initial/provenance.json": {
+      "sha256": "ae25401c8c57d23e538546c4a833879c92baef564573810fd216451fcb45b3ae",
+      "bytes": 1796
+    },
+    "examples/handle/trials/v3/valid_refinement/source.py": {
+      "sha256": "69ab4b09a5f9bf0e0e0d086c17747452e7df6791f2ea9f7370eaa8c7b20ea41f",
+      "bytes": 825
+    },
+    "examples/handle/trials/v3/valid_refinement/editable.py": {
+      "sha256": "69ab4b09a5f9bf0e0e0d086c17747452e7df6791f2ea9f7370eaa8c7b20ea41f",
+      "bytes": 825
+    },
+    "examples/handle/trials/v3/valid_refinement/candidate.step": {
+      "sha256": "743d0b454dd854bea9d50c795df8f698704304e9670114662946a17d73b32503",
+      "bytes": 82421
+    },
+    "examples/handle/trials/v3/valid_refinement/preview.stl": {
+      "sha256": "6a27d3eae5a38c807e9e81ed69847b386619393598dc238fdada7a92b634bcd8",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v3/valid_refinement/result.json": {
+      "sha256": "4e559111d2ae2ba9e9666c42d64a85501cd40a569ca737ecf4c2e5619d2ee363",
+      "bytes": 113651
+    },
+    "examples/handle/trials/v3/valid_refinement/provenance.json": {
+      "sha256": "1c2f797d266fc44eb0250ae84551763bd5383ddc4111aa012c9b066905c808c4",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/source.py": {
+      "sha256": "129858d127b6f6545247d824a098ea3382c08837b28a2432f0e34a0ba154f990",
+      "bytes": 830
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/editable.py": {
+      "sha256": "129858d127b6f6545247d824a098ea3382c08837b28a2432f0e34a0ba154f990",
+      "bytes": 830
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/candidate.step": {
+      "sha256": "579677cb09a6b66d072d335c8d348aee09004698d0b1c92762752ccf077830e3",
+      "bytes": 82464
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/preview.stl": {
+      "sha256": "3cd204832ac1e4e996cfd0db28b4f6798f8fdbdb966b66cbec9159e6ec554d9e",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/result.json": {
+      "sha256": "8ffb9cc8a5cd58d2d4589518bcc3f9ae20486c595402d84a59433aa08cf04f6a",
+      "bytes": 113750
+    },
+    "examples/handle/trials/v3/outboard_below_minimum/provenance.json": {
+      "sha256": "14a016017fc8e1e8af6d56610c111bc3e67e4c8fda36a44f66411f4335965f5e",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/source.py": {
+      "sha256": "6003b2b87019b3e824517aac943bc0272c8ebdb033fff548e292255f008d989e",
+      "bytes": 827
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/editable.py": {
+      "sha256": "6003b2b87019b3e824517aac943bc0272c8ebdb033fff548e292255f008d989e",
+      "bytes": 827
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/candidate.step": {
+      "sha256": "a4cefbb3296874814435f2ad69fc20de2a41375e1e0e14ab93ed782f9dbcdb2e",
+      "bytes": 82425
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/preview.stl": {
+      "sha256": "e94244aa31b95ed15591add1c66c8cd92153a6650c83b7e2f3502f56acdf6358",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/result.json": {
+      "sha256": "9cff89afdacd4562d69d0031c5905d09eb2afd330d7d7760261e452f0a2169dc",
+      "bytes": 113724
+    },
+    "examples/handle/trials/v3/outboard_at_minimum/provenance.json": {
+      "sha256": "dbe716cf29393e1ed11db3e99d5bdeac7804d92731dee3c3c9206f1efc1c216a",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/source.py": {
+      "sha256": "7e42d6fa6e202a8ccf3bae927df37e6f9bb16782a91f78e1fc374946ed656bdb",
+      "bytes": 830
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/editable.py": {
+      "sha256": "7e42d6fa6e202a8ccf3bae927df37e6f9bb16782a91f78e1fc374946ed656bdb",
+      "bytes": 830
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/candidate.step": {
+      "sha256": "56b93197437551717cafcd1afe2f636cad35fecf95cd98b6f2d6787bf6378fd4",
+      "bytes": 82464
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/preview.stl": {
+      "sha256": "57a954a4f4a6a0dccf0371fe4d3ff02e94117dc5e76643c5e20bfc60b0e6dc57",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/result.json": {
+      "sha256": "4b40497c45ec0b697c78c4f505d305f06ef8817725b8cdba9b39facba27fb603",
+      "bytes": 113836
+    },
+    "examples/handle/trials/v3/outboard_with_material_margin/provenance.json": {
+      "sha256": "262947dee03c89bea59e3f3405d5628c207c66748d7c8f1e6976685add1b5af7",
+      "bytes": 1795
+    }
+  }
+}

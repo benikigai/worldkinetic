@@ -320,15 +320,27 @@ def main():
         parser = Parser(description=__doc__)
         parser.add_argument("--length-mm", required=True, type=float)
         parser.add_argument("--output-dir", required=True)
-        parser.add_argument("--reference-step", required=True)
-        parser.add_argument("--reference-sha256", required=True)
+        parser.add_argument("--reference-step")
+        parser.add_argument("--reference-sha256")
         parser.add_argument("--deadline-seconds", required=True, type=float)
         parser.add_argument("--requirements-json")
         parser.add_argument("--source-file", help="Exact UTF-8 candidate source; no host execution")
+        parser.add_argument("--handle", action="store_true")
+        parser.add_argument("--create-handle-reference", action="store_true")
+        parser.add_argument("--datums-file")
+        parser.add_argument("--baseline-step")
         args = parser.parse_args()
+        if args.handle and args.create_handle_reference:
+            raise CoreError("INVALID_PARAMETERS", "Choose one handle operation")
+        if not args.create_handle_reference and (not args.reference_step or not args.reference_sha256):
+            raise CoreError("INVALID_PARAMETERS", "Reference STEP and hash are required")
+        if (args.handle or args.create_handle_reference) and not args.datums_file:
+            raise CoreError("INVALID_PARAMETERS", "Canonical datums are required")
+        if args.handle and (not args.requirements_json or not args.source_file):
+            raise CoreError("INVALID_PARAMETERS", "Handle requires source and requirements")
         if not math.isfinite(args.deadline_seconds) or args.deadline_seconds <= 0:
             raise CoreError("INVALID_PARAMETERS", "Deadline must be finite and positive")
-        runtime = Runtime(args.deadline_seconds)
+        runtime = Runtime(min(args.deadline_seconds, 180))
         signal.signal(signal.SIGTERM, cancelled)
         signal.signal(signal.SIGINT, cancelled)
         # A shared host lock serializes this numeric core across worktrees.
@@ -350,7 +362,11 @@ def main():
                 break
             except BlockingIOError:
                 time.sleep(min(0.05, runtime.remaining()))
-        value = execute(args, runtime)
+        if args.handle or args.create_handle_reference:
+            from handle_pipeline import execute_handle, create_reference
+            value = create_reference(args, runtime) if args.create_handle_reference else execute_handle(args, runtime)
+        else:
+            value = execute(args, runtime)
         print(json.dumps(value, allow_nan=False))
         return 0
     except Exception as exc:
@@ -367,4 +383,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # Keep exception identity when the optional handle pipeline imports this runtime.
+    sys.modules["cad_runner"] = sys.modules[__name__]
     sys.exit(main())

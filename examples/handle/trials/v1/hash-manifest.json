@@ -1,0 +1,406 @@
+{
+  "scope": "Actual fixed developer trial artifacts",
+  "verifierHashes": {
+    "src/tools/adapter.ts": "fca08a0416d7911839de331364fb926af01bc7909ae462919b26ab7500229a14",
+    "src/tools/cad_runner.py": "f0151dae92cc051369bd54ca9d5ca691b123391424267c23224f41dd844c33cc",
+    "src/tools/handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "src/tools/handle_geometry.py": "5de38a1bfac1883a5c37853fc295680e30f3efac6a2723e0acc0ade8770251af",
+    "src/tools/handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "src/tools/handle_pipeline.py": "dbfc243ed6f050af78e12fec4b8bd1d67fccba402966e280d9a3074f0c6cbca3",
+    "src/tools/handle_reference.ts": "ad7574534a932ec9653940dfa108433a3a25df562eb6502d6d31ec6f0f40604e",
+    "src/tools/handle_verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6",
+    "src/tools/requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "src/tools/mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58"
+  },
+  "files": {
+    "examples/handle/reference/reference.step": {
+      "sha256": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "bytes": 12861
+    },
+    "examples/handle/reference/preview.stl": {
+      "sha256": "3e2c284fee68df261d3aaec51cd77d0c527502d4cdb3c6c42498e71e1f3755ca",
+      "bytes": 502484
+    },
+    "examples/handle/reference/datums.json": {
+      "sha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+      "bytes": 478
+    },
+    "examples/handle/reference/provenance.json": {
+      "sha256": "ed54b45084434cc3423486d436a7e849f46766ac6ada53f0c0de8929b01a8da1",
+      "bytes": 4374
+    },
+    "examples/handle/trials/v1/local_only_widening/source.py": {
+      "sha256": "0342849e240790c5e0aa0dd2958e5369b7b6896720870f71e32e1a79a3fe332a",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/local_only_widening/editable.py": {
+      "sha256": "0342849e240790c5e0aa0dd2958e5369b7b6896720870f71e32e1a79a3fe332a",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/local_only_widening/candidate.step": {
+      "sha256": "5c3fa2aabf24a61b614919aff09865cd7340c90ef0d76e11ee8fe066be4e93e4",
+      "bytes": 82418
+    },
+    "examples/handle/trials/v1/local_only_widening/preview.stl": {
+      "sha256": "1fa5e56207e37c7e638dde958db58f7c0ca505304e0d89847e50ef09eecc464f",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v1/local_only_widening/result.json": {
+      "sha256": "f7b9d621622462c40a7bff0ec9406a47690bae4236411a3570ab7d7e29637ef9",
+      "bytes": 107742
+    },
+    "examples/handle/trials/v1/local_only_widening/provenance.json": {
+      "sha256": "c61aefe90129d3254c223086d113bc6284ec766b2ae819dc1d009a616572b024",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/missing_central_grip/source.py": {
+      "sha256": "df456f9c6a75d96c5afaada4601baee5334b76418c0947bb2be1389ae86aad6e",
+      "bytes": 819
+    },
+    "examples/handle/trials/v1/missing_central_grip/editable.py": {
+      "sha256": "df456f9c6a75d96c5afaada4601baee5334b76418c0947bb2be1389ae86aad6e",
+      "bytes": 819
+    },
+    "examples/handle/trials/v1/missing_central_grip/candidate.step": {
+      "sha256": "85dfb4843db4731d4f614f928ed4c02c7cbb1da43771c6458731fe82c24e1027",
+      "bytes": 55337
+    },
+    "examples/handle/trials/v1/missing_central_grip/preview.stl": {
+      "sha256": "7130296280060e40f36f99ec58f78fe7bc546dfbe37c952cb302beb5af6ebeeb",
+      "bytes": 1007284
+    },
+    "examples/handle/trials/v1/missing_central_grip/result.json": {
+      "sha256": "04f50fb4fb5febfc8a31e47b91e2403380127d8757fe1a443e368db228727802",
+      "bytes": 53434
+    },
+    "examples/handle/trials/v1/missing_central_grip/provenance.json": {
+      "sha256": "f629af85084f5089d724b1c6131c4dc7461175413ca5c84af05dfde11bc6eb95",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/panel_penetration/source.py": {
+      "sha256": "c9438bc9282cb13f29558991c4b3a4e23faac16d4a322034586508275c764963",
+      "bytes": 823
+    },
+    "examples/handle/trials/v1/panel_penetration/editable.py": {
+      "sha256": "c9438bc9282cb13f29558991c4b3a4e23faac16d4a322034586508275c764963",
+      "bytes": 823
+    },
+    "examples/handle/trials/v1/panel_penetration/candidate.step": {
+      "sha256": "46dc8cabd8f3c67dae60a9cd0df294e502eb58da1b1f318ea1e9d2bef053c41a",
+      "bytes": 43557
+    },
+    "examples/handle/trials/v1/panel_penetration/preview.stl": {
+      "sha256": "affe13fd0d1539915b223a6042ed6152f6d452614d5f61c7ef66a727d298ac76",
+      "bytes": 1258084
+    },
+    "examples/handle/trials/v1/panel_penetration/result.json": {
+      "sha256": "0a161bebc690d7a6758de4244ea4f90ce329bbac8176ca9ac8b33f1c7488a2a9",
+      "bytes": 60076
+    },
+    "examples/handle/trials/v1/panel_penetration/provenance.json": {
+      "sha256": "e90916c9c9af358e4a86358b0c3ecfc952e6e638927dbe33badea91ed56b54df",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/removed_initial_material/source.py": {
+      "sha256": "ad7fb1076027fb52913003f591633c989c3d33d067ba2dd3aadc82a6c6683d0a",
+      "bytes": 823
+    },
+    "examples/handle/trials/v1/removed_initial_material/editable.py": {
+      "sha256": "ad7fb1076027fb52913003f591633c989c3d33d067ba2dd3aadc82a6c6683d0a",
+      "bytes": 823
+    },
+    "examples/handle/trials/v1/removed_initial_material/candidate.step": {
+      "sha256": "6807beb1f939e553e8b852bd04eec67ca9dc1c506f326c4a63dc8b0a6c5ffb11",
+      "bytes": 86260
+    },
+    "examples/handle/trials/v1/removed_initial_material/preview.stl": {
+      "sha256": "9a32fa257c2f31e91376614ed91161b7107f37eafaa6f39dbbf7b32582951ffb",
+      "bytes": 1260684
+    },
+    "examples/handle/trials/v1/removed_initial_material/result.json": {
+      "sha256": "b2360d7bbcb810ae7e352c77987c7681b3b12efae2f5a86c8eaa5560af6bfe1a",
+      "bytes": 108099
+    },
+    "examples/handle/trials/v1/removed_initial_material/provenance.json": {
+      "sha256": "114a42c1299da9c181d2b5effa71824b9067cced7a5782bb950479b53a61ce11",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/rounded_initial/source.py": {
+      "sha256": "1263783cf40b65b77ead43c76967c2303c47eb0317c304b2be7ea52a742f3f41",
+      "bytes": 764
+    },
+    "examples/handle/trials/v1/rounded_initial/editable.py": {
+      "sha256": "1263783cf40b65b77ead43c76967c2303c47eb0317c304b2be7ea52a742f3f41",
+      "bytes": 764
+    },
+    "examples/handle/trials/v1/rounded_initial/candidate.step": {
+      "sha256": "5ea53baa6ceb676947237512ca6cc63c220d95747f647c5fb4f5a104e068306e",
+      "bytes": 92046
+    },
+    "examples/handle/trials/v1/rounded_initial/preview.stl": {
+      "sha256": "a6ec7ab7cbeea2f37e8ef3ca8be1c3b4f9c47816a07e59ed6579ef9b83ab0f6a",
+      "bytes": 1380284
+    },
+    "examples/handle/trials/v1/rounded_initial/result.json": {
+      "sha256": "61e25edb67c16453ccbcc50e32bc5f394ef65ef37b224af018b41e2fd1e3c124",
+      "bytes": 62224
+    },
+    "examples/handle/trials/v1/rounded_initial/provenance.json": {
+      "sha256": "fefe23337e06f7a009f76537bb7eedc283a989f78a36d079b722f35211cfbe40",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/shifted_mounts/source.py": {
+      "sha256": "32a5fea9792b4fc795cf9fb7c05076f0e5ef13f65abd12c6b26e766681aeae78",
+      "bytes": 763
+    },
+    "examples/handle/trials/v1/shifted_mounts/editable.py": {
+      "sha256": "32a5fea9792b4fc795cf9fb7c05076f0e5ef13f65abd12c6b26e766681aeae78",
+      "bytes": 763
+    },
+    "examples/handle/trials/v1/shifted_mounts/candidate.step": {
+      "sha256": "aebba2bbf521e093d3b3772b6297b53c7bd2f7dd252399dcebb40ce98e2b251c",
+      "bytes": 41233
+    },
+    "examples/handle/trials/v1/shifted_mounts/preview.stl": {
+      "sha256": "836c73318c92dc1aca791c4327b9d84f8cce83283a4926d06540d4a45b165f6e",
+      "bytes": 1006684
+    },
+    "examples/handle/trials/v1/shifted_mounts/result.json": {
+      "sha256": "73cc7cc28558d5a8a200cb428956d5ef1a5c3b5309245052b9e766336f1cab84",
+      "bytes": 57088
+    },
+    "examples/handle/trials/v1/shifted_mounts/provenance.json": {
+      "sha256": "1a7190703b6ce461223388727ca09dae3ea161051719907b1ea022dce348a9d0",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/source.py": {
+      "sha256": "7cf8877f79114765033198967a6f04129f9161810f8c6a0e8b05cef639f5fa74",
+      "bytes": 828
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/editable.py": {
+      "sha256": "7cf8877f79114765033198967a6f04129f9161810f8c6a0e8b05cef639f5fa74",
+      "bytes": 828
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/candidate.step": {
+      "sha256": "ed2c29214b057306e3aaac989dea8bf6cd7932ec9b64df071686c1e487eb2c43",
+      "bytes": 53955
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/preview.stl": {
+      "sha256": "8002ea28cd1624a5dd600413361b9aa8808a8d9d59f42c479a0d4006aa72117d",
+      "bytes": 1007484
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/result.json": {
+      "sha256": "8a36a80a662ce97125c389eec0dd4cb06e8c69b4eae3ec2837ee2dabfb09e0b9",
+      "bytes": 61842
+    },
+    "examples/handle/trials/v1/tiny_gap_intrusion/provenance.json": {
+      "sha256": "a3427af769f3464f152197b55d556266941e130a7543afb9c7baed10c9b1afd9",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/source.py": {
+      "sha256": "8dc81ed28864da0569bfe7fb1152319a6e2f8900f949b8b4baf4a9d138cc2633",
+      "bytes": 749
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/editable.py": {
+      "sha256": "8dc81ed28864da0569bfe7fb1152319a6e2f8900f949b8b4baf4a9d138cc2633",
+      "bytes": 749
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/candidate.step": {
+      "sha256": "75e85021fce01542d106c3b212948db5b31f4c0a6e8f4f98e8d60a37cdd8c951",
+      "bytes": 82464
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/preview.stl": {
+      "sha256": "ccdd73c9c3906dca50262b48ebe54853e6996df45a636596f7feeecc466dd7b7",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/result.json": {
+      "sha256": "3f7c62934b97ea7a9e78f3828e5cc6802976daaf8d3c3f0aecf4e66ca74aa273",
+      "bytes": 107975
+    },
+    "examples/handle/trials/v1/tiny_rest_spike/provenance.json": {
+      "sha256": "372715397f4cd3c3fd0342acd1c3b4ce3a0749a7b0d34a2bd09d79a6cc291c0c",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/uniform_widening/source.py": {
+      "sha256": "48dbb3ae15bf766fd1815372127869941720ac6136564df9bdec7c108ef681f9",
+      "bytes": 674
+    },
+    "examples/handle/trials/v1/uniform_widening/editable.py": {
+      "sha256": "48dbb3ae15bf766fd1815372127869941720ac6136564df9bdec7c108ef681f9",
+      "bytes": 674
+    },
+    "examples/handle/trials/v1/uniform_widening/candidate.step": {
+      "sha256": "058b761f5f076e775f3c3ae5c5cffe0937568fd2703dbafdd5c32bdefdc2dfb8",
+      "bytes": 68077
+    },
+    "examples/handle/trials/v1/uniform_widening/preview.stl": {
+      "sha256": "b60339eb1251a61b0bb5f33c00672e95318fedecdd56da584712994e55249e07",
+      "bytes": 1008284
+    },
+    "examples/handle/trials/v1/uniform_widening/result.json": {
+      "sha256": "0254872695de672af7a705558d537019d5109444fd9f021f860bd38ea1e664a4",
+      "bytes": 107786
+    },
+    "examples/handle/trials/v1/uniform_widening/provenance.json": {
+      "sha256": "e4faffbd549583550eb5ab37fdae4f3cd87968c4f2b9236e3484708c30e178e1",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/valid_initial/source.py": {
+      "sha256": "6d9b133ab9e091c53893cb556115e95e879b04dca6db901e44154a77e1db8eaa",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/valid_initial/editable.py": {
+      "sha256": "6d9b133ab9e091c53893cb556115e95e879b04dca6db901e44154a77e1db8eaa",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/valid_initial/candidate.step": {
+      "sha256": "87bf305b559e0a56a4b12afb90ea373e5139351a8a4995419a08817c63ddacdc",
+      "bytes": 39675
+    },
+    "examples/handle/trials/v1/valid_initial/preview.stl": {
+      "sha256": "0b701057c3b473ab59048efdb0adfd386eb9f69761f2a1bacdf8cbfa0d48c1c9",
+      "bytes": 1006684
+    },
+    "examples/handle/trials/v1/valid_initial/result.json": {
+      "sha256": "4cf793fd6c3f377852c5c26f5ffd50b75b8715c5db3642e95bd79939797a75cf",
+      "bytes": 60636
+    },
+    "examples/handle/trials/v1/valid_initial/provenance.json": {
+      "sha256": "675471ba48370ccb6cf89bf252e423a6b65bbb5b413eb668ae87e9b8e0f8073e",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/valid_refinement/source.py": {
+      "sha256": "4d5325c801cca3d6bae96721da441ea7e58ff7bd5904afdf068b0977f436c17a",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/valid_refinement/editable.py": {
+      "sha256": "4d5325c801cca3d6bae96721da441ea7e58ff7bd5904afdf068b0977f436c17a",
+      "bytes": 744
+    },
+    "examples/handle/trials/v1/valid_refinement/candidate.step": {
+      "sha256": "6fa093819a756c7f418ca3fd23c827f02866c2bcddf299f4bd399b4db14ff1a7",
+      "bytes": 82421
+    },
+    "examples/handle/trials/v1/valid_refinement/preview.stl": {
+      "sha256": "6a27d3eae5a38c807e9e81ed69847b386619393598dc238fdada7a92b634bcd8",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v1/valid_refinement/result.json": {
+      "sha256": "92844d644f91acdaf0921c437844515ed54d51eff7e542651766b09c69cd2f9b",
+      "bytes": 107827
+    },
+    "examples/handle/trials/v1/valid_refinement/provenance.json": {
+      "sha256": "338099e51bb6a6f647e527b2ec091cea2b240d6bd935ec912666fd80a8bee828",
+      "bytes": 1723
+    },
+    "examples/handle/trials/v1/reference-mesh-resolution-failure.json": {
+      "sha256": "316066a472d0caaeb6ae10372ddab26055af2140d97cbfebd61dc78e9154b4df",
+      "bytes": 3820
+    },
+    "examples/handle/reference/independent-observation.json": {
+      "sha256": "41d99f0a7c1010cf50f8fa26a8cf6c48d602538e9af19417b93ba2e8526ea28e",
+      "bytes": 2405
+    }
+  },
+  "changedPaths": [
+    "examples/handle/reference/datums.json",
+    "examples/handle/reference/independent-observation.json",
+    "examples/handle/reference/preview.stl",
+    "examples/handle/reference/provenance.json",
+    "examples/handle/reference/reference.step",
+    "examples/handle/trials/v1/hash-manifest.json",
+    "examples/handle/trials/v1/local_only_widening/candidate.step",
+    "examples/handle/trials/v1/local_only_widening/editable.py",
+    "examples/handle/trials/v1/local_only_widening/preview.stl",
+    "examples/handle/trials/v1/local_only_widening/provenance.json",
+    "examples/handle/trials/v1/local_only_widening/result.json",
+    "examples/handle/trials/v1/local_only_widening/source.py",
+    "examples/handle/trials/v1/missing_central_grip/candidate.step",
+    "examples/handle/trials/v1/missing_central_grip/editable.py",
+    "examples/handle/trials/v1/missing_central_grip/preview.stl",
+    "examples/handle/trials/v1/missing_central_grip/provenance.json",
+    "examples/handle/trials/v1/missing_central_grip/result.json",
+    "examples/handle/trials/v1/missing_central_grip/source.py",
+    "examples/handle/trials/v1/panel_penetration/candidate.step",
+    "examples/handle/trials/v1/panel_penetration/editable.py",
+    "examples/handle/trials/v1/panel_penetration/preview.stl",
+    "examples/handle/trials/v1/panel_penetration/provenance.json",
+    "examples/handle/trials/v1/panel_penetration/result.json",
+    "examples/handle/trials/v1/panel_penetration/source.py",
+    "examples/handle/trials/v1/reference-mesh-resolution-failure.json",
+    "examples/handle/trials/v1/removed_initial_material/candidate.step",
+    "examples/handle/trials/v1/removed_initial_material/editable.py",
+    "examples/handle/trials/v1/removed_initial_material/preview.stl",
+    "examples/handle/trials/v1/removed_initial_material/provenance.json",
+    "examples/handle/trials/v1/removed_initial_material/result.json",
+    "examples/handle/trials/v1/removed_initial_material/source.py",
+    "examples/handle/trials/v1/rounded_initial/candidate.step",
+    "examples/handle/trials/v1/rounded_initial/editable.py",
+    "examples/handle/trials/v1/rounded_initial/preview.stl",
+    "examples/handle/trials/v1/rounded_initial/provenance.json",
+    "examples/handle/trials/v1/rounded_initial/result.json",
+    "examples/handle/trials/v1/rounded_initial/source.py",
+    "examples/handle/trials/v1/shifted_mounts/candidate.step",
+    "examples/handle/trials/v1/shifted_mounts/editable.py",
+    "examples/handle/trials/v1/shifted_mounts/preview.stl",
+    "examples/handle/trials/v1/shifted_mounts/provenance.json",
+    "examples/handle/trials/v1/shifted_mounts/result.json",
+    "examples/handle/trials/v1/shifted_mounts/source.py",
+    "examples/handle/trials/v1/tiny_gap_intrusion/candidate.step",
+    "examples/handle/trials/v1/tiny_gap_intrusion/editable.py",
+    "examples/handle/trials/v1/tiny_gap_intrusion/preview.stl",
+    "examples/handle/trials/v1/tiny_gap_intrusion/provenance.json",
+    "examples/handle/trials/v1/tiny_gap_intrusion/result.json",
+    "examples/handle/trials/v1/tiny_gap_intrusion/source.py",
+    "examples/handle/trials/v1/tiny_rest_spike/candidate.step",
+    "examples/handle/trials/v1/tiny_rest_spike/editable.py",
+    "examples/handle/trials/v1/tiny_rest_spike/preview.stl",
+    "examples/handle/trials/v1/tiny_rest_spike/provenance.json",
+    "examples/handle/trials/v1/tiny_rest_spike/result.json",
+    "examples/handle/trials/v1/tiny_rest_spike/source.py",
+    "examples/handle/trials/v1/uniform_widening/candidate.step",
+    "examples/handle/trials/v1/uniform_widening/editable.py",
+    "examples/handle/trials/v1/uniform_widening/preview.stl",
+    "examples/handle/trials/v1/uniform_widening/provenance.json",
+    "examples/handle/trials/v1/uniform_widening/result.json",
+    "examples/handle/trials/v1/uniform_widening/source.py",
+    "examples/handle/trials/v1/valid_initial/candidate.step",
+    "examples/handle/trials/v1/valid_initial/editable.py",
+    "examples/handle/trials/v1/valid_initial/preview.stl",
+    "examples/handle/trials/v1/valid_initial/provenance.json",
+    "examples/handle/trials/v1/valid_initial/result.json",
+    "examples/handle/trials/v1/valid_initial/source.py",
+    "examples/handle/trials/v1/valid_refinement/candidate.step",
+    "examples/handle/trials/v1/valid_refinement/editable.py",
+    "examples/handle/trials/v1/valid_refinement/preview.stl",
+    "examples/handle/trials/v1/valid_refinement/provenance.json",
+    "examples/handle/trials/v1/valid_refinement/result.json",
+    "examples/handle/trials/v1/valid_refinement/source.py",
+    "fixtures/tools/handle-v2-result.fixture.json",
+    "src/tools/README.md",
+    "src/tools/adapter.ts",
+    "src/tools/cad_runner.py",
+    "src/tools/check_handle_cases.ts",
+    "src/tools/handle_binding.py",
+    "src/tools/handle_geometry.py",
+    "src/tools/handle_mesh.py",
+    "src/tools/handle_pipeline.py",
+    "src/tools/handle_reference.ts",
+    "src/tools/handle_verify.py",
+    "src/tools/save_handle_trials.ts"
+  ],
+  "deliverySourceSha256": {
+    "fixtures/tools/handle-v2-result.fixture.json": "e9a59c4b0a6f0201ff036201ecb6e8e3feeb4842f9585ed11c5a52f3bddd43a0",
+    "src/tools/README.md": "b4cdd2e2c4e06ab4d9264bf7bc692c15ac603640c6673d9f627d4eed7d56305a",
+    "src/tools/adapter.ts": "fca08a0416d7911839de331364fb926af01bc7909ae462919b26ab7500229a14",
+    "src/tools/cad_runner.py": "f0151dae92cc051369bd54ca9d5ca691b123391424267c23224f41dd844c33cc",
+    "src/tools/check_handle_cases.ts": "3d2943c98b6bc5c3ac7832d89f46f0cd7440b96da44a49bfa8225119827141c3",
+    "src/tools/handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "src/tools/handle_geometry.py": "5de38a1bfac1883a5c37853fc295680e30f3efac6a2723e0acc0ade8770251af",
+    "src/tools/handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "src/tools/handle_pipeline.py": "dbfc243ed6f050af78e12fec4b8bd1d67fccba402966e280d9a3074f0c6cbca3",
+    "src/tools/handle_reference.ts": "ad7574534a932ec9653940dfa108433a3a25df562eb6502d6d31ec6f0f40604e",
+    "src/tools/handle_verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6",
+    "src/tools/save_handle_trials.ts": "a229e9a04ae1821cbb46fc0fcca13dcf65bf345f9e925893e6718455039b5a29"
+  }
+}

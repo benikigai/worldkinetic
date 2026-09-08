@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   checkDefinition, computeCheckBundleHash, expectedForCheck, hashCanonical, sha256,
-  verifyToolInput, verifyToolResult, safeError, JsonValueSchema,
+  verifyToolInput, verifyToolResult, safeError, JsonValueSchema, HANDLE_DATUM_CANONICAL_JSON, HANDLE_DATUM_SHA256,
   type ApiError, type Check, type ToolAdapter, type ToolResult,
 } from '../shared/contracts-v2.js';
 
@@ -14,7 +14,7 @@ const MAX_BYTES = 25 * 1024 * 1024;
 const IMAGE = 'sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440';
 const runner = fileURLToPath(new URL('./cad_runner.py', import.meta.url));
 const coreSchema = z.object({
-  executionMode: z.literal('live'), lengthMm: z.number().finite(),
+  executionMode: z.literal('live'), lengthMm: z.number().finite().nullable(),
   sourceSha256: z.string(), geometryHash: z.string(), referenceSha256: z.string(),
   engine: z.object({ name: z.literal('build123d'), version: z.literal('0.11.1'), imageId: z.literal(IMAGE) }),
   stages: z.array(z.object({ role: z.string(), removed: z.literal(true) })).length(4),
@@ -31,7 +31,7 @@ class AdapterError extends Error {
   constructor(readonly code: ApiError['code']) { super(code); }
 }
 
-async function checkedPath(value: string): Promise<string> {
+export async function checkedPath(value: string): Promise<string> {
   if (!path.isAbsolute(value) || /[,\x00-\x1f]/.test(value)) throw new AdapterError('INVALID_REQUEST');
   const resolved = path.resolve(value);
   let current = resolved;
@@ -47,7 +47,7 @@ async function checkedPath(value: string): Promise<string> {
   }
 }
 
-async function readRegular(file: string): Promise<Buffer> {
+export async function readRegular(file: string): Promise<Buffer> {
   const handle = await fs.open(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const before = await handle.stat();
@@ -72,7 +72,7 @@ const errorCodes: Record<string, ApiError['code']> = {
 
 // Wait for Python's close event, including its named-container cleanup. Killing
 // or abandoning the host child at the computation deadline would orphan CAD.
-async function invoke(args: string[], signal: AbortSignal, budgetMs: number): Promise<unknown> {
+export async function invoke(args: string[], signal: AbortSignal, budgetMs: number): Promise<unknown> {
   if (signal.aborted || budgetMs <= 0) throw new AdapterError('RUN_TIMEOUT');
   return new Promise((resolve, reject) => {
     const child = spawn('python3', ['-B', runner, ...args], { stdio: ['ignore', 'pipe', 'ignore'] });
@@ -119,7 +119,7 @@ export const cadToolAdapter: ToolAdapter = async input => {
   const { signal, ...serializable } = input;
   const data = await verifyToolInput(serializable);
   const remaining = () => Math.min(
-    data.remainingBudgetMs === undefined ? Infinity : data.remainingBudgetMs - (performance.now() - started),
+    Math.min(180000, data.remainingBudgetMs ?? 180000) - (performance.now() - started),
     data.deadline === undefined ? Infinity : Date.parse(data.deadline) - Date.now(),
   );
   const r = data.requirements;
@@ -143,17 +143,37 @@ export const cadToolAdapter: ToolAdapter = async input => {
   let staging: string | undefined;
   try {
     if (signal.aborted || remaining() <= 0) throw new AdapterError('RUN_TIMEOUT');
-    if (r.validatorVersion !== 'plate-validator-v1') {
+    const isHandle = r.registryId === 'handle_sample_v1';
+    if (r.validatorVersion !== (isHandle ? 'handle-validator-v1' : 'plate-validator-v1')) {
       throw new AdapterError('TOOL_UNAVAILABLE');
     }
     const references = data.inputArtifacts.filter(a => a.kind === 'reference' && a.sha256 === r.referenceHash);
-    if (references.length !== 1 || references[0].revisionId !== data.inputRevisionId) throw new AdapterError('EVIDENCE_CONFLICT');
-    const reference = references[0];
+    const reference = data.referenceArtifact ?? references[0];
+    if (!reference) throw new AdapterError('EVIDENCE_CONFLICT');
     let referenceBytes: Buffer;
     try {
       await checkedPath(reference.path);
       referenceBytes = await readRegular(reference.path);
       if (await sha256(referenceBytes) !== r.referenceHash) throw new AdapterError('EVIDENCE_CONFLICT');
+    } catch { throw new AdapterError('EVIDENCE_CONFLICT'); }
+    let datumBytes: Buffer | undefined;
+    let baselineBytes: Buffer | undefined;
+    try {
+      // Recheck every private input before creating immutable snapshots.
+      for (const artifact of data.inputArtifacts) {
+        await checkedPath(artifact.path);
+        const bytes = await readRegular(artifact.path);
+        if (await sha256(bytes) !== artifact.sha256) throw new AdapterError('EVIDENCE_CONFLICT');
+        if (r.registryId === 'handle_sample_v1' && r.setup.acceptedInitial?.artifactId === artifact.artifactId) baselineBytes = bytes;
+      }
+      if (isHandle) {
+        const datum = data.referenceArtifact?.datumSpec;
+        if (!datum) throw new AdapterError('EVIDENCE_CONFLICT');
+        await checkedPath(datum.path);
+        datumBytes = await readRegular(datum.path);
+        if (!datumBytes.equals(Buffer.from(HANDLE_DATUM_CANONICAL_JSON, 'utf8'))
+          || await sha256(datumBytes) !== HANDLE_DATUM_SHA256) throw new AdapterError('EVIDENCE_CONFLICT');
+      }
     } catch { throw new AdapterError('EVIDENCE_CONFLICT'); }
     let output: string;
     try {
@@ -177,10 +197,20 @@ export const cadToolAdapter: ToolAdapter = async input => {
       await fs.writeFile(sourceFile, Buffer.from(data.proposal.source, 'utf8'), { flag: 'wx', mode: 0o444 });
       sourceArgs.push('--source-file', sourceFile);
     }
-    const length = r.setup.dimensions.lengthMm;
+    if (datumBytes) {
+      const file = path.join(staging, 'datums.json');
+      await fs.writeFile(file, datumBytes, { flag: 'wx', mode: 0o444 });
+      sourceArgs.push('--datums-file', file, '--handle');
+    }
+    if (baselineBytes) {
+      const file = path.join(staging, 'baseline.step');
+      await fs.writeFile(file, baselineBytes, { flag: 'wx', mode: 0o444 });
+      sourceArgs.push('--baseline-step', file);
+    }
+    const length = r.registryId === 'handle_sample_v1' ? null : r.setup.dimensions.lengthMm;
     const budget = remaining();
     const raw = await invoke([
-      '--length-mm', String(length), '--output-dir', output, ...sourceArgs,
+      '--length-mm', String(length ?? 1), '--output-dir', output, ...sourceArgs,
       '--reference-step', referenceFile, '--reference-sha256', r.referenceHash,
       '--requirements-json', requirementsFile, '--deadline-seconds', String(budget / 1000),
     ], signal, budget);
@@ -217,10 +247,10 @@ export const cadToolAdapter: ToolAdapter = async input => {
     const checks: Check[] = core.checks.map(c => {
       const check: Check = {
         ...identity, checkId: c.checkId, revisionId: data.outputRevisionId, geometryHash: core.geometryHash,
-        executionMode: 'live', state: c.state, label: c.checkId, ...checkDefinition(c.checkId),
+        executionMode: 'live', state: c.state, label: c.checkId, ...checkDefinition(c.checkId, r.registryId),
         expected: expectedForCheck(r, c.checkId),
         measured: { measurement: c.measured, coreMethod: c.method, ...(c.measuredValue === undefined ? {} : { measuredValue: c.measuredValue }) },
-        details: 'Measured by the isolated plate verifier against sealed geometry and frozen requirements.',
+        details: 'Measured by the isolated CAD verifier against sealed geometry and frozen requirements.',
       };
       if (c.checkId === 'margin.end_material') {
         const measured = z.object({ closestPointPairs: pointPairs }).parse(c.measured);
@@ -230,6 +260,13 @@ export const cadToolAdapter: ToolAdapter = async input => {
         const measured = z.object({ closestPointPairs: pointPairs, diagnosticBounds: z.tuple([point, point]).nullable() }).parse(c.measured);
         check.diagnostics = { pointPairs: measured.closestPointPairs,
           ...(measured.diagnosticBounds ? { box: measured.diagnosticBounds } : {}) };
+      }
+      if (isHandle && c.measured && typeof c.measured === 'object' && !Array.isArray(c.measured)) {
+        const diagnostic = z.object({ diagnosticBounds: z.tuple([point, point]).nullable().optional(), closestPointPairs: pointPairs.optional() }).parse(c.measured);
+        if (diagnostic.diagnosticBounds || diagnostic.closestPointPairs?.length) check.diagnostics = {
+          ...(diagnostic.diagnosticBounds ? { box: diagnostic.diagnosticBounds } : {}),
+          ...(diagnostic.closestPointPairs?.length ? { pointPairs: diagnostic.closestPointPairs } : {}),
+        };
       }
       return check;
     });

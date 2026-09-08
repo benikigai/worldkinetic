@@ -1,0 +1,38 @@
+{
+  "scope": "Fixed developer source; synthetic registration and acceptance descriptor; not product model generation or acceptance",
+  "originalPrivateResultSha256": "b21c1f64fa5fad5346cb8bf94c85dba4f03d4aeaa6ddf8462dfe4ed6d33a3167",
+  "sanitizedResultSha256": "92844d644f91acdaf0921c437844515ed54d51eff7e542651766b09c69cd2f9b",
+  "checkBundleHash": "a30760496a67f13564fbb7b71876870249ae95a11c2aaba684aa0cdcd6014115",
+  "startedAt": "2026-09-08T21:35:42.965789+00:00",
+  "completedAt": "2026-09-08T21:35:51.496076+00:00",
+  "verifierSha256": {
+    "handle_geometry.py": "5de38a1bfac1883a5c37853fc295680e30f3efac6a2723e0acc0ade8770251af",
+    "handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58",
+    "handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6"
+  },
+  "artifacts": [
+    {
+      "fileName": "source.py",
+      "sha256": "4d5325c801cca3d6bae96721da441ea7e58ff7bd5904afdf068b0977f436c17a",
+      "bytes": 744
+    },
+    {
+      "fileName": "editable.py",
+      "sha256": "4d5325c801cca3d6bae96721da441ea7e58ff7bd5904afdf068b0977f436c17a",
+      "bytes": 744
+    },
+    {
+      "fileName": "candidate.step",
+      "sha256": "6fa093819a756c7f418ca3fd23c827f02866c2bcddf299f4bd399b4db14ff1a7",
+      "bytes": 82421
+    },
+    {
+      "fileName": "preview.stl",
+      "sha256": "6a27d3eae5a38c807e9e81ed69847b386619393598dc238fdada7a92b634bcd8",
+      "bytes": 1009084
+    }
+  ]
+}
