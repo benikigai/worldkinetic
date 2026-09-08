@@ -1,0 +1,8 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "requestId": "synthetic_package_request",
+  "acceptanceId": "synthetic_acceptance_not_downloadable",
+  "manifestId": "synthetic_manifest_not_downloadable",
+  "manifestHash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "rfq": { "quantity": 2, "material": null, "finish": null, "destination": null, "neededBy": null }
+}
