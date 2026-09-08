@@ -1,0 +1,5 @@
+{
+  "kind": "python_source",
+  "source": "# SYNTHETIC payload example only.\nfrom build123d import Box\npart = Box(50, 35, 5)\n",
+  "changeSummary": "Synthetic Python transport example. Does not satisfy the plate checks."
+}

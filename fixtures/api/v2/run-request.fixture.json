@@ -1,0 +1,10 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "requestId": "fixture_36_request",
+  "designId": "fixture_plate",
+  "inputRevisionId": "fixture_baseline_50",
+  "requirementsVersion": 2,
+  "setupId": "resize_centered_v1",
+  "units": "mm",
+  "instruction": "Make length 36 mm"
+}

@@ -1,0 +1,77 @@
+{
+  "encoding": "UTF-8; ECMAScript JSON primitives; UTF-16 lexicographic object keys; sorted named check sets; no trailing newline",
+  "valid": [
+    {
+      "name": "numeric_keys_unicode_numbers",
+      "inputJson": "{\"z\":-0,\"2\":2,\"10\":10,\"a\":\"é\\n\",\"tiny\":1e-7,\"large\":1e21}",
+      "canonicalJson": "{\"10\":10,\"2\":2,\"a\":\"é\\n\",\"large\":1e+21,\"tiny\":1e-7,\"z\":0}",
+      "utf8Hex": "7b223130223a31302c2232223a322c2261223a22c3a95c6e222c226c61726765223a31652b32312c2274696e79223a31652d372c227a223a307d",
+      "sha256": "765ba4b4acfdc3cda08d013ce06736a8acfd7536dd217c33cd228dac3beb385b"
+    },
+    {
+      "name": "check_set_order",
+      "inputJson": "{\"checks\":[{\"checkId\":\"z\",\"value\":1},{\"checkId\":\"a\",\"value\":2}],\"requiredChecks\":[\"z\",\"a\"]}",
+      "canonicalJson": "{\"checks\":[{\"checkId\":\"a\",\"value\":2},{\"checkId\":\"z\",\"value\":1}],\"requiredChecks\":[\"a\",\"z\"]}",
+      "utf8Hex": "7b22636865636b73223a5b7b22636865636b4964223a2261222c2276616c7565223a327d2c7b22636865636b4964223a227a222c2276616c7565223a317d5d2c227265717569726564436865636b73223a5b2261222c227a225d7d",
+      "sha256": "601e789090711420ea3b328fa9ad0146391f07280a79f9700ac7501c6076793f"
+    },
+    {
+      "name": "coordinate_order",
+      "inputJson": "{\"points\":[[35,17.5],[15,17.5]]}",
+      "canonicalJson": "{\"points\":[[35,17.5],[15,17.5]]}",
+      "utf8Hex": "7b22706f696e7473223a5b5b33352c31372e355d2c5b31352c31372e355d5d7d",
+      "sha256": "54c3b778fa10c20f675e2e15d9b434f4fcb03a2f74d84ac9a9a539e8e122007b"
+    },
+    {
+      "name": "unicode_utf16_keys",
+      "inputJson": "{\"\\ue000\":1,\"😀\":2,\"é\":\"é\",\"slash\":\"/\"}",
+      "canonicalJson": "{\"slash\":\"/\",\"é\":\"é\",\"😀\":2,\"\":1}",
+      "utf8Hex": "7b22736c617368223a222f222c22c3a9223a2265cc81222c22f09f9880223a322c22ee8080223a317d",
+      "sha256": "06ba75fbfe686b6fd820d687f4935e89dee7999433a5473146473f8ba55b16f4"
+    },
+    {
+      "name": "escaped_equivalent_string_and_surrogate",
+      "inputJson": "{\"a\":\"\\u0061\",\"lone\":\"\\ud800\",\"control\":\"\\u0000\"}",
+      "canonicalJson": "{\"a\":\"a\",\"control\":\"\\u0000\",\"lone\":\"\\ud800\"}",
+      "utf8Hex": "7b2261223a2261222c22636f6e74726f6c223a225c7530303030222c226c6f6e65223a225c7564383030227d",
+      "sha256": "95e1bb0e9308d757221a3addedd7cedaefe32655bd6e938ceab36fc7d7bdb680"
+    },
+    {
+      "name": "ieee754_boundaries",
+      "inputJson": "[5e-324,1.7976931348623157e308,0.000001,0.0000001,100000000000000000000,1e21,-0,9007199254740993]",
+      "canonicalJson": "[5e-324,1.7976931348623157e+308,0.000001,1e-7,100000000000000000000,1e+21,0,9007199254740992]",
+      "utf8Hex": "5b35652d3332342c312e37393736393331333438363233313537652b3330382c302e3030303030312c31652d372c3130303030303030303030303030303030303030302c31652b32312c302c393030373139393235343734303939325d",
+      "sha256": "7116c61b6c550e232c2104dc237df36b425d40cce03624a064184d778c007f7e"
+    }
+  ],
+  "invalidJson": [
+    "{\"a\":1,\"a\":2}",
+    "{\"a\":1,\"\\u0061\":2}",
+    "{\"x\":{\"z\":1,\"z\":2}}",
+    "{\"x\":1e400}",
+    "{\"x\":NaN}",
+    "[1,]",
+    "{\"a\":1,}",
+    "true false",
+    "{\"a\":01}",
+    "\"\\x61\""
+  ],
+  "invalidCanonicalJson": [
+    "{\"checks\":[{\"checkId\":\"a\"},{\"checkId\":\"a\"}]}",
+    "{\"requiredChecks\":[\"a\",\"a\"]}"
+  ],
+  "invalidJavascriptValues": [
+    "undefined",
+    "NaN",
+    "Infinity",
+    "-Infinity",
+    "function",
+    "symbol",
+    "bigint",
+    "sparse array",
+    "cyclic object",
+    "object accessor",
+    "Date",
+    "object with undefined property"
+  ]
+}

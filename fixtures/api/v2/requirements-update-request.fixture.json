@@ -1,0 +1,11 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "requestId": "fixture_confirm_36",
+  "expectedStateVersion": 7,
+  "expectedRequirementsVersion": 1,
+  "userActionId": "fixture_confirm_action",
+  "setupId": "resize_centered_v1",
+  "confirmedIntent": {
+    "lengthMm": 36
+  }
+}
