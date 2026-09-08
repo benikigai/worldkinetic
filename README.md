@@ -1,45 +1,55 @@
 # WorldKinetics
 
-Customize an accessory you own without learning CAD. WorldKinetics is a prototype for turning a requested change into an editable part while preserving known interfaces and independently checking the resulting geometry. Built during the September 8, 2026 Astra hackathon.
+**Prompt to product.**
 
-The first demonstration uses an owned, generated two-hole plate: add a tactile feature while preserving the plate and its open bores. A controller accessory is a later possibility once its attachment, neighboring geometry and travel are measured.
+Customize everyday products without learning CAD.
 
-## Historical implementation snapshot
+**Repair it. Make it fit. Make it yours.**
 
-Implementation observations and pending statuses in this README describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8` on September 8, 2026, around 13:14 PDT. They do not describe whichever commit includes this documentation; newer accepted commits may supersede these snapshot statuses.
+Start with a reference or photo plus confirmed measurements, refine an editable design, independently check requirements, approve the exact revision, and download files for prototyping or manufacturer review. Photos alone cannot establish accurate dimensions.
 
-**At that snapshot, the repository contained a tested scaffold, not a connected CAD product.** The root page was the existing 2D Precision design preview, with its artwork, typography and theme choices. [worldkinetics.app](https://worldkinetics.app) is the prototype site. The separate `/workspace` product surface was being built; its source was not integrated at that snapshot.
+[worldkinetics.app](https://worldkinetics.app) is the live design preview. The public interactive demo is not yet live.
 
-- **Integrated scaffold:** Node 22, TypeScript and Zod HTTP/run/artifact handling, Three.js dependency wiring, nested static assets and optional workspace bundle support.
-- **Separate local proofs:** preserved FreeCAD plate examples; one-shot Responses API access with requested/reported `gpt-6-astra`; isolated build123d generation followed by trusted STEP verification. These do not establish an application workflow.
-- **Proposed integration:** generated Python, real CAD adapter, viewer, numerical feedback and repair, explicit user acceptance and exact source/STEP/STL downloads.
+## Everyday possibilities
 
-The [evidence snapshot](docs/provenance.md#evidence-snapshot) records revisions and limits. At that snapshot, transport was `wk-backend-draft-0.1`; the target `wk-prototype-0.2` schemas were pending.
+These are three illustrative planned workflows, not all implemented:
 
-## Intended product path
+- **Repair a cabinet handle:** use the existing handle as a reference, confirm mount spacing and fastener dimensions, then reshape the grip while preserving the mounting interface.
+- **Make a vacuum adapter fit:** measure both connecting ends, confirm insertion depths and clearance, then refine an adapter that connects those measured interfaces.
+- **Make a tactile keyboard or control grip yours:** explore a texture or shape that is easier to locate by touch. Measure the attachment separately, along with neighboring geometry and moving-part clearance, before designing the grip.
 
-This diagram describes the proposed integrated workflow. Its individual capability proofs are separate from the running scaffold.
+## Intended workflow
+
+This diagram describes the intended product path, beyond the current numeric plate demonstration.
 
 ```mermaid
 flowchart TB
-    U["Request and confirmed requirements"] --> A["Astra proposes Python"]
-    A --> G["Backend runs isolated CAD"]
-    G --> S["Stop generator and seal STEP"]
-    S --> V["Independent checks and exports"]
-    V --> F["Numerical feedback"]
-    F --> A
-    V --> R["Review eligible candidate"]
-    R --> H["User accepts exact revision"]
-    H --> P["Checked source, STEP and STL"]
+    R["Reference or photo + confirmed measurements"] --> D["Refine editable design"]
+    D --> C["Generate CAD and seal exact geometry"]
+    C --> V["Independently check requirements and exports"]
+    V --> F["Measured failure: revise design or confirm new requirements"]
+    F --> D
+    V --> U["Review eligible candidate"]
+    U --> A["Approve exact revision"]
+    A --> E["Download for prototyping or manufacturer review"]
 ```
 
-Repair has a bounded attempt budget. The model cannot change checks, lower thresholds or accept a candidate. Failed or incomplete required evidence blocks acceptance.
+The model cannot change checks, lower thresholds or accept a candidate. Failed or incomplete required evidence blocks acceptance. Generated, checked, accepted, exported and physically tested are separate states. Downloads must preserve the exact checked files and revision identity.
 
-Optional **Images 2.5** could turn an actual CAD render into a visual concept. Selecting a direction would lead to separately confirmed, explicit requirements and another real CAD/check cycle. This is planned visual intent support; pictures cannot supply dimensions or pass engineering checks.
+## Current evidence and limits
 
-## Run the scaffold
+Owner-reported evidence is pinned to [`0311706879b29810cb4bca56ece32a10bdea294e`](https://github.com/benikigai/worldkinetic/commit/0311706879b29810cb4bca56ece32a10bdea294e), September 8, 2026, around 14:00 PDT:
 
-These commands and runtime observations describe the cited snapshot, which required Node.js 22 or newer.
+- A local API run used actual `gpt-6-astra` Responses numeric planning plus real CAD. This was not model-authored Python.
+- A 30 mm plate was rejected because its measured 2 mm end margin fell below the unchanged 5 mm requirement.
+- After confirming a 36 mm requirement, the new candidate passed seven required checks with a 5 mm end margin. This did not satisfy the original 30 mm request.
+- API acceptance and exact source, editable Python, STEP and STL downloads were verified in that local run.
+
+This is local API evidence, not live browser verification or physical fit proof. The consumer examples above, general model-authored CAD, full conversational refinement and public interactive access remain planned. No strength, printing, simulation or manufacturing certification is established. Supplier upload, ordering, fabrication and submission require separate authorization.
+
+## Run locally
+
+Requires Node.js 22 or newer:
 
 ```sh
 npm ci
@@ -47,27 +57,27 @@ npm run build
 npm start
 ```
 
-Open [localhost:4310](http://127.0.0.1:4310) for the design preview. `/api/bootstrap` reports configured scope and readiness. At that snapshot, the default entry point had no selected design or CAD adapter and reported execution as unavailable.
+Open [localhost:4310](http://127.0.0.1:4310) for the local design preview. `/api/bootstrap` reports configured scope and readiness. The current server selects the plate baseline; numeric execution also requires a server-side `OPENAI_API_KEY`, Python 3.9+, Docker and the expected local CAD image. See [CAD runtime prerequisites and limits](src/tools/README.md). The npm commands do not provision that image.
 
 ```sh
 npm run typecheck
 npm test
 ```
 
-`npm test` exercises backend/scaffold behavior using synthetic adapters and provider processes. It does not test the complete CAD workflow. `npm run dev` watches server changes; rebuild static assets with `npm run build`.
+`npm test` exercises backend behavior with synthetic adapters and provider responses; it does not establish the complete CAD or browser workflow. `npm run dev` watches server changes; rebuild static assets with `npm run build`.
 
-Use `PORT` and `WORLDKINETICS_RUNTIME_DIR` for a separate development instance. [.env.example](.env.example) lists existing settings; export variables in your shell because the server does not automatically load `.env`. Keep credentials server-side. The optional `npm run verify:astra` command requires an authenticated compatible Codex CLI and can consume account usage. It tests a numeric response, not the proposed Responses API loop.
+Use a private `PORT` and `WORLDKINETICS_RUNTIME_DIR` for each development instance. [.env.example](.env.example) lists settings; export variables in your shell because the server does not automatically load `.env`. Keep credentials and raw provider/runtime logs private.
 
-## Documentation and examples
+## Historical snapshot and documentation
 
-- [Architecture and diagrams](docs/architecture.md): trust boundaries, requirements, checks and acceptance.
-- [Build plan](docs/build-plan.md): milestones, completion criteria and [contributor ownership](docs/build-plan.md#roles-and-exclusive-paths).
-- [Backend scaffold](docs/backend-scaffold.md): existing transport and adapter notes; its original planning-status statements are historical.
-- [Plate examples](examples/plate/README.md): native FreeCAD files, STEP/STL exports, dimensions and sanitized checks.
-- [Provenance](docs/provenance.md): original work, dependencies and scoped evidence.
+The older snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8`, September 8, 2026, around 13:14 PDT, contained a tested scaffold and separate local capability proofs. Integrated CAD, workspace review and explicit acceptance were pending at that time. Those historical statuses do not describe the newer owner-reported run above.
 
-## Known gaps
+- [Architecture and diagrams](docs/architecture.md): intended trust boundaries, requirements and acceptance.
+- [Build plan](docs/build-plan.md): milestones and [contributor ownership](docs/build-plan.md#roles-and-exclusive-paths).
+- [Backend scaffold](docs/backend-scaffold.md): transport and adapter notes with historical planning statuses.
+- [Plate examples](examples/plate/README.md): preserved FreeCAD files, STEP/STL exports and sanitized measurements.
+- [Provenance and historical evidence](docs/provenance.md#evidence-snapshot): attribution and revision-specific limits.
 
-At the cited snapshot, the integrated generation/repair loop, complete check registry, workspace viewer and explicit acceptance were pending. Local runtime packaging was not a published reproducible CAD image. No physical fit, strength, printing, manufacturing certification or simulation was verified. Public live CAD hosting and supplier handoff were also pending.
+Document checks cover structure and links, not factual or runtime claims; source and product review remain separate.
 
 Project source is [MIT licensed](LICENSE). External dependencies and services retain their own terms.
