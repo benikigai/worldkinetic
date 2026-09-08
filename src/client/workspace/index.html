@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-theme="frost">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f5f5">
+  <title>Workspace | WorldKinetics</title>
+  <link rel="icon" href="/brand/mark-color.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/workspace/workspace.css">
+  <script type="module" src="/workspace/main.js"></script>
+</head>
+<body class="wk-workspace">
+  <a class="wk-skip" href="#workspace">Skip to workspace</a>
+  <header class="wk-header">
+    <a class="wk-brand" href="/" aria-label="WorldKinetics home">
+      <img class="wk-mark-light" src="/brand/mark-color.svg" alt="" width="34" height="34">
+      <img class="wk-mark-dark" src="/brand/mark-inverse.svg" alt="" width="34" height="34">
+      <span>WorldKinetics</span>
+    </a>
+    <span class="wk-header-label">Workspace / reference study</span>
+    <label class="wk-theme-label">Theme
+      <select id="theme" aria-label="Workspace theme"><option value="frost">Frost</option><option value="graphite">Graphite</option><option value="canvas">Canvas</option></select>
+    </label>
+  </header>
+  <main id="workspace" class="wk-main">
+    <div class="wk-notice">
+      <strong>Fixture preview</strong>
+      <p>Two saved CAD reference examples. No current run, check or acceptance evidence.</p>
+    </div>
+    <div class="wk-layout">
+      <section class="wk-model" aria-labelledby="model-title">
+        <div class="wk-model-heading">
+          <h1 id="model-title">Reference geometry</h1>
+          <label class="wk-reference-label">Saved reference
+            <select id="reference">
+              <option value="revised">Saved revised baseline</option>
+              <option value="original">Saved original reference</option>
+            </select>
+          </label>
+        </div>
+        <div class="wk-toolbar" role="group" aria-label="Model view">
+          <button type="button" data-view="fit" disabled>Fit view</button>
+          <button type="button" data-view="isometric" disabled>Isometric</button>
+          <button type="button" data-view="top" disabled>Top</button>
+          <button type="button" data-view="front" disabled>Front</button>
+          <label class="wk-wireframe"><input id="wireframe" type="checkbox" disabled> Wireframe</label>
+        </div>
+        <div id="viewport" class="wk-viewport" aria-label="Interactive STL preview" aria-describedby="navigation-help">
+          <div id="preview-message" class="wk-preview-message" role="status" aria-live="polite">
+            <strong id="preview-status">Preparing viewer</strong>
+            <p id="preview-detail">The saved reference will load when the workspace starts.</p>
+          </div>
+          <div class="wk-axis-labels" aria-hidden="true"><span data-axis="x">X 50</span><span data-axis="y">Y 50</span><span data-axis="origin">0, 0, 0</span></div>
+        </div>
+        <div class="wk-model-footer">
+          <span id="mesh-dimensions">No mesh loaded</span>
+          <span>mm · Z up · XY grid 5 mm</span>
+        </div>
+        <p id="navigation-help" class="wk-navigation">Drag to rotate · Right-drag to pan · Scroll to zoom. Touch: one finger rotates, two pan / zoom. Focus the canvas and use arrow keys to pan.</p>
+      </section>
+      <aside class="wk-sidebar" aria-label="Reference identity and request">
+        <section class="wk-panel" aria-labelledby="identity-title">
+          <p class="wk-kicker">Selected reference</p>
+          <h2 id="identity-title">Saved revised baseline</h2>
+          <dl class="wk-identity">
+            <div><dt>Preview</dt><dd id="identity-status" role="status" aria-live="polite">Not loaded</dd></div>
+            <div><dt>Bounds / mm</dt><dd id="identity-dimensions">Unavailable</dd></div>
+            <div><dt>STL SHA-256</dt><dd id="identity-hash">Not verified</dd></div>
+          </dl>
+          <details class="wk-details">
+            <summary>Source and full identity</summary>
+            <p>Saved CAD example, displayed in its original right-handed millimeter coordinates.</p>
+            <p id="identity-source" class="wk-mono"></p>
+            <p>Verified downloaded STL hash</p>
+            <code id="full-hash">Not verified</code>
+          </details>
+          <p class="wk-evidence-note">Mesh dimensions and file integrity describe this preview only. They do not establish engineering checks or physical fit.</p>
+        </section>
+        <section class="wk-panel wk-request" aria-labelledby="request-title">
+          <h2 id="request-title">Describe a change</h2>
+          <label for="request">Request</label>
+          <textarea id="request" rows="3" disabled aria-describedby="api-gap" placeholder="Requests are unavailable in fixture preview."></textarea>
+          <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Request revision</button>
+          <p id="api-gap">Requests, checks, revision acceptance and generated downloads will connect with the API handoff.</p>
+          <div class="wk-future-actions"><button type="button" disabled aria-describedby="api-gap">Accept revision</button><button type="button" disabled aria-describedby="api-gap">Download</button></div>
+        </section>
+        <section class="wk-scenario" aria-labelledby="scenario-title">
+          <h2 id="scenario-title">Fixture-only scenarios</h2>
+          <label for="scenario">Preview availability</label>
+          <select id="scenario"><option value="saved">Load saved reference</option><option value="empty">Empty preview</option><option value="unavailable">Unavailable preview</option></select>
+          <p>Unavailable requests a missing fixture. Return to a saved reference to recover.</p>
+          <button id="reload" type="button">Reload saved reference</button>
+        </section>
+      </aside>
+    </div>
+    <noscript><p class="wk-notice">JavaScript is required to inspect the saved STL examples. Requests and acceptance remain unavailable.</p></noscript>
+  </main>
+</body>
+</html>
