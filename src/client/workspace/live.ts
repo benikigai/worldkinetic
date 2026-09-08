@@ -1,3 +1,4 @@
+import { PackageRfqSchema } from '../../shared/package-v2.js';
 import { consumerAction, consumerStep } from './consumer-state.js';
 import { expectedForCheck } from '../../shared/contracts-v2.js';
 import type { LiveWorkspaceController } from './live-state.js';
@@ -45,6 +46,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
   let initialized = false;
   let checkedRevision: string | null = null;
   let makingRevision: string | null = null;
+  let packageBusy = false;
   let poll: ReturnType<typeof setTimeout> | undefined;
 
   function render() {
@@ -78,14 +80,14 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       if (index === step) item.setAttribute('aria-current', 'step'); else item.removeAttribute('aria-current');
     });
     const refining = handle && (changing || requirements.setupId === 'handle_refine_v1');
-    const filesReady = s.canDownload && !changing;
+    const filesReady = (s.canDownload || packageBusy) && !changing && s.trusted && !s.error;
     const acceptedForMaking = b?.design?.acceptedRevisionId ?? null;
     if (acceptedForMaking !== makingRevision) {
       for (const id of ['make-quantity', 'make-material', 'make-finish', 'make-destination', 'make-needed-by', 'make-fit-notes']) element<HTMLInputElement>(id).value = '';
       for (const id of ['make-check-size', 'make-check-gap', 'make-check-review']) element<HTMLInputElement>(id).checked = false;
       makingRevision = acceptedForMaking;
     }
-    element<HTMLButtonElement>('make-package').disabled = true;
+    element<HTMLButtonElement>('make-package').disabled = !s.canDownload || packageBusy;
     element('live-inputs').hidden = filesReady;
     text('live-title', filesReady ? 'Your design is ready' : 'What would you like to change?');
     const status = s.error ? 'The demo is offline. Your draft is safe. Try Check status.'
@@ -117,7 +119,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || Boolean(s.pendingAction);
     element('live-size-review').hidden = filesReady || (!sizesReviewed && !s.canRun);
     if (b?.design?.activeRunId || s.canAccept || filesReady) element<HTMLDetailsElement>('live-size-review').open = false;
-    element('live-files').hidden = !s.canDownload || changing;
+    element('live-files').hidden = !filesReady;
     for (const [id, enabled] of [['live-retry', Boolean(s.pendingAction) && !s.busy && !s.loading],
       ['live-refresh', !s.busy && !s.loading], ['live-reconnect', !s.busy && !s.loading]] as const) element<HTMLButtonElement>(id).disabled = !enabled;
     element('live-retry').hidden = !s.pendingAction;
@@ -272,6 +274,27 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
   }
   element('live-accept').addEventListener('click', () => {
     if (render().canAccept) void controller.acceptRevision().then(() => { if (controller.snapshot().canDownload) { changing = false; sizesReviewed = false; render(); } });
+  }, { signal });
+  element('make-package').addEventListener('click', () => {
+    if (!controller.snapshot().canDownload || packageBusy) return;
+    void (async () => {
+      const value = (id: string) => element<HTMLInputElement>(id).value.trim() || null;
+      const quantity = value('make-quantity');
+      const preferences = PackageRfqSchema.safeParse({ quantity: quantity === null ? null : Number(quantity),
+        material: value('make-material'), finish: value('make-finish'), destination: value('make-destination'), neededBy: value('make-needed-by') });
+      if (!preferences.success) { text('make-package-status', 'Check your quote details. Use a whole quantity from 1 to 1,000,000, short single-line preferences and a valid date, or leave fields blank.'); return; }
+      packageBusy = true; text('make-package-status', 'Preparing and verifying your accepted design package…'); render();
+      let url: string | undefined;
+      try {
+        const result = await controller.downloadPackage(preferences.data);
+        if (!result || !controller.canSavePackage(result)) throw new Error('The accepted design could not be confirmed. Check status and try again.');
+        url = URL.createObjectURL(new Blob([result.bytes], { type: 'application/zip' }));
+        const link = document.createElement('a'); link.href = url; link.download = result.fileName;
+        document.body.append(link); link.click(); link.remove();
+        text('make-package-status', 'Verified package downloaded. Open it, then choose what to share with a supplier.');
+      } catch (failure) { text('make-package-status', failure instanceof Error ? failure.message : 'Package unavailable. No file was downloaded.'); }
+      finally { packageBusy = false; render(); if (url) { const downloadUrl = url; setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000); } }
+    })();
   }, { signal });
   element('live-download').addEventListener('click', () => { void controller.exportArtifact(artifact.value).then(save); }, { signal });
   element('live-retry').addEventListener('click', () => {

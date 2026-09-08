@@ -298,7 +298,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.equal(node('live-inputs').hidden,true,'Completed prompt is removed from the primary flow');
     assert.equal(node('live-size-review').hidden,true,'Completed size brief does not dominate the download stage');
     assert.equal(node('live-title').textContent,'Your design is ready');
-    assert.equal(node('make-package').disabled,true,'Package action stays disabled before its contract is connected');
+    assert.equal(node('make-package').disabled,false,'Verified accepted design enables the package request');
     node('make-fit-notes').value='Initial handle note';
     const initialId=s.state.design.acceptedRevisionId;
     node('live-change').click(); assert.equal(node('live-inputs').hidden,false,'Explicit new change restores the request'); assert.equal(s.history.acceptances.length,1); assert.equal(s.state.requirements.setupId,'handle_initial_v1');
@@ -346,4 +346,73 @@ test('Before uses accepted initial artifact identity and retains it through unre
   view.rendered(first.previewKey); assert.equal(view.update({...snapshot,loading:true,trusted:false},'baseline').previewAction,'retain');
   assert.equal(view.update(snapshot,'baseline').previewAction,'retain');
   assert.equal(view.update(snapshot,'baseline').canAccept,false);
+});
+
+async function packageResponse(s: Awaited<ReturnType<typeof service>>, change?: (headers: Headers) => void) {
+  const { PACKAGE_HEADERS: H } = await import('../../src/shared/package-v2.js');
+  const request = s.calls.at(-1)!.body;
+  const manifest = s.history.manifests.at(-1);
+  // Empty ZIP tests transport integrity only, not package contents or actual CAD.
+  const archive = new Uint8Array(22); archive.set([80, 75, 5, 6]);
+  const headers = new Headers({ 'content-type': 'application/zip', 'content-length': String(archive.length),
+    'content-disposition': `attachment; filename="worldkinetics-${manifest.revisionId}-prototype.zip"`,
+    [H.contractVersion]: c.CONTRACT_VERSION, [H.requestId]: request.requestId, [H.revisionId]: manifest.revisionId,
+    [H.acceptanceId]: request.acceptanceId, [H.manifestId]: request.manifestId, [H.manifestHash]: request.manifestHash,
+    [H.applicability]: 'current', [H.sha256]: await c.sha256(archive) });
+  change?.(headers);
+  return new Response(archive, { headers });
+}
+
+function servePackage(s: Awaited<ReturnType<typeof service>>, response: () => Promise<Response> | Response) {
+  const path = `/api/revisions/${s.state.design.acceptedRevisionId}/package`;
+  s.overrides.set(`POST ${path}`, [response]);
+  return path;
+}
+
+test('package uses final accepted identity despite historical selection and accepts unknown quote fields', async () => {
+  const s = await initial(true), initialId = s.state.design.acceptedRevisionId;
+  await s.controller.confirmRequirements('handle_refine_v1');
+  s.controller.setDraft({ instruction: 'Broaden grip and add thumb rest' });
+  await s.controller.requestRun(); await s.complete(); await s.controller.refresh(); await s.controller.acceptRevision();
+  s.controller.selectRevision(initialId);
+  const path = servePackage(s, () => packageResponse(s));
+  const result = await s.controller.downloadPackage({ quantity: null, material: null });
+  assert.ok(result); assert.equal(result.revisionId, s.state.design.acceptedRevisionId);
+  assert.equal(s.controller.canSavePackage(result), true);
+  assert.equal(s.calls.filter(call => call.path === path).length, 1);
+  assert.ok(s.calls.every(call => call.path.startsWith('/api/')), 'No supplier requests');
+  assert.equal(s.controller.snapshot().viewedRevisionId, initialId);
+  s.state.design.acceptedRequirementsMatch = false; await s.controller.refresh();
+  assert.equal(s.controller.canSavePackage(result), false, 'A result cannot be saved after its acceptance becomes inapplicable');
+});
+
+for (const [name, mutate] of [
+  ['wrong identity', (h: Headers) => h.set('X-WorldKinetics-Acceptance', 'different')],
+  ['wrong revision', (h: Headers) => h.set('X-WorldKinetics-Revision', 'different')],
+  ['wrong manifest', (h: Headers) => h.set('X-WorldKinetics-Manifest-Hash', '0'.repeat(64))],
+  ['wrong request', (h: Headers) => h.set('X-WorldKinetics-Request', 'different')],
+  ['wrong contract', (h: Headers) => h.set('X-WorldKinetics-Contract-Version', 'old')],
+  ['historical package', (h: Headers) => h.set('X-WorldKinetics-Applicability', 'historical')],
+  ['wrong hash', (h: Headers) => h.set('X-WorldKinetics-Package-SHA256', '0'.repeat(64))],
+  ['missing length', (h: Headers) => h.delete('content-length')],
+  ['oversized', (h: Headers) => h.set('content-length', '999999999')],
+  ['truncated bytes', (h: Headers) => h.set('content-length', '23')],
+  ['wrong file name', (h: Headers) => h.set('content-disposition', 'attachment; filename="other.zip"')],
+] as const) test(`package rejects ${name} without downloading or automatic retry`, async () => {
+  const s = await initial(true); const path = servePackage(s, () => packageResponse(s, mutate));
+  await assert.rejects(s.controller.downloadPackage());
+  assert.equal(s.calls.filter(call => call.path === path).length, 1);
+  assert.equal(s.controller.snapshot().busy, false);
+});
+
+test('package blocks unaccepted, invalid preferences, unavailable API and in-flight stale state', async () => {
+  const s = await initial(); const before = s.calls.length;
+  assert.equal(await s.controller.downloadPackage(), null); assert.equal(s.calls.length, before);
+  await s.controller.acceptRevision();
+  await assert.rejects(s.controller.downloadPackage({ quantity: 0 }));
+  const path = servePackage(s, () => wire({ error: 'unavailable' }, 503));
+  await assert.rejects(s.controller.downloadPackage(), /503/);
+  servePackage(s, async () => { const response = await packageResponse(s); s.state.design.acceptedRequirementsMatch = false; return response; });
+  await assert.rejects(s.controller.downloadPackage(), /accepted design changed/);
+  assert.equal(s.calls.filter(call => call.path === path).length, 2);
 });
