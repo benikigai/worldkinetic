@@ -12,7 +12,7 @@ const plannerPath = '../../src/server/responses-astra.js';
 const applicationPath = '../../src/server/plate-app.js';
 const proposal = { kind: 'numeric_operation', operation: { name: 'resize_plate', parameters: { lengthMm: 36 } } };
 const responseBody = (patch = {}) => ({ id: 'resp_synthetic', object: 'response', model: 'gpt-6-astra', status: 'completed',
-  output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: JSON.stringify(proposal), annotations: [] }] }],
+  output: [{ type: 'message', phase: 'final_answer', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: JSON.stringify(proposal), annotations: [] }] }],
   usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 }, ...patch });
 const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 async function allText(directory: string): Promise<string> {
@@ -52,6 +52,7 @@ test('Responses planner uses bounded structured output and retains sanitized act
     assert.equal(receipt.proposalHash, await c.hashCanonical(proposal));
     for (const patch of [{ status: 'incomplete' }, { model: 'another-model' }, { output: [] },
       { output: [{ type: 'function_call', name: 'shell', arguments: '{}' }] },
+      { output: [{ type: 'message', phase: 'commentary', status: 'completed', role: 'assistant', content: [{ type: 'output_text', annotations: [], text: JSON.stringify(proposal) }] }] },
       { output: [{ type: 'message', role: 'assistant', content: [{ type: 'refusal', refusal: 'No' }] }] }]) {
       const bad = new module.ResponsesAstraPlanner({ apiKey: 'synthetic-secret-never-log', runtimeDir: dir,
         fetchImpl: async () => new Response(JSON.stringify(responseBody(patch)), { status: 200 }) });
