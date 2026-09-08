@@ -8,6 +8,8 @@ import { RunStore, StoreError } from './store.js';
 import { ArtifactStore } from './artifacts.js';
 import { Executor, type SelectedOperation } from './execution.js';
 import { readPublicFile } from './static-files.js';
+import { ReferenceResponseSchema } from '../shared/reference-v2.js';
+import type { SavedPlateReference } from './reference.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = BootstrapSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/reviewable.fixture.json'), 'utf8')));
@@ -32,25 +34,39 @@ async function readRequest(request: IncomingMessage): Promise<unknown> {
   catch { throw new StoreError(400, 'INVALID_JSON', 'Request body is not valid JSON.'); }
 }
 
-export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string } = {}) {
+export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string; reference?: SavedPlateReference } = {}) {
   const artifacts = new ArtifactStore(path.join(runtimeDir, 'artifacts'));
   const executor = new Executor(store, artifacts, runtimeDir, selected, timeoutMs);
   return createServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
       const pathname = url.pathname;
+      const available = Boolean(selected && (!selected.baselineOnly || (store.getDesign()?.acceptedRevisionId === null
+        && store.getRequirements()?.setupId === 'resize_centered_v1')));
       // The demo is loopback-only. Reject browser requests from unrelated origins.
       const origin = request.headers.origin;
       if (origin && origin !== `http://${request.headers.host}`) throw new StoreError(403, 'ORIGIN_REJECTED', 'Use the application origin.');
       if (request.method === 'GET' && pathname === '/api/health') {
-        return json(response, 200, { status: 'ok', contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', providerConfigured: Boolean(selected), executionMode: selected ? 'live' : 'unavailable' });
+        return json(response, 200, { status: 'ok', contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', providerConfigured: Boolean(selected), executionMode: available ? 'live' : 'unavailable' });
       }
       if (request.method === 'GET' && pathname === '/api/bootstrap') {
         return json(response, 200, BootstrapSchema.parse({
-          contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', executionMode: selected ? 'live' : 'unavailable',
+          contractVersion: CONTRACT_VERSION, scopeStatus: store.getDesign() ? 'selected' : 'not_selected', executionMode: available ? 'live' : 'unavailable',
           design: store.getDesign(), requirements: store.getRequirements(), runs: store.listRuns(), candidates: store.listCandidates(),
-          unavailableReason: selected ? null : store.getDesign() ? 'The engineering runtime and generation provider are unavailable.' : 'A design is not selected and the engineering runtime is unavailable.',
+          unavailableReason: available ? null : selected?.baselineOnly ? 'This numeric slice supports resize runs from the saved baseline before acceptance only.' : store.getDesign() ? 'The engineering runtime and generation provider are unavailable.' : 'A design is not selected and the engineering runtime is unavailable.',
         }));
+      }
+      if (request.method === 'GET' && pathname === '/api/reference' && options.reference) {
+        return json(response, 200, ReferenceResponseSchema.parse({ contractVersion: CONTRACT_VERSION, reference: await options.reference.describe() }));
+      }
+      const referenceRoute = /^\/api\/reference\/artifacts\/([^/]+)$/.exec(pathname);
+      if (request.method === 'GET' && referenceRoute && options.reference) {
+        const { artifact, bytes } = await options.reference.read(referenceRoute[1]!);
+        response.writeHead(200, { 'Content-Type': artifact.mediaType, 'Content-Length': bytes.length,
+          'Content-Disposition': `attachment; filename="${artifact.fileName}"`, 'Cache-Control': 'no-store',
+          'X-Content-Type-Options': 'nosniff', 'X-WorldKinetics-Applicability': 'saved_reference',
+          'X-WorldKinetics-Revision': 'baseline_50' });
+        return response.end(bytes);
       }
       if (request.method === 'GET' && pathname === '/api/fixtures/run') return json(response, 200, fixtureRun);
       if (request.method === 'GET' && pathname === '/api/fixtures/events') return json(response, 200, { contractVersion: CONTRACT_VERSION, events: [JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/event.fixture.json'), 'utf8'))] });
@@ -62,9 +78,9 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
       if (request.method === 'POST' && pathname === '/api/runs') {
         const parsed = RunRequestSchema.safeParse(await readRequest(request));
         if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Request does not match the shared contract. Check version, IDs, units and instruction.');
-        if (!selected) {
-          const retry = store.getRunRetry(parsed.data);
-          if (retry) return json(response, 200, { contractVersion: CONTRACT_VERSION, ...retry });
+        const retry = store.getRunRetry(parsed.data);
+        if (retry) return json(response, 200, { contractVersion: CONTRACT_VERSION, ...retry });
+        if (!available) {
           throw new StoreError(503, 'TOOL_UNAVAILABLE', safeError('TOOL_UNAVAILABLE').message);
         }
         const { run, reused } = await store.enqueueRun(parsed.data);

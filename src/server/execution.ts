@@ -17,6 +17,7 @@ export interface SelectedOperation {
   planner: Planner;
   tool: ToolAdapter;
   baselineArtifacts?: InputArtifact[];
+  baselineOnly?: boolean;
 }
 export class Executor {
   constructor(readonly store: RunStore, readonly artifacts: ArtifactStore, readonly runtimeDir: string,
@@ -35,6 +36,8 @@ export class Executor {
       abort.signal.addEventListener('abort', listener, { once: true });
     });
     try {
+      if (this.selected.baselineOnly && (run.inputRevisionId !== this.store.getDesign()?.baselineRevisionId
+        || this.store.getDesign()?.acceptedRevisionId !== null)) throw new ExecutionError('TOOL_UNAVAILABLE', 'The engineering runtime is unavailable.');
       await this.store.planning(runId);
       const proposal = ProviderProposalSchema.parse(await Promise.race([
         this.selected.planner.propose(structuredClone(run), abort.signal, structuredClone(candidate.requirements)), timeout,
@@ -56,7 +59,7 @@ export class Executor {
         units: run.units, requirements: candidate.requirements, registryCanonicalJson: candidate.requirements.registryCanonicalJson,
         setupCanonicalJson: candidate.requirements.setupCanonicalJson, proposal, outputDir, deadline: new Date(deadline).toISOString(), inputArtifacts });
       await this.store.running(runId);
-      await mkdir(outputDir, { recursive: true, mode: 0o700 });
+      await mkdir(path.dirname(outputDir), { recursive: true, mode: 0o700 });
       abort.signal.throwIfAborted();
       const raw = await Promise.race([this.selected.tool({ ...structuredClone(data), signal: abort.signal }), timeout]);
       const result = await verifyToolResult(structuredClone(raw), data);
