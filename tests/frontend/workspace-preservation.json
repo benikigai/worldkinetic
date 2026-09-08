@@ -9,8 +9,6 @@
   "examples/plate/revised/plate-50x35x5.step": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
   "examples/plate/revised/plate-50x35x5.stl": "be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a",
   "examples/plate/verification.json": "3e8c3e6690f2f381fadebac3fd9f64e7f3d726aea518afe1ec79a8aed4c83b84",
-  "src/client/brand/README.md": "286c00eabccca97044d791a8e81253823cc3252ba4cacf37ebc28badf4d7ae01",
-  "src/client/brand/index.html": "f7bac5379d410e60617ecccdfcbad3b85a2ca4fd25ac52dbd625d1809ff3c980",
   "src/client/brand/mark-color.svg": "c08f24e6eb7dc08b600cc0d9ce6c7d80f59fc989021f0159227124b1bbcc0895",
   "src/client/brand/mark-inverse.svg": "8e988f5d24d4693d5fb22cfa30ae769368163ce8cfca0ece18a9a1c4d11d196e",
   "src/client/brand/mark-mono.svg": "142ff5c33e99a1ff3336b6c032e6f6890109257d2f275e1741bf1e041c3b83b0",
@@ -18,9 +16,7 @@
   "src/client/brand/study.css": "e660037cdf65a4ddfdb2c1e47121830e6aa03a67065c8f3410809b1111b42bea",
   "src/client/brand/study.js": "f15f1c0a408c1f623c768069f48e6e6ab244a4e89bc8e8c3654ba9b634dd93f9",
   "src/client/brand/worldkinetics-horizontal.svg": "a949cc63dabe70cc9653682fa4171c989b30cf758b6945a6cffb77b27843b33c",
-  "src/client/brand/worldkinetics-logo-kit.zip": "3065ea0d2713823d5eb9049d2b4cfd425d0a9ff4f6fb5fe439ab01cea261f268",
   "src/client/brand/worldkinetics-wordmark.svg": "3ac36d2e7e7ebb30fa9b86def20e58b35627466a471343004a6d7c9a14f5207a",
-  "src/client/index.html": "7f054970f7eefdded02d47be2f1d9b45fd506605e24f2224df9e8af4edabf88b",
   "src/client/mark.svg": "31fb08c4e86bfaab393db249bf9cd9a1bc87b44d23eb13e8d2d0f930b07b0af2",
   "src/client/theme.css": "2906ac5f4ab5a3d257db872b4bc5a829cb4f77ba199555cd995f0cccdaeab3a5",
   "src/client/theme.js": "448cce678b2880da4b41c0bde89d4d378860a27eff4a33158b2cf65cf831c62c"

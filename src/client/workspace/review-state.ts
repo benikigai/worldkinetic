@@ -3,7 +3,7 @@ import {
   type Bootstrap, type Candidate, type Check, type Event, type Requirements,
 } from '../../shared/contracts-v2.js';
 
-export const API_HANDOFF_REASON = 'The server still uses wk-backend-draft-0.1. wk-prototype-0.2 confirmation, run, acceptance and export handlers are not connected. Positive acceptance and export manifest records are unavailable.';
+export const API_HANDOFF_REASON = 'This fixture-review UI has not connected live actions or verified acceptance and export manifest transport yet.';
 
 export interface ReviewSnapshot {
   bootstrap: Bootstrap | null;
