@@ -1,3 +1,165 @@
+# TOOLS-02 v2 adapter and numeric plate core
+
+`adapter.ts` exports `cadToolAdapter: ToolAdapter` from the released
+`src/shared/contracts-v2.ts` interface. It supports only `numeric_operation` /
+`resize_plate` with the exact confirmed length and `plate-validator-v1`.
+`python_source` remains unavailable until TOOLS-03. An unknown validator also
+returns `TOOL_UNAVAILABLE` with no checks or artifacts.
+
+```ts
+import { cadToolAdapter } from './src/tools/adapter.js';
+import { verifyToolInput, verifyToolResult } from './src/shared/contracts-v2.js';
+
+const input = await verifyToolInput(serializableInput);
+const result = await cadToolAdapter({ ...input, signal: abortController.signal });
+await verifyToolResult(result, input);
+```
+
+The adapter removes the local signal before strict shared input verification.
+Unparseable or contradictory inputs reject the promise before CAD; dispatched
+valid inputs receive matching structured results with fixed `safeError` messages.
+All run/request/design/revision/attempt identities, requirements and proposal are
+echoed. Checks use frozen definitions, methods, units and expected values; actual
+core measurements and methods remain in `measured`, with measured margin point
+pairs in `diagnostics.pointPairs`. The proposal and full bundle use shared hash
+helpers. A completed result with a failed margin remains `completed`, allowing
+BACKEND to record a rejected candidate. This adapter never accepts a revision.
+
+Exactly one reference descriptor must match the requirements reference hash and
+input revision. The adapter checks regular, non-symlink source bytes before CAD
+and stages a read-only copy. It also stages validated requirements and the exact
+registry/setup canonical strings. Python hashes those strings directly as UTF-8
+and verifies their fixed registry identity, resolved setup, length and reference
+agreement. Only trusted verifier stages receive these bindings; generators
+receive source only. `--requirements-json` exposes this optional internal CLI
+envelope (`requirements`, `registryCanonicalJson`, `setupCanonicalJson`). It is
+not a provider argument or public route.
+
+`cad_runner.py` remains an internal numeric CLI. The host requires Python 3.9+
+and Docker; only containers import CAD libraries. No dependencies were added.
+
+```sh
+python3 -B src/tools/cad_runner.py --length-mm 36 \
+  --output-dir /absolute/existing-parent/new-output \
+  --reference-step examples/plate/revised/plate-50x35x5.step \
+  --reference-sha256 9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3 \
+  --deadline-seconds 60
+```
+
+The output directory must not exist. Its parent must exist, and paths cannot
+contain symlinks. JSON stdout is the internal result; successful computation
+also writes `result.json`, `source.py`, `editable.py`, `candidate.step` and
+`preview.stl`. The source and editable files have identical bytes. The adapter
+returns four private descriptors: source (`text/x-python`), editable
+(`text/x-python`), sealed STEP export (`model/step`), and trusted STL preview
+(`model/stl`). It rereads the regular files, checks exact sizes/hashes and limits
+the entire output directory to 25 MiB. The internal `result.json` is not a public
+artifact. BACKEND must register and reverify the private descriptors before
+serving downloads; do not forward their paths or internal CLI logs to a browser.
+STEP/STL coordinates are mm in a right-handed Z-up frame at the minimum plate
+corner. Width is 35, thickness 5, bore diameter 6 and centered pitch 20 mm.
+Length 30 stays 30: its actual 2 mm margin fails the 5 mm requirement. Lengths
+50 and 36 measure 12 and 5 mm respectively. These are fixture operations.
+
+The seven `resize_centered_v1` records distinguish passed, failed and
+not_evaluated. Geometric conflicts return exit 0 with `status: check_failed`
+and `checkFailureCode: CHECK_FAILED`; infrastructure and input errors return
+nonzero with `error.code` and no passing checks. A checked candidate remains
+unaccepted and physically untested. No FreeCAD history or FCStd is claimed.
+The callable adapter binds those files to BACKEND's v2 contract. Public routes,
+state, artifact delivery, application integration and user acceptance remain
+BACKEND work. No FEA, Blender rendering, FCStd history or consumer fit is claimed.
+
+Execution is serialized by a per-user host lock. `WORLDKINETICS_CAD_LOCK_PATH`
+selects an absolute shared host path; BACKEND should set it consistently across
+worktrees. The default is the platform-resolved `/tmp` directory plus
+`worldkinetics-numeric-cad-<uid>.lock`, independent of per-job `TMPDIR`. The lock
+must be a regular non-symlink file owned by the current user with no group/other
+permissions. It is never mounted into a container. A single global deadline
+covers validation, staging, lock wait, runtime inspection and all four stages.
+When both `deadline` and `remainingBudgetMs` are provided, the earlier limit wins,
+including time already spent. Generators each have a 60-second cap; verifier and
+export verifier each have a 30-second cap, all bounded by the global deadline:
+
+1. `generator` executes the delivered editable source with no verifier code.
+2. `regenerator` independently executes those same source bytes.
+3. `verifier` imports sealed candidate/reference/regenerated STEP; measures
+   actual planes, OCP cylinders, full-height bore obstruction and OCP extrema
+   closest-point pairs; exports STL from the checked candidate.
+4. `export_verifier` independently imports the exact sealed export and
+   regenerated STEP, compares both Boolean differences, bounds, holes and
+   volumes, and reopens the binary STL. Mesh checks cover exact edge topology,
+   orientation, connectedness, volume, bounds, fitted circular rims, full-height
+   bore walls and triangle projections into bore interiors. Unsupported bore
+   wall geometry returns not_evaluated rather than a guessed pass.
+
+Each stage uses the selected image ID below with a nonroot UID, read-only root,
+no network, no capabilities, no-new-privileges, 2 GiB memory/swap, 2 CPUs,
+64 PIDs, a 25 MiB file-size limit and 128 MiB bounded tmpfs. Only its private
+immutable input and private output directories are mounted. Candidate stages
+receive source only. Trusted stages receive no candidate Python. Unique named
+containers are created before startup, stopped/removed before sealing, and
+absence is checked through Docker. Active cancellation sends SIGTERM to Python
+and waits for its completion and known-container cleanup before returning
+`RUN_TIMEOUT`; pre-aborted/expired requests do not start CAD. Cancellation during
+cleanup is deferred until removal finishes, then stops before the next stage.
+Cleanup has explicit 5-second command grace periods, up to 20 seconds total for
+resolving/killing create, waiting for the CLI, removing and checking absence,
+even when the computation deadline expires. Failed cleanup prevents
+artifact delivery. Stage traces include actual container names and sealed hashes.
+
+The host rejects unexpected, linked, missing or oversized outputs; source is
+limited to 64 KiB, delivered files to 25 MiB total and STL to 100,000 triangles.
+Raw failures and per-stage logs remain in private `worldkinetics-cad-*`
+directories under the host temporary directory. They are not public artifacts.
+Only complete successful-computation packages are written to the requested path.
+A hard host kill or unavailable Docker daemon can prevent cleanup confirmation;
+this core is not a public multi-tenant service.
+
+Host environment names are `WORLDKINETICS_CAD_IMAGE`,
+`WORLDKINETICS_CAD_LOCK_PATH`, `TMPDIR` (private staging) and `PATH` (Python/Docker
+lookup). Container environment names are `HOME`, `OPENBLAS_NUM_THREADS` and
+`OMP_NUM_THREADS`; host environment and credentials are not forwarded.
+`WORLDKINETICS_CAD_IMAGE` defaults to the exact selected immutable image ID. An
+explicit tag is allowed only if local inspection resolves to that same ID.
+The runner never pulls, builds or changes an image. The transferred
+`scripts/runtime/cad.Dockerfile` pins the documented base digest and includes
+libgl1, libglu1-mesa and libgomp1; `cad-requirements.txt` pins the protected
+observed Python packages. Packaging is source-consistency-checked, not rebuilt.
+Apt package versions are not locked, so it does not promise identical rebuilds.
+
+Protected acceptance (owned by the parent):
+
+```sh
+node --import tsx --test tests/tools/adapter.test.ts && python3 -B tests/tools/plate_acceptance.py && python3 -B tests/tools/stage_deadline.py && npm run typecheck
+node --import tsx src/tools/check_adapter_cancel.ts
+```
+
+Run CAD checks serially. `stage_deadline.py` actually waits for the 30-second
+verifier cap and checks removal; `check_adapter_cancel.ts` observes a running
+generator, aborts through the adapter and checks absence before delivery.
+The root typecheck does not include `src/tools/**`; check it directly with:
+
+```sh
+node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/check_adapter_cancel.ts
+```
+
+The numeric core was previously verified at `2bd015d`; the shared v2 release
+was merged from `23a8360`. These are earlier evidence boundaries, not this
+worker's receipt. The parent owns execution evidence, review and commits under
+`docs/development-evidence.md`. The [numeric trial fixture](../../fixtures/tools/numeric-core-trial.json) records
+actual CLI fixture executions, not user acceptance or application integration.
+Additional fixed negative probes run with `python3 -B src/tools/check_numeric_core.py`;
+they exercise a thin bore cap, misplaced holes, extra solids, mesh failures,
+symlinks, unexpected outputs and truncated STL.
+The new [v2 shape fixture](../../fixtures/tools/plate-v2-result.fixture.json) is
+synthetic, explicitly labeled `fixture` throughout and uses fake private paths.
+It does not replace saved numeric or engine-gate observations.
+The following TOOLS-01 account is historical immutable observation context;
+its scope and gaps refer to that earlier gate.
+
+---
+
 # TOOLS-01 engine gate
 
 The supervisor ran the fixed acceptance harness in `tests/tools/runtime_gate.py`

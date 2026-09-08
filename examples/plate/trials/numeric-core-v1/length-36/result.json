@@ -1,0 +1,885 @@
+{
+  "executionMode": "live",
+  "scope": "numeric_fixture_core",
+  "setupId": "resize_centered_v1",
+  "registrySha256": "d9de0bbe0c6a03f101d5f9562360ac10d0a4216401533eb9be0b4148c8a9aa33",
+  "units": "mm",
+  "frame": {
+    "handedness": "right",
+    "z": "up",
+    "origin": "min_plate_corner"
+  },
+  "lengthMm": 36.0,
+  "sourceSha256": "ee35d2f3555609da41dbb8d864da5de958cd504538e0f0cd22a0c48e31e3a781",
+  "geometryHash": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454",
+  "referenceSha256": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+  "engine": {
+    "name": "build123d",
+    "version": "0.11.1",
+    "ocpVersion": "7.9.3.1.1",
+    "imageId": "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440",
+    "architecture": "arm64"
+  },
+  "runtime": {
+    "python": "3.11.16",
+    "isolation": "separate_restricted_containers"
+  },
+  "checks": [
+    {
+      "checkId": "geometry.valid_single_solid",
+      "state": "passed",
+      "method": "Fresh STEP import; kernel topology validity, solid count, finite bounds and positive volume",
+      "measured": {
+        "bounds": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            36.0,
+            35.0,
+            5.0
+          ]
+        ],
+        "volume": 6017.256661176911,
+        "valid": true,
+        "solidCount": 1,
+        "solidOK": true,
+        "dimensionsOK": true,
+        "boundaryPlanes": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "holesOK": true,
+        "holes": [
+          {
+            "center": [
+              8.0,
+              17.5
+            ],
+            "radius": 3.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "bounds": [
+              [
+                5.0,
+                14.5,
+                0.0
+              ],
+              [
+                11.0,
+                20.5,
+                5.0
+              ]
+            ]
+          },
+          {
+            "center": [
+              28.0,
+              17.5
+            ],
+            "radius": 3.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "bounds": [
+              [
+                25.0,
+                14.5,
+                0.0
+              ],
+              [
+                31.0,
+                20.5,
+                5.0
+              ]
+            ]
+          }
+        ],
+        "boreObstructions": [
+          {
+            "solidCount": 0,
+            "volumeMm3": 0.0
+          },
+          {
+            "solidCount": 0,
+            "volumeMm3": 0.0
+          }
+        ]
+      },
+      "expected": {
+        "valid": true,
+        "solidCount": 1,
+        "positiveFiniteVolume": true
+      },
+      "units": [
+        "count",
+        "mm",
+        "mm3"
+      ],
+      "measuredValue": 1
+    },
+    {
+      "checkId": "geometry.requested_dimensions",
+      "state": "passed",
+      "method": "OCP analytic boundary planes and their actual face extents; independent bounding box",
+      "measured": {
+        "bounds": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            36.0,
+            35.0,
+            5.0
+          ]
+        ],
+        "boundaryPlanes": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "expected": {
+        "bounds": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            36.0,
+            35,
+            5
+          ]
+        ],
+        "linearTolerance": 0.01
+      },
+      "units": "mm"
+    },
+    {
+      "checkId": "holes.layout",
+      "state": "passed",
+      "method": "OCP analytic cylindrical faces, axes, diameter, centers, pitch and full-depth bounds; full-height bore Boolean intersection must contain zero solids, with no volume allowance",
+      "measured": {
+        "holes": [
+          {
+            "center": [
+              8.0,
+              17.5
+            ],
+            "radius": 3.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "bounds": [
+              [
+                5.0,
+                14.5,
+                0.0
+              ],
+              [
+                11.0,
+                20.5,
+                5.0
+              ]
+            ]
+          },
+          {
+            "center": [
+              28.0,
+              17.5
+            ],
+            "radius": 3.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "bounds": [
+              [
+                25.0,
+                14.5,
+                0.0
+              ],
+              [
+                31.0,
+                20.5,
+                5.0
+              ]
+            ]
+          }
+        ],
+        "obstructions": [
+          {
+            "solidCount": 0,
+            "volumeMm3": 0.0
+          },
+          {
+            "solidCount": 0,
+            "volumeMm3": 0.0
+          }
+        ],
+        "probeRadialInsetMm": 1e-07
+      },
+      "expected": {
+        "centers": [
+          [
+            8.0,
+            17.5
+          ],
+          [
+            28.0,
+            17.5
+          ]
+        ],
+        "diameter": 6,
+        "pitch": 20,
+        "throughDepth": 5,
+        "linearTolerance": 0.01
+      },
+      "units": "mm"
+    },
+    {
+      "checkId": "margin.end_material",
+      "state": "passed",
+      "method": "OCP BRepExtrema shortest cylinder-face to actual corresponding X end-face distance",
+      "measured": {
+        "closestPointPairs": [
+          [
+            [
+              5.0,
+              17.5,
+              5.0
+            ],
+            [
+              0.0,
+              17.5,
+              5.0
+            ]
+          ],
+          [
+            [
+              31.0,
+              17.5,
+              5.0
+            ],
+            [
+              36.0,
+              17.5,
+              5.0
+            ]
+          ]
+        ],
+        "distances": [
+          5.0,
+          5.0
+        ]
+      },
+      "expected": {
+        "minimumEndMaterialMm": 5,
+        "linearTolerance": 0.01
+      },
+      "units": "mm",
+      "measuredValue": 5.0
+    },
+    {
+      "checkId": "export.step_reopen",
+      "state": "passed",
+      "method": "Reimport exact sealed STEP bytes in fresh export verifier; byte identity, bounds, holes, positive valid solid, relative volume and bidirectional Boolean difference",
+      "measured": {
+        "symmetricDifferenceMm3": 0,
+        "relativeVolumeDifference": 0.0,
+        "candidate": {
+          "bounds": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              36.0,
+              35.0,
+              5.0
+            ]
+          ],
+          "volume": 6017.256661176911,
+          "valid": true,
+          "solidCount": 1,
+          "solidOK": true,
+          "dimensionsOK": true,
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "holesOK": true,
+          "holes": [
+            {
+              "center": [
+                8.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  5.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  11.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            },
+            {
+              "center": [
+                28.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  25.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  31.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            }
+          ],
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            }
+          ]
+        },
+        "reopened": {
+          "bounds": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              36.0,
+              35.0,
+              5.0
+            ]
+          ],
+          "volume": 6017.256661176911,
+          "valid": true,
+          "solidCount": 1,
+          "solidOK": true,
+          "dimensionsOK": true,
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "holesOK": true,
+          "holes": [
+            {
+              "center": [
+                8.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  5.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  11.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            },
+            {
+              "center": [
+                28.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  25.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  31.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            }
+          ],
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            }
+          ]
+        },
+        "exportSha256": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454",
+        "checkedSha256": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454"
+      },
+      "expected": {
+        "symmetricDifferenceMm3Max": 0.01,
+        "relativeVolumeMax": 1e-05,
+        "linearToleranceMm": 0.01
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "measuredValue": 0
+    },
+    {
+      "checkId": "export.editable_reopen",
+      "state": "passed",
+      "method": "Independent isolated regeneration of same delivered source, sealed before trusted STEP imports; validity, bounds, holes, relative volume and bidirectional Boolean difference; no native history claim",
+      "measured": {
+        "symmetricDifferenceMm3": 0,
+        "relativeVolumeDifference": 0.0,
+        "candidate": {
+          "bounds": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              36.0,
+              35.0,
+              5.0
+            ]
+          ],
+          "volume": 6017.256661176911,
+          "valid": true,
+          "solidCount": 1,
+          "solidOK": true,
+          "dimensionsOK": true,
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "holesOK": true,
+          "holes": [
+            {
+              "center": [
+                8.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  5.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  11.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            },
+            {
+              "center": [
+                28.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  25.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  31.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            }
+          ],
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            }
+          ]
+        },
+        "reopened": {
+          "bounds": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              36.0,
+              35.0,
+              5.0
+            ]
+          ],
+          "volume": 6017.256661176911,
+          "valid": true,
+          "solidCount": 1,
+          "solidOK": true,
+          "dimensionsOK": true,
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "holesOK": true,
+          "holes": [
+            {
+              "center": [
+                8.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  5.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  11.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            },
+            {
+              "center": [
+                28.0,
+                17.5
+              ],
+              "radius": 3.0,
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bounds": [
+                [
+                  25.0,
+                  14.5,
+                  0.0
+                ],
+                [
+                  31.0,
+                  20.5,
+                  5.0
+                ]
+              ]
+            }
+          ],
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0.0
+            }
+          ]
+        },
+        "sourceSha256": "ee35d2f3555609da41dbb8d864da5de958cd504538e0f0cd22a0c48e31e3a781",
+        "regeneratedStepSha256": "06947e6f99513675f3a342ea44666a437dc7ea3f258c262c1eddfbab86d45567"
+      },
+      "expected": {
+        "symmetricDifferenceMm3Max": 0.01,
+        "relativeVolumeMax": 1e-05,
+        "linearToleranceMm": 0.01
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "measuredValue": 0
+    },
+    {
+      "checkId": "export.stl_reopen",
+      "state": "passed",
+      "method": "Independent binary STL parse; exact edge pairing and opposite winding, connected triangle graph, positive signed volume, bounds, fitted circular rims and full-height wall coverage; every triangle tested for bore-interior obstruction",
+      "measured": {
+        "sha256": "e9192ffd32920d749bebba463af6abbbf3ccdc2133ddb246f93baa675182b55e",
+        "bytes": 51484,
+        "triangles": 1028,
+        "volume": 6017.373830081926,
+        "bounds": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            36.0,
+            35.0,
+            5.0
+          ]
+        ],
+        "relativeVolumeDifference": 1.9472146795926834e-05,
+        "closed": true,
+        "consistentOrientation": true,
+        "connected": true,
+        "holes": [
+          {
+            "rims": [
+              {
+                "center": [
+                  8.0,
+                  17.500000243647374
+                ],
+                "diameter": 6.0000000000000195,
+                "z": 0.0,
+                "fitResidual": 1.0901400671059491e-06
+              },
+              {
+                "center": [
+                  8.0,
+                  17.500000243647374
+                ],
+                "diameter": 6.0000000000000195,
+                "z": 5.0,
+                "fitResidual": 1.0901400671059491e-06
+              }
+            ],
+            "wallTriangles": 252,
+            "minimumSurfaceRadius": 2.999066784302042,
+            "fullHeightUnobstructed": true
+          },
+          {
+            "rims": [
+              {
+                "center": [
+                  28.0,
+                  17.49999978013588
+                ],
+                "diameter": 6.000000000000016,
+                "z": 0.0,
+                "fitResidual": 1.2517762026931223e-06
+              },
+              {
+                "center": [
+                  28.0,
+                  17.50000021986412
+                ],
+                "diameter": 6.000000000000016,
+                "z": 5.0,
+                "fitResidual": 1.0441168405428414e-06
+              }
+            ],
+            "wallTriangles": 252,
+            "minimumSurfaceRadius": 2.9990666893764097,
+            "fullHeightUnobstructed": true
+          }
+        ],
+        "pitch": 20.000000000000007,
+        "fullHeightBoreOpenings": true
+      },
+      "expected": {
+        "linearToleranceMm": 0.01,
+        "relativeVolumeMax": 0.001,
+        "maxTriangles": 100000,
+        "closed": true,
+        "connected": true,
+        "unobstructedBores": true
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "measuredValue": 6017.373830081926
+    }
+  ],
+  "stages": [
+    {
+      "role": "generator",
+      "containerName": "wk-cad-generator-d4a71ba931bf4356",
+      "removed": true,
+      "inputSha256": {
+        "source.py": "ee35d2f3555609da41dbb8d864da5de958cd504538e0f0cd22a0c48e31e3a781"
+      },
+      "exitCode": 0,
+      "seconds": 1.6834,
+      "sealedOutputs": {
+        "candidate.step": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454"
+      }
+    },
+    {
+      "role": "regenerator",
+      "containerName": "wk-cad-regenerator-374a4ee801aa4d78",
+      "removed": true,
+      "inputSha256": {
+        "source.py": "ee35d2f3555609da41dbb8d864da5de958cd504538e0f0cd22a0c48e31e3a781"
+      },
+      "exitCode": 0,
+      "seconds": 1.5918,
+      "sealedOutputs": {
+        "candidate.step": "06947e6f99513675f3a342ea44666a437dc7ea3f258c262c1eddfbab86d45567"
+      }
+    },
+    {
+      "role": "verifier",
+      "containerName": "wk-cad-verifier-e8b8d8efb5564e23",
+      "removed": true,
+      "inputSha256": {
+        "verify.py": "2273de7883701cc24aa850a4047179fa97954bb1a39acdc3ef81c89de5548292",
+        "mesh_checks.py": "d6138024bba856140a63614e6b7f1c08128c61c7701092b5355f716bd27eb7b2",
+        "candidate.step": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454",
+        "regenerated.step": "06947e6f99513675f3a342ea44666a437dc7ea3f258c262c1eddfbab86d45567",
+        "reference.step": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+        "config.json": "9678da36b1043133d518cec374fcd4b5e74a93a485a9434440dd7f4cdf190b80"
+      },
+      "exitCode": 0,
+      "seconds": 1.6642,
+      "sealedOutputs": {
+        "preview.stl": "e9192ffd32920d749bebba463af6abbbf3ccdc2133ddb246f93baa675182b55e",
+        "measurement.json": "2f637153b414d4f717399fa317f290876604cd0e74468daf362851eada50c386"
+      }
+    },
+    {
+      "role": "export_verifier",
+      "containerName": "wk-cad-export-verifier-bf47876d22f54777",
+      "removed": true,
+      "inputSha256": {
+        "verify.py": "2273de7883701cc24aa850a4047179fa97954bb1a39acdc3ef81c89de5548292",
+        "mesh_checks.py": "d6138024bba856140a63614e6b7f1c08128c61c7701092b5355f716bd27eb7b2",
+        "candidate.step": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454",
+        "regenerated.step": "06947e6f99513675f3a342ea44666a437dc7ea3f258c262c1eddfbab86d45567",
+        "reference.step": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+        "config.json": "9678da36b1043133d518cec374fcd4b5e74a93a485a9434440dd7f4cdf190b80",
+        "preview.stl": "e9192ffd32920d749bebba463af6abbbf3ccdc2133ddb246f93baa675182b55e",
+        "checked.step": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454"
+      },
+      "exitCode": 0,
+      "seconds": 1.7396,
+      "sealedOutputs": {
+        "measurement.json": "735809640d2cc76a3009be395a7b22ad0786def9916adbc7aaadd36d432fd8a4"
+      }
+    }
+  ],
+  "status": "checked",
+  "accepted": false,
+  "physicallyTested": false,
+  "artifacts": [
+    {
+      "name": "source.py",
+      "sha256": "ee35d2f3555609da41dbb8d864da5de958cd504538e0f0cd22a0c48e31e3a781",
+      "bytes": 388
+    },
+    {
+      "name": "candidate.step",
+      "sha256": "0026db6248db8bd658a5252d097971c93bbef3218464f44f2db82cebcc83c454",
+      "bytes": 22570
+    },
+    {
+      "name": "preview.stl",
+      "sha256": "e9192ffd32920d749bebba463af6abbbf3ccdc2133ddb246f93baa675182b55e",
+      "bytes": 51484
+    }
+  ]
+}
