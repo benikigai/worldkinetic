@@ -1,0 +1,276 @@
+{
+  "taskId": "TOOLS-01",
+  "evidenceMode": "OUTSIDE_WRAPPER",
+  "units": "mm",
+  "checks": [
+    {
+      "id": "boundary.configured_boundary",
+      "outcome": "pass",
+      "detail": {
+        "nonroot": "65532:65532",
+        "mounts": 2
+      }
+    },
+    {
+      "id": "boundary.container_stopped",
+      "outcome": "pass",
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "id": "boundary.removed",
+      "outcome": "pass",
+      "detail": {
+        "seconds": 0.29,
+        "timedOut": false
+      }
+    },
+    {
+      "id": "nonroot",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "host_read_denied",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "reference_write_denied",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "root_write_denied",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "socket_absent",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "verifier_absent",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "network_denied",
+      "outcome": "pass",
+      "detail": {
+        "observed": true
+      }
+    },
+    {
+      "id": "reference_original_hash",
+      "outcome": "pass",
+      "detail": {
+        "sha256": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3"
+      }
+    },
+    {
+      "id": "generate.configured_boundary",
+      "outcome": "pass",
+      "detail": {
+        "nonroot": "65532:65532",
+        "mounts": 2
+      }
+    },
+    {
+      "id": "generate.container_stopped",
+      "outcome": "pass",
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "id": "generate.removed",
+      "outcome": "pass",
+      "detail": {
+        "seconds": 1.632,
+        "timedOut": false
+      }
+    },
+    {
+      "id": "verify.configured_boundary",
+      "outcome": "pass",
+      "detail": {
+        "nonroot": "65532:65532",
+        "mounts": 2
+      }
+    },
+    {
+      "id": "verify.container_stopped",
+      "outcome": "pass",
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "id": "verify.removed",
+      "outcome": "pass",
+      "detail": {
+        "seconds": 1.539,
+        "timedOut": false
+      }
+    },
+    {
+      "id": "plate.valid_solid",
+      "outcome": "pass",
+      "detail": {
+        "valid": true,
+        "solids": 1,
+        "volume": 8467.25666117691,
+        "bounds": [
+          50.0,
+          35.0,
+          5.0
+        ],
+        "bores": [
+          0,
+          0
+        ],
+        "engineVersion": "0.11.1",
+        "ocpVersion": "7.9.3.1.1"
+      }
+    },
+    {
+      "id": "plate.dimensions",
+      "outcome": "pass",
+      "detail": [
+        50.0,
+        35.0,
+        5.0
+      ]
+    },
+    {
+      "id": "plate.volume",
+      "outcome": "pass",
+      "detail": {
+        "actual": 8467.25666117691,
+        "expected": 8467.256661176918
+      }
+    },
+    {
+      "id": "plate.through_bores",
+      "outcome": "pass",
+      "detail": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "sealed_unchanged",
+      "outcome": "pass",
+      "detail": {
+        "sha256": "9eb39e206b6d59e80a115e29798d8b3256d31bcc6e1a0b7d329411a9a4c12d43"
+      }
+    },
+    {
+      "id": "stl.byte_layout",
+      "outcome": "pass",
+      "detail": {
+        "triangles": 1028,
+        "bytes": 51484
+      }
+    },
+    {
+      "id": "stl.volume",
+      "outcome": "pass",
+      "detail": {
+        "volume": 8467.373835628394
+      }
+    },
+    {
+      "id": "stl.bounds",
+      "outcome": "pass",
+      "detail": {
+        "dimensions": [
+          50,
+          35,
+          5
+        ]
+      }
+    },
+    {
+      "id": "linger.configured_boundary",
+      "outcome": "pass",
+      "detail": {
+        "nonroot": "65532:65532",
+        "mounts": 2
+      }
+    },
+    {
+      "id": "linger.container_stopped",
+      "outcome": "pass",
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "id": "linger.removed",
+      "outcome": "pass",
+      "detail": {
+        "seconds": 0.188,
+        "timedOut": false
+      }
+    },
+    {
+      "id": "lingering_child_killed",
+      "outcome": "pass",
+      "detail": {
+        "markerAbsent": true
+      }
+    },
+    {
+      "id": "timeout.removed",
+      "outcome": "pass",
+      "detail": {
+        "seconds": 2.103,
+        "timedOut": true
+      }
+    },
+    {
+      "id": "timeout_failed_closed",
+      "outcome": "pass",
+      "detail": {
+        "timedOut": true,
+        "markerAbsent": true
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".runtime/tools/gate/acceptance-8b5ac8d21a/sealed.step",
+      "sha256": "9eb39e206b6d59e80a115e29798d8b3256d31bcc6e1a0b7d329411a9a4c12d43",
+      "bytes": 22575
+    },
+    {
+      "path": ".runtime/tools/gate/acceptance-8b5ac8d21a/verify/output/preview.stl",
+      "sha256": "0234291b295c315aeb045a13b52e2f8426e389f2ef0525c422e512816bc276c0",
+      "bytes": 51484
+    }
+  ],
+  "engine": {
+    "name": "build123d",
+    "version": "0.11.1",
+    "imageId": "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440",
+    "architecture": "arm64",
+    "ocpVersion": "7.9.3.1.1"
+  },
+  "capabilityStatus": "pass"
+}
