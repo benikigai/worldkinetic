@@ -9,6 +9,13 @@ export type LivePresentationUpdate = {
   canAccept: boolean;
 };
 
+export function endMaterialMeasurement(measured: unknown): number | null {
+  if (!measured || typeof measured !== 'object' || Array.isArray(measured)) return null;
+  const evidence = measured as Record<string, unknown>;
+  const value = 'measuredValue' in evidence ? evidence.measuredValue : evidence.minimumEndMaterialMm;
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
 export function createLivePresentation() {
   let identity: string | null = null;
   let previewKey: string | null = null;
