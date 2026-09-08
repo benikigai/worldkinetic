@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { CONTRACT_VERSION, IdSchema } from './requirements-v2.js';
 
 export const PUBLIC_SESSION_COOKIE = '__Host-wk_session';
+export const PUBLIC_WORKSPACE_HEADER = 'X-WorldKinetics-Workspace';
 export const PUBLIC_DEMO_LIMITS = { runsPerSession: 4, runsPerLaunch: 12, sessionsPerLaunch: 20, designsPerSession: 5, sessionHours: 8 } as const;
 export const SessionLoginSchema = z.object({ accessCode: z.string().min(1).max(128) }).strict();
 export const NewSessionDesignSchema = z.object({

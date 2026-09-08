@@ -19,13 +19,14 @@ test('exact custom request and trusted headers reach only the configured origin'
     assert.equal(init.redirect, 'manual'); assert.equal(init.cache, 'no-store');
     assert.equal(init.headers.get('cookie'), 'session=test');
     assert.equal(init.headers.get('origin'), 'https://worldkinetics.app');
+    assert.equal(init.headers.get('x-worldkinetics-workspace'), 'workspace_test');
     assert.equal(init.headers.get('X-WorldKinetics-Upstream-Key'), 'test-only-key');
     assert.equal(init.headers.get('X-WorldKinetics-Client-IP'), '192.0.2.1');
     assert.equal(init.headers.get('authorization'), null);
     assert.equal(await new Response(init.body).text(), '{"instruction":"thicker in the middle"}');
     return new Response('{"status":"queued"}', { status: 202 });
   });
-  const response = await worker.fetch(new Request('https://worldkinetics.app/api/runs?test=1', { method: 'POST', body: '{"instruction":"thicker in the middle"}', headers: { Cookie: 'session=test', Origin: 'https://worldkinetics.app', 'CF-Connecting-IP': '192.0.2.1', 'X-WorldKinetics-Upstream-Key': 'forged', 'X-WorldKinetics-Client-IP': 'forged', Authorization: 'forged' } }), env);
+  const response = await worker.fetch(new Request('https://worldkinetics.app/api/runs?test=1', { method: 'POST', body: '{"instruction":"thicker in the middle"}', headers: { Cookie: 'session=test', Origin: 'https://worldkinetics.app', 'X-WorldKinetics-Workspace': 'workspace_test', 'CF-Connecting-IP': '192.0.2.1', 'X-WorldKinetics-Upstream-Key': 'forged', 'X-WorldKinetics-Client-IP': 'forged', Authorization: 'forged' } }), env);
   assert.equal(response.status, 202);
 });
 test('streams exact bytes, download identity and session cookie without caching', async t => {

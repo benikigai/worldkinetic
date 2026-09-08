@@ -14,7 +14,7 @@ export default {
     target.pathname = incoming.pathname;
     target.search = incoming.search;
     const headers = new Headers();
-    for (const name of ['accept', 'content-type', 'content-length', 'cookie', 'origin', 'range']) {
+    for (const name of ['accept', 'content-type', 'content-length', 'cookie', 'origin', 'range', 'x-worldkinetics-workspace']) {
       const value = request.headers.get(name);
       if (value !== null) headers.set(name, value);
     }

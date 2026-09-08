@@ -5,7 +5,7 @@ import { isIP } from 'node:net';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import path from 'node:path';
 import { CONTRACT_VERSION, ErrorCodeSchema, NewSessionDesignSchema, PUBLIC_DEMO_LIMITS as limits,
-  PUBLIC_SESSION_COOKIE, SessionLoginSchema, SessionStatusSchema, parseStrictJson, safeError,
+  PUBLIC_SESSION_COOKIE, PUBLIC_WORKSPACE_HEADER, SessionLoginSchema, SessionStatusSchema, parseStrictJson, safeError,
   type SessionStatus, type ToolAdapter } from '../shared/contracts.js';
 import { cadToolAdapter } from '../tools/adapter.js';
 import { createHandleApplication } from './handle-app.js';
@@ -208,6 +208,7 @@ export async function createPublicDemo(options: PublicDemoOptions) {
         });
       }
       // Child applications never listen on a port and can see only their own store and artifacts.
+      if (request.method !== 'GET' && request.headers[PUBLIC_WORKSPACE_HEADER.toLowerCase()] !== visitor.workspaceId) fail(409, 'STATE_CONFLICT');
       visitor.app.server.emit('request', request, response);
     } catch (error) {
       const code = error instanceof StoreError ? ErrorCodeSchema.safeParse(error.code) : null;

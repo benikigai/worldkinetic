@@ -9,6 +9,7 @@ import { createPublicDemo, type PublicDemoOptions } from '../../src/server/publi
 import * as c from '../../src/shared/contracts.js';
 import { requirementIdentity } from '../../src/server/store.js';
 import { verifyAcceptanceResponse } from '../../src/shared/transport-v2.js';
+import { createSessionClient } from '../../src/client/workspace/session.js';
 
 const origin = 'https://worldkinetics.app';
 const upstream = 'synthetic-upstream-key-not-a-secret-123';
@@ -34,9 +35,11 @@ async function start(overrides: Partial<PublicDemoOptions> = {}) {
   await new Promise<void>(resolve => app.server.listen(0, '127.0.0.1', resolve));
   const address = app.server.address(); assert(address && typeof address !== 'string');
   const base = `http://127.0.0.1:${address.port}`;
+  const bindings = new Map<string, string>();
+  const bind = (cookie: string, workspaceId: string) => { bindings.set(cookie, workspaceId); };
   const call = (route: string, cookie = '', method = 'GET', body?: unknown, headers: Record<string, string> = {}) => fetch(base + route, {
     method, headers: { 'X-WorldKinetics-Upstream-Key': upstream, 'X-WorldKinetics-Client-IP': '192.0.2.10',
-      Origin: origin, Cookie: cookie, 'Content-Type': 'application/json', ...headers },
+      Origin: origin, Cookie: cookie, 'Content-Type': 'application/json', [c.PUBLIC_WORKSPACE_HEADER]: bindings.get(cookie) ?? '', ...headers },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   async function login(ip = '192.0.2.10') {
@@ -44,6 +47,7 @@ async function start(overrides: Partial<PublicDemoOptions> = {}) {
     assert.equal(response.status, 200); const value = c.SessionStatusSchema.parse(await response.json());
     assert(value.authenticated); const cookie = response.headers.get('set-cookie')!;
     assert.match(cookie, /^__Host-wk_session=[a-f0-9]{64}; Path=\/; HttpOnly; Secure; SameSite=Strict; Max-Age=28800$/);
+    bind(cookie.split(';')[0]!, value.workspaceId);
     return { cookie: cookie.split(';')[0]!, status: value };
   }
   async function idle(cookie: string) {
@@ -54,7 +58,7 @@ async function start(overrides: Partial<PublicDemoOptions> = {}) {
     }
     throw Error('Synthetic job did not settle');
   }
-  return { ...app, call, login, idle, base };
+  return { ...app, call, login, idle, base, bind };
 }
 async function syntheticTool(input: c.ToolInput): Promise<c.ToolResult> {
   assert.equal(input.proposal.kind, 'python_source');
@@ -150,6 +154,12 @@ test('fresh design is isolated, explicit and idempotent without resetting the vi
     assert.notEqual(first.workspaceId, a.status.workspaceId); assert.equal(first.runsRemaining, 3);
     const retry = c.SessionStatusSchema.parse(await (await app.call('/api/session/new', a.cookie, 'POST', reset)).json()); assert(retry.authenticated); assert.equal(first.workspaceId, retry.workspaceId);
     const after = await (await app.call('/api/bootstrap', a.cookie)).json() as any; assert.equal(after.runs.length, 0);
+    assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('first'))).status, 409);
+    assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('new_from_old_tab'))).status, 409);
+    assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('no_binding'), { [c.PUBLIC_WORKSPACE_HEADER]: '' })).status, 409);
+    const unchanged = await app.idle(a.cookie); assert.equal(unchanged.runsRemaining, 3);
+    assert.equal((await (await app.call('/api/bootstrap', a.cookie)).json() as any).runs.length, 0);
+    app.bind(a.cookie, first.workspaceId);
     assert.equal((await app.call('/api/runs/' + before.runs[0].runId, a.cookie)).status, 404);
     assert.equal((await app.call('/api/session/new', a.cookie, 'POST', { ...reset, requestId: 'stale' })).status, 409);
     for (let i = 0; i < 3; i++) { assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('next_' + i))).status, 202); await app.idle(a.cookie); }
@@ -216,5 +226,60 @@ test('accepted files and packages keep exact identity within one visitor and den
     assert.equal(response.headers.get(c.PACKAGE_HEADERS.manifestHash), acceptance.manifest.manifestHash);
     assert.equal(response.headers.get('Cache-Control'), 'no-store'); assert.match(response.headers.get('Content-Disposition')!, /prototype.zip/);
     assert.deepEqual(await (await app.call('/api/acceptances', b.cookie)).json(), { contractVersion: c.CONTRACT_VERSION, acceptances: [], manifests: [] });
+  } finally { await app.close(); }
+});
+
+test('combined edge, frontend session client and backend preserve a custom request through checked acceptance and ZIP', async t => {
+  const edgeModule = '../../deployment/cloudflare/worker.mjs';
+  const { default: worker } = await import(edgeModule);
+  const directFetch = globalThis.fetch;
+  let instruction = '', providerCalls = 0;
+  const app = await start({ fetchImpl: async (_url, init) => {
+    providerCalls++; instruction = JSON.parse(JSON.parse(String(init?.body)).input).instruction;
+    return providerResponse();
+  }, tool: syntheticTool });
+  const env = { API_ORIGIN: 'https://dedicated.synthetic.example', UPSTREAM_KEY: upstream, ASSETS: { fetch: async () => new Response('Synthetic static asset') } };
+  t.mock.method(globalThis, 'fetch', async (target: URL, init: RequestInit) => {
+    const url = new URL(String(target)); assert.equal(url.origin, env.API_ORIGIN);
+    const local = new URL(app.base); local.pathname = url.pathname; local.search = url.search;
+    return directFetch(local, { ...init, duplex: 'half' } as RequestInit);
+  });
+  let jar = '', workspaceId = '';
+  const browserFetch: typeof fetch = async (route, init) => {
+    const headers = new Headers(init?.headers); headers.set('Cookie', jar); headers.set('CF-Connecting-IP', '192.0.2.15');
+    if (init?.method && init.method !== 'GET') headers.set('Origin', origin);
+    if (workspaceId) headers.set(c.PUBLIC_WORKSPACE_HEADER, workspaceId);
+    const response = await worker.fetch(new Request(new URL(String(route), origin), { ...init, headers }), env) as Response;
+    if (response.headers.has('set-cookie')) jar = response.headers.get('set-cookie')!.split(';')[0]!;
+    return response;
+  };
+  const browserPost = (route: string, body: unknown) => browserFetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  try {
+    const client = createSessionClient(browserFetch, 'worldkinetics.app');
+    assert.equal((await client.status())?.authenticated, false);
+    const session = await client.login(invite); assert(session?.authenticated);
+    workspaceId = session.workspaceId;
+    const request = { ...input('edge_custom'), instruction: 'Create a smooth arch with a narrow grip for this cabinet.' };
+    assert.equal((await browserPost('/api/runs', request)).status, 202);
+    for (let i = 0; i < 200; i++) { const status = await client.status(); if (status?.authenticated && !status.busy) break; await delay(10); }
+    const state = await (await browserFetch('/api/bootstrap')).json() as any;
+    const candidate = c.CandidateSchema.parse(state.candidates[0]); assert.equal(candidate.status, 'reviewable');
+    assert.equal(instruction, request.instruction); assert.equal(providerCalls, 1); await c.verifyCandidateEvidence(candidate);
+    const accept = { contractVersion: c.CONTRACT_VERSION, requestId: 'edge_accept', designId: 'handle', candidateRevisionId: candidate.revisionId,
+      requirementsVersion: 1, expectedStateVersion: state.design.stateVersion, expectedAcceptedRevisionId: null, registryHash: candidate.registryHash,
+      setupHash: candidate.setupHash, geometryHash: candidate.geometryHash!, checkBundleHash: candidate.checkBundleHash!, userActionId: 'explicit_edge_accept' };
+    const accepted = await (await browserPost(`/api/revisions/${candidate.revisionId}/accept`, accept)).json() as any;
+    await verifyAcceptanceResponse(accepted, accept);
+    const packageResponse = await browserPost(`/api/revisions/${candidate.revisionId}/package`, { contractVersion: c.CONTRACT_VERSION,
+      requestId: 'edge_package', acceptanceId: accepted.acceptance.acceptanceId, manifestId: accepted.manifest.manifestId, manifestHash: accepted.manifest.manifestHash });
+    assert.equal(packageResponse.status, 200); const bytes = new Uint8Array(await packageResponse.arrayBuffer());
+    assert.equal(await c.sha256(bytes), packageResponse.headers.get(c.PACKAGE_HEADERS.sha256));
+    assert.equal(packageResponse.headers.get(c.PACKAGE_HEADERS.revisionId), candidate.revisionId);
+    assert.equal(packageResponse.headers.get('Content-Type'), 'application/zip'); assert.equal(packageResponse.headers.get('Cache-Control'), 'no-store');
+    const fresh = await client.newDesign(session.workspaceId); assert(fresh.authenticated); assert.equal(fresh.runsRemaining, 3);
+    assert.equal((await browserPost('/api/runs', request)).status, 409);
+    assert.equal((await (await browserFetch('/api/bootstrap')).json() as any).runs.length, 0);
+    assert.equal((await client.logout())?.authenticated, false);
+    assert.equal((await browserFetch('/api/bootstrap')).status, 401); assert.equal(providerCalls, 1);
   } finally { await app.close(); }
 });
