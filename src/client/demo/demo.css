@@ -1,1 +1,18 @@
-.recorded-demo { max-width: 1100px; margin: auto; padding: 32px 24px 56px; } .recorded-demo .wordmark { display: inline-flex; align-items: center; gap: 10px; } .demo-label { margin-top: 48px; color: var(--accent); font-size: 13px; letter-spacing: .08em; } .recorded-demo h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 500; letter-spacing: -.04em; margin: 16px 0; } .recorded-demo p { font-size: 18px; line-height: 1.6; } .recorded-demo video { display: block; width: 100%; margin: 28px 0 16px; background: #111; border-radius: 16px; aspect-ratio: 16/9; } .recorded-demo .demo-note { color: var(--muted); font-size: 14px; max-width: 850px; } .recorded-demo > a:last-child { display: inline-block; padding: 16px 0; }
+.recorded-demo { max-width: 1100px; margin: auto; padding: 32px 24px 56px; }
+.recorded-demo .wordmark { display: inline-flex; align-items: center; gap: 10px; }
+.recorded-demo .demo-label { color: var(--accent); font-size: 13px; letter-spacing: .08em; }
+.demo-story { margin: 56px 0 44px; max-width: 850px; }
+.recorded-demo h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 500; letter-spacing: -.04em; margin: 16px 0 24px; }
+.recorded-demo h2 { font-size: clamp(26px, 3vw, 34px); font-weight: 500; letter-spacing: -.03em; margin: 12px 0; }
+.recorded-demo p { font-size: 18px; line-height: 1.6; }
+.demo-watch { padding-top: 28px; border-top: 1px solid var(--line); }
+.recorded-demo video { display: block; width: 100%; margin: 24px 0; background: #111; border-radius: 16px; aspect-ratio: 16/9; }
+.demo-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; padding-left: 22px; margin: 28px 0; }
+.demo-steps strong, .demo-steps span { display: block; font-size: 16px; line-height: 1.6; }
+.demo-steps span { margin-top: 8px; color: var(--muted); }
+.recorded-demo .demo-note { color: var(--muted); font-size: 14px; max-width: 850px; }
+.demo-live { display: flex; align-items: center; gap: 40px; border-top: 1px solid var(--line); padding: 36px 0; margin-top: 36px; }
+.demo-live > div { flex: 1; }
+.demo-live .demo-entry { flex-shrink: 0; }
+.recorded-demo > a:last-child { display: inline-block; padding: 16px 0; }
+@media (max-width: 700px) { .demo-steps { grid-template-columns: 1fr; gap: 18px; } .demo-live { display: block; } .demo-live .demo-entry { margin-top: 12px; } .demo-story { margin-top: 36px; } }
