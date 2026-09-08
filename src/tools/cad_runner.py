@@ -16,6 +16,8 @@ import time
 import traceback
 import uuid
 
+from requirements_binding import validate_binding
+
 IMAGE_ID = "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440"
 MAX_BYTES = 25 * 1024 * 1024
 HERE = Path(__file__).resolve().parent
@@ -106,6 +108,14 @@ class Runtime:
 
     def stage(self, role, files, expected):
         self.remaining()
+        stage_end = min(self.end, time.monotonic() + (60 if role in ("generator", "regenerator") else 30))
+
+        def stage_remaining():
+            value = stage_end - time.monotonic()
+            if value <= 0:
+                raise CoreError("TOOL_TIMEOUT", "CAD stage deadline exceeded")
+            return value
+
         root = self.private / role
         inp, out = root / "input", root / "output"
         inp.mkdir(parents=True)
@@ -135,23 +145,33 @@ class Runtime:
             with (root / "stdout.log").open("wb") as stdout, (root / "stderr.log").open("wb") as stderr:
                 process = subprocess.Popen(args, stdout=stdout, stderr=stderr, start_new_session=True)
                 while process.poll() is None:
-                    time.sleep(min(0.01, self.remaining()))
+                    time.sleep(min(0.01, stage_remaining()))
                 if process.returncode:
                     raise CoreError("TOOL_UNAVAILABLE", "Container creation failed; diagnostics retained privately")
-                self.remaining()
+                stage_remaining()
                 creating = False
                 process = subprocess.Popen(["docker", "start", "--attach", name], stdout=stdout, stderr=stderr,
                                            start_new_session=True)
                 while process.poll() is None:
-                    time.sleep(min(0.05, self.remaining()))
+                    time.sleep(min(0.05, stage_remaining()))
                     audit(out, expected, complete=False)
                     if stdout.tell() + stderr.tell() > MAX_BYTES:
                         raise CoreError("EXPORT_FAILED", "Stage log size exceeded")
+                stage_remaining()
                 trace["exitCode"] = process.returncode
                 if process.returncode:
-                    raise CoreError("EXPORT_FAILED", "CAD stage failed; raw diagnostics retained privately")
+                    code = "EXECUTION_FAILED" if role in ("generator", "regenerator") else "CHECK_FAILED"
+                    if role == "export_verifier":
+                        code = "EXPORT_FAILED"
+                    raise CoreError(code, "CAD stage failed; raw diagnostics retained privately")
         finally:
-            handlers = {sig: signal.signal(sig, signal.SIG_IGN) for sig in (signal.SIGINT, signal.SIGTERM)}
+            cancel_during_cleanup = False
+
+            def defer_cancel(signum, frame):
+                nonlocal cancel_during_cleanup
+                cancel_during_cleanup = True
+
+            handlers = {sig: signal.signal(sig, defer_cancel) for sig in (signal.SIGINT, signal.SIGTERM)}
             # Killing the CLI alone does not stop a container or its detached children.
             try:
                 if process is not None and process.poll() is None:
@@ -180,6 +200,8 @@ class Runtime:
             trace["seconds"] = round(time.monotonic() - started, 4)
             if not trace["removed"]:
                 raise CoreError("TOOL_UNAVAILABLE", "Container cleanup could not be confirmed")
+            if cancel_during_cleanup:
+                raise CoreError("TOOL_TIMEOUT", "CAD execution cancelled during cleanup")
         self.remaining()
         audit(out, expected)
         sealed = {p.name: read_regular(p) for p in out.iterdir()}
@@ -213,6 +235,13 @@ def execute(args, runtime):
     ref = read_regular(reference)
     if sha(ref) != args.reference_sha256.lower():
         raise CoreError("INPUT_REVISION_MISMATCH", "Reference STEP SHA-256 mismatch")
+    binding_bytes = None
+    if args.requirements_json:
+        binding_bytes = read_regular(safe_path(args.requirements_json), 128 * 1024)
+        try:
+            validate_binding(binding_bytes, args.length_mm, sha(ref))
+        except (ValueError, KeyError, TypeError) as exc:
+            raise CoreError("EVIDENCE_CONFLICT", "Requirements binding mismatch") from exc
     output = safe_path(args.output_dir)
     if output == reference or output in reference.parents or not output.parent.is_dir():
         raise CoreError("INVALID_PARAMETERS", "Output must be a new directory under an existing parent")
@@ -230,6 +259,9 @@ def execute(args, runtime):
     trusted = {"verify.py": (HERE / "verify.py").read_bytes(), "mesh_checks.py": (HERE / "mesh_checks.py").read_bytes(),
                "candidate.step": generated["candidate.step"], "regenerated.step": regenerated["candidate.step"],
                "reference.step": ref, "config.json": json.dumps(config).encode()}
+    trusted["requirements_binding.py"] = (HERE / "requirements_binding.py").read_bytes()
+    if binding_bytes is not None:
+        trusted["requirements.json"] = binding_bytes
     verified = runtime.stage("verifier", trusted, {"measurement.json", "preview.stl"})
     first = json.loads(verified["measurement.json"])
     exported = runtime.stage("export_verifier", {**trusted, "preview.stl": verified["preview.stl"],
@@ -249,7 +281,8 @@ def execute(args, runtime):
              "accepted": False, "physicallyTested": False}
     if value["status"] == "check_failed":
         value["checkFailureCode"] = "CHECK_FAILED"
-    artifacts = {"source.py": source, "candidate.step": generated["candidate.step"], "preview.stl": verified["preview.stl"]}
+    artifacts = {"source.py": source, "editable.py": source,
+                 "candidate.step": generated["candidate.step"], "preview.stl": verified["preview.stl"]}
     value["artifacts"] = [{"name": name, "sha256": sha(data), "bytes": len(data)} for name, data in artifacts.items()]
     artifacts["result.json"] = (json.dumps(value, indent=2, allow_nan=False) + "\n").encode()
     if sum(map(len, artifacts.values())) > MAX_BYTES:
@@ -284,6 +317,7 @@ def main():
         parser.add_argument("--reference-step", required=True)
         parser.add_argument("--reference-sha256", required=True)
         parser.add_argument("--deadline-seconds", required=True, type=float)
+        parser.add_argument("--requirements-json")
         args = parser.parse_args()
         if not math.isfinite(args.deadline_seconds) or args.deadline_seconds <= 0:
             raise CoreError("INVALID_PARAMETERS", "Deadline must be finite and positive")
@@ -291,8 +325,18 @@ def main():
         signal.signal(signal.SIGTERM, cancelled)
         signal.signal(signal.SIGINT, cancelled)
         # A shared host lock serializes this numeric core across worktrees.
-        lock_path = Path(tempfile.gettempdir()).resolve() / "worldkinetics-numeric-cad.lock"
+        # /tmp is stable across per-job TMPDIR values. Resolve its platform alias
+        # before checking the explicitly selected path for symlinks.
+        default_lock = Path("/tmp").resolve() / f"worldkinetics-numeric-cad-{os.getuid()}.lock"
+        lock_value = os.environ.get("WORLDKINETICS_CAD_LOCK_PATH", str(default_lock))
+        if not Path(lock_value).is_absolute():
+            raise CoreError("INVALID_PARAMETERS", "Lock path must be absolute")
+        lock_path = safe_path(lock_value)
         lock = os.open(lock_path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+        info = os.fstat(lock)
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_uid != os.getuid()
+                or info.st_mode & 0o077):
+            raise CoreError("INVALID_PARAMETERS", "Unsafe CAD lock file")
         while True:
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)

@@ -113,6 +113,9 @@ def compare(a, b, length):
 def main():
     config = json.loads((ROOT / "config.json").read_text())
     length = config["length"]
+    if (ROOT / "requirements.json").exists():
+        from requirements_binding import validate_binding
+        validate_binding((ROOT / "requirements.json").read_bytes(), length, config["referenceSha256"])
     for file, key in (("candidate.step", "geometryHash"), ("reference.step", "referenceSha256"),
                       ("regenerated.step", "regeneratedSha256")):
         if digest(ROOT / file) != config[key]:
