@@ -31,6 +31,7 @@ def strip_zero_area_triangles(path):
 
 def export_handle_stl(shape, path):
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
+    from build123d import Compound
     from OCP.BRepTools import BRepTools
     from OCP.IMeshTools import IMeshTools_Parameters
     from OCP.StlAPI import StlAPI_Writer
@@ -43,6 +44,16 @@ def export_handle_stl(shape, path):
     parameters.DeflectionInterior = 0.003
     parameters.AngleInterior = 0.1
     parameters.InParallel = False
+    # Cache fine pad boundaries before meshing the grip at a lower density.
+    # OCP shares these boundary polygons with adjacent faces; mesh checks still
+    # independently require watertightness and the original dimensional limits.
+    protected = [face for face in shape.faces() if face.bounding_box().max.Z <= 2.000001]
+    if protected:
+        pads = Compound(protected)
+        first = BRepMesh_IncrementalMesh(pads.wrapped, parameters)
+        if not first.IsDone():
+            raise ValueError('Protected interface tessellation failed')
+    parameters.Deflection = 0.001
     mesher = BRepMesh_IncrementalMesh(shape.wrapped, parameters)
     if not mesher.IsDone():
         raise ValueError('Handle tessellation failed')

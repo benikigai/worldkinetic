@@ -1,0 +1,57 @@
+{
+  "scope": "Actual OUTSIDE_WRAPPER curved developer proof",
+  "files": {
+    "initial/source.py": {
+      "sha256": "75007a0ea59af663e4132935d6a78d5b6393466c5bd89261a5908c7001005779",
+      "bytes": 579
+    },
+    "initial/editable.py": {
+      "sha256": "75007a0ea59af663e4132935d6a78d5b6393466c5bd89261a5908c7001005779",
+      "bytes": 579
+    },
+    "initial/candidate.step": {
+      "sha256": "c37d9b4c986c250ee6fb242161e0206da6103cd63bf22e0064d9b9141dc98a3b",
+      "bytes": 196111
+    },
+    "initial/preview.stl": {
+      "sha256": "5b60168140e3bd3860f97786056007ab161fafcf4fa136a68e62c54ed08f94bc",
+      "bytes": 3484184
+    },
+    "initial/result.json": {
+      "sha256": "c93dced120d8b919bd2cc1a60e66ceb75bfa17a1a3737365e4d4219f1c1ee48c",
+      "bytes": 66031
+    },
+    "initial/provenance.json": {
+      "sha256": "0c2924ed90238b024c795442630aea97f05bd85ef734424a495c113d44cd9e13",
+      "bytes": 1154
+    },
+    "refined/source.py": {
+      "sha256": "e720b240482014d8519860cfc59edf9b95dc0c16b8da3d5dbab1ec6c001ea8f6",
+      "bytes": 866
+    },
+    "refined/editable.py": {
+      "sha256": "e720b240482014d8519860cfc59edf9b95dc0c16b8da3d5dbab1ec6c001ea8f6",
+      "bytes": 866
+    },
+    "refined/candidate.step": {
+      "sha256": "b096e9af8dca2754bf115c3849297e3afda5f0b199bf9bf0698246f3c90b6aab",
+      "bytes": 249535
+    },
+    "refined/preview.stl": {
+      "sha256": "2ba931339ac48a7e2aa226433a56d1410bfdb364b2804fe97b196e275295aea9",
+      "bytes": 4099984
+    },
+    "refined/result.json": {
+      "sha256": "2e347341db89a9f5b62b9353276a7b6f9a437df79216847453278bc31020a509",
+      "bytes": 120655
+    },
+    "refined/provenance.json": {
+      "sha256": "a2e790fc07ff3a6444a1da8d2466cbcb0285d571d43301c54846742e9af7022f",
+      "bytes": 1154
+    },
+    "README.md": {
+      "sha256": "be760e17575690d99d58768abccdf8dc482f0a2c4e700d8caa5106c966a139bd",
+      "bytes": 919
+    }
+  }
+}
