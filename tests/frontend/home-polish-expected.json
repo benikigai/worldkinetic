@@ -1,0 +1,22 @@
+{
+  "task": "FRONTEND-HOME-POLISH",
+  "evidence_mode": "OUTSIDE_WRAPPER",
+  "base_commit": "691b260aed91479b26ebe247f9264681d5914d1e",
+  "reason": "User replaces large theme section with compact header controls and adds approved value copy. Preserve unchanged artwork, brand, palette and case evidence.",
+  "theme_blocks_sha256": [
+    "a45b9e063623b7014dbf105d29cf99a432e88ef2dec0c968aa22407d6f5630f6",
+    "8cbbf4b879e10df3adf4cc7482ae1712dfbef8f7f3b3d16be30969b8efcb6723",
+    "48df24904a532126a382e7f611fd117584c3c893e048df163aebd87621d73d1c"
+  ],
+  "case_html_sha256": {
+    "repair-example": "3f6b47aed91700638bd106c3691f27e8a7e4bafcb43a98b1002537105ec6e872",
+    "fit-example": "89499c3aaecf9bd5092c8dce75e48f77683c1ec47a5917c36aa2c54d2926e74d",
+    "yours-example": "c648576d02927696388db15e81e1bbb2409550f4ff9e797c4c4afdb0aeee5619"
+  },
+  "prior_theme_js_sha256": "448cce678b2880da4b41c0bde89d4d378860a27eff4a33158b2cf65cf831c62c",
+  "theme_colors": {
+    "frost": "#f3f5f5",
+    "graphite": "#171b1d",
+    "canvas": "#f2eee5"
+  }
+}
