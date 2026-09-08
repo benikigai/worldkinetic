@@ -124,7 +124,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     if (handle) {
       const brief = requirements.setup.geometry.sampleRequirements;
       text('live-requirements', 'Sample brief');
-      text('live-fixed', `Mount spacing: ${brief.mountPitchMm} mm. Finger gap: at least ${brief.minimumFingerGapMm} mm. Maximum length: ${brief.maximumOverallLengthMm} mm.`);
+      text('live-fixed', `Mount spacing: ${brief.mountPitchMm} mm. Finger gap: at least ${brief.minimumFingerGapMm} mm. Maximum length: ${brief.maximumOverallLengthMm} mm. Hardware unspecified.`);
     } else {
       text('live-requirements', 'Handle sizes unavailable');
       text('live-fixed', 'Connect a handle-capable workspace. Unknown sizes have not been filled in.');

@@ -285,7 +285,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     const ui=mountLive(s.controller,abort.signal,update=>{previewKey=update.previewKey;}); ui.open(); await settled();
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
-    node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true);
+    node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
     node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0);
     node('live-run').click(); await settled(); assert.equal(s.state.runs.length,1); await s.complete(); await s.controller.refresh();
     assert.equal(node('live-accept').hidden,true,'Completion cannot accept an unseen design');
