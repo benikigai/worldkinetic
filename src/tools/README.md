@@ -64,8 +64,10 @@ by symmetric difference, bounds and applicable checks, and reads binary STL
 independently. Mesh checks cover finite vertices, edge pairing, winding,
 components, positive signed volumes, bounds, pad rims, contact-layer volume by the
 divergence theorem, clipped central-column gap and oriented planar section areas.
-STL tessellation uses absolute boundary deflection 0.0001 mm, interior deflection
-0.003 mm and angular limits 0.1 rad, with OCP meshing parallelism disabled. Exact
+STL tessellation first caches protected pad faces at absolute boundary deflection
+0.0001 mm, then meshes the whole shape at 0.001 mm. OCP reuses the fine shared
+boundaries. Interior deflection stays 0.003 mm and angular limits stay 0.1 rad,
+with meshing parallelism disabled. Exact
 zero-area float32 pole triangles are removed before the unchanged independent
 topology, volume, section and clearance checks. Memory and triangle caps remain.
 It does not reuse the plate bore assumptions. Unsupported or unestablished
