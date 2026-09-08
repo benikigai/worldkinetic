@@ -171,17 +171,21 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
 .example-card details[open] summary { margin-bottom: 16px; }
 .example-card details p:last-child { margin-bottom: 0; }
 .how-it-works { padding: 56px 0 64px; border-top: 1px solid var(--line); }
-.workflow-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin: 0; padding: 0 0 0 22px; }
-.workflow-steps li { padding-left: 4px; overflow-wrap: anywhere; }
-.workflow-steps li::marker { color: var(--accent); font-size: 13px; }
-.workflow-steps h3 { margin: 0 0 12px; font-size: 16px; font-weight: 500; line-height: 1.5; }
-.workflow-steps p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+.workflow-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; margin: 0; padding: 0; list-style: none; }
+.workflow-steps li { position: relative; min-width: 0; }
+.workflow-number { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 18px; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); font-size: 14px; }
+.workflow-steps li:not(:last-child)::after { content: ""; position: absolute; top: 22px; left: 56px; width: calc(100% - 40px); border-top: 1px solid var(--line); }
+.workflow-steps h3 { margin: 0 0 8px; font-size: 20px; font-weight: 500; line-height: 1.5; }
+.workflow-steps p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
 @media (max-width: 1100px) {
   .example-grid { gap: 12px; }
   .example-card { padding: 22px; }
 }
 @media (max-width: 780px) {
   .workflow-steps { grid-template-columns: 1fr; gap: 24px; }
+  .workflow-steps li { padding-left: 64px; min-height: 80px; }
+  .workflow-number { position: absolute; top: 0; left: 0; margin: 0; }
+  .workflow-steps li:not(:last-child)::after { top: 54px; left: 22px; width: 0; height: calc(100% - 42px); border-top: 0; border-left: 1px solid var(--line); }
   .overview { grid-template-columns: 1fr; gap: 24px; padding: 40px 0; }
   .example-grid { grid-template-columns: 1fr; gap: 16px; }
   .use-cases { padding: 40px 0; }

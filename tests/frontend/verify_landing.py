@@ -67,11 +67,11 @@ class OverviewAcceptance(unittest.TestCase):
             self.assertEqual(len(details), 1, 'Each case has an accessible on-page example')
             self.assertTrue(any(n.tag == 'summary' and n.text() for n in details[0].all()))
         workflow = page.identified('how-it-works')
-        self.assertEqual([n.text() for n in workflow.all() if n.tag == 'h3'], ['Keep what fits', 'See what changed', 'Check before you make'])
-        self.assertEqual(len([n for n in workflow.all() if n.tag == 'li']), 3)
-        for phrase in ['reference', 'change', 'review', 'download', 'prototyp']: self.assertIn(phrase, workflow.text().lower())
-        self.assertEqual(page.identified('workflow-heading').text(), 'Create a design you can review and build.')
-        self.assertIn('Describe your idea, review the design, and prepare a prototype yourself or with a supplier.', workflow.text())
+        self.assertEqual([n.text() for n in workflow.all() if n.tag == 'h3'], ['Design', 'Review', 'Approve', 'Source'])
+        self.assertEqual(len([n for n in workflow.all() if n.tag == 'li']), 4)
+        for phrase in ['sizes', 'change', 'review', 'download', 'prototyp', 'supplier quote']: self.assertIn(phrase, workflow.text().lower())
+        self.assertEqual(page.identified('workflow-heading').text(), 'From your idea to your next part.')
+        self.assertIn('Design it, check it, and get ready to make it.', workflow.text())
 
     def test_existing_artwork_brand_and_script_entry_preserved(self):
         original = (ROOT/'tests/frontend/preserved-pre-overview/index.html').read_bytes()
