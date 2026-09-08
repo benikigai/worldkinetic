@@ -83,8 +83,9 @@ async function fakeService() {
       const descriptor = [...referenceArtifacts, ...state.candidates.flatMap((x: any) => x.artifacts)].find((a: any) => a.artifactId === artifactId);
       if (descriptor && artifacts.has(artifactId)) return new Response(artifacts.get(artifactId)!.slice(), { headers: {
         'content-type': descriptor.mediaType, 'content-length': String(descriptor.bytes),
-        'x-worldkinetics-revision': descriptor.revisionId ?? 'baseline_50', 'x-worldkinetics-execution': descriptor.executionMode ?? 'saved_reference',
-        'x-worldkinetics-applicability': state.design.acceptedRequirementsMatch ? 'current' : 'historical',
+        'x-worldkinetics-revision': descriptor.revisionId ?? 'baseline_50',
+        ...(descriptor.executionMode ? { 'x-worldkinetics-execution': descriptor.executionMode } : {}),
+        'x-worldkinetics-applicability': descriptor.revisionId ? (state.design.acceptedRequirementsMatch ? 'current' : 'historical') : 'saved_reference',
       } });
       return fail('INVALID_REQUEST', 404);
     }
@@ -297,6 +298,89 @@ test('a new-run 503 retains the draft and never reports a candidate or switches 
   assert.equal(s.controller.snapshot().bootstrap.candidates.length, 0);
   assert.equal(s.controller.snapshot().canAccept, false); assert.equal(s.controller.snapshot().canDownload, false);
   assert.ok(s.calls.every(x => !x.path.includes('/fixtures/')));
+});
+
+// OUTSIDE_WRAPPER: source-review follow-up guards for HTTP artifact identity and current applicability.
+test('export rejects missing/mismatched candidate headers and a requirements change reflected as historical bytes', async () => {
+  for (const headers of [
+    { 'x-worldkinetics-revision': 'wrong_revision', 'x-worldkinetics-execution': 'live', 'x-worldkinetics-applicability': 'current' },
+    { 'x-worldkinetics-revision': null, 'x-worldkinetics-execution': 'live', 'x-worldkinetics-applicability': 'current' },
+    { 'x-worldkinetics-execution': 'fixture', 'x-worldkinetics-applicability': 'current' },
+    { 'x-worldkinetics-execution': null, 'x-worldkinetics-applicability': 'current' },
+    { 'x-worldkinetics-execution': 'live', 'x-worldkinetics-applicability': 'historical' },
+  ]) {
+    const s = await generated(); await s.controller.acceptRevision();
+    const artifact = s.history.manifests[0].artifacts.find((a: any) => a.mediaType === 'model/step');
+    s.overrides.set(`GET ${artifact.href}`, [() => {
+      const values = new Headers({ 'content-type': artifact.mediaType, 'content-length': String(artifact.bytes),
+        'x-worldkinetics-revision': artifact.revisionId, 'x-worldkinetics-execution': 'live', 'x-worldkinetics-applicability': 'current' });
+      for (const [key,value] of Object.entries(headers)) value === null ? values.delete(key) : values.set(key, value);
+      return new Response(s.artifacts.get(artifact.artifactId)!.slice(), { headers: values });
+    }]);
+    assert.equal(await s.controller.exportArtifact(artifact.artifactId), null, JSON.stringify(headers));
+    assert.ok(s.controller.snapshot().error);
+  }
+});
+
+test('historical live candidate preview is allowed but revision/execution identity still must match', async () => {
+  const s = await generated(); const revision = s.state.design.selectedCandidateRevisionId;
+  const artifact = s.state.candidates[0].artifacts.find((a: any) => a.mediaType === 'model/stl');
+  assert.ok(await s.controller.preview(revision), 'Unaccepted historical bytes are valid preview input');
+  for (const headers of [{ 'x-worldkinetics-revision': 'different_revision' }, { 'x-worldkinetics-execution': 'fixture' }]) {
+    s.overrides.set(`GET ${artifact.href}`, [() => new Response(s.artifacts.get(artifact.artifactId)!.slice(), { headers: {
+      'content-type': artifact.mediaType, 'content-length': String(artifact.bytes), 'x-worldkinetics-revision': revision,
+      'x-worldkinetics-execution': 'live', 'x-worldkinetics-applicability': 'historical', ...headers,
+    } })]);
+    assert.equal(await s.controller.preview(revision), null);
+  }
+  assert.ok(await s.controller.preview(null), 'Saved baseline has separate header semantics and no execution header');
+});
+
+// OUTSIDE_WRAPPER: local presentation lifecycle seam, not a transport envelope or browser-rendering claim.
+// createLivePresentation() from live-presentation.ts exposes update(snapshot, 'baseline'|'candidate', active=true),
+// rendered(previewKey), failed(previewKey), invalidate(). update returns previewKey (string|null),
+// previewAction ('load'|'retain'|'clear'), evidenceAction ('replace'|'retain'), and canAccept.
+// mountLive/main must actually use this lifecycle, with rendered called only after viewer.show succeeds.
+const presentationPath = '../../src/client/workspace/live-presentation.js';
+test('unchanged verified geometry and expanded evidence survive background refresh, draft input and unrelated activity', async () => {
+  const s = await generated(), { createLivePresentation } = await import(presentationPath);
+  const view = createLivePresentation(), initial = s.controller.snapshot();
+  const first = view.update(initial, 'candidate'); assert.equal(first.previewAction, 'load'); assert.equal(first.evidenceAction, 'replace');
+  assert.equal(first.canAccept, false); view.rendered(first.previewKey);
+  let result = view.update(initial, 'candidate'); assert.equal(result.previewAction, 'retain'); assert.equal(result.canAccept, true);
+  result = view.update({ ...initial, loading: true, trusted: false, canAccept: false }, 'candidate');
+  assert.equal(result.previewAction, 'retain', 'Do not clear/refit unchanged geometry during background verification');
+  assert.equal(result.evidenceAction, 'retain', 'Do not replace expanded details during background verification');
+  assert.equal(result.canAccept, false);
+  result = view.update({ ...initial, draft: { lengthMm: '30', instruction: 'new draft' }, globalCursor: initial.globalCursor + 1 }, 'candidate');
+  assert.equal(result.previewAction, 'retain'); assert.equal(result.evidenceAction, 'retain'); assert.equal(result.canAccept, true);
+});
+
+test('acceptance requires rendered selected-candidate identity and is blocked for baseline, failure, historical view and inactive mode', async () => {
+  const s = await generated(), { createLivePresentation } = await import(presentationPath);
+  const view = createLivePresentation(), state = s.controller.snapshot();
+  let result = view.update(state, 'baseline'); view.rendered(result.previewKey);
+  assert.equal(view.update(state, 'baseline').canAccept, false);
+  result = view.update(state, 'candidate'); assert.equal(result.canAccept, false);
+  view.failed(result.previewKey); assert.equal(view.update(state, 'candidate').canAccept, false);
+  assert.equal(view.update(state, 'candidate').previewAction, 'retain', 'A failed render does not trigger an automatic retry loop');
+  view.invalidate(); result = view.update(state, 'candidate'); view.rendered(result.previewKey);
+  assert.equal(view.update(state, 'candidate').canAccept, true);
+  assert.equal(view.update({ ...state, canAccept: false }, 'candidate').canAccept, false);
+  result = view.update(state, 'candidate', false); assert.equal(result.previewAction, 'clear'); assert.equal(result.canAccept, false);
+  result = view.update(state, 'candidate', true); assert.equal(result.previewAction, 'load'); assert.equal(result.canAccept, false);
+});
+
+test('stale render completion, changed hashes, and failed verification never restore candidate acceptance', async () => {
+  const s = await generated(), { createLivePresentation } = await import(presentationPath);
+  const view = createLivePresentation(), state = s.controller.snapshot(), old = view.update(state, 'candidate');
+  const changed = copy(state); changed.bootstrap.candidates[0].checkBundleHash = 'b'.repeat(64);
+  let result = view.update(changed, 'candidate'); assert.notEqual(result.previewKey, old.previewKey); assert.equal(result.previewAction, 'load');
+  view.rendered(old.previewKey); assert.equal(view.update(changed, 'candidate').canAccept, false);
+  view.rendered(result.previewKey); assert.equal(view.update(changed, 'candidate').canAccept, true);
+  result = view.update({ ...changed, loading: false, trusted: false, error: 'Cannot verify latest state', canAccept: false }, 'candidate');
+  assert.equal(result.previewAction, 'clear'); assert.equal(result.canAccept, false);
+  view.rendered(old.previewKey); assert.equal(view.update(changed, 'candidate').canAccept, false);
 });
 
 test('workspace exposes live actions while preserving explicitly labeled saved and synthetic modes', async () => {
