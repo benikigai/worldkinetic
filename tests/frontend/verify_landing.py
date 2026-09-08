@@ -8,6 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED = json.loads((ROOT/'tests/frontend/overview-expected.json').read_text())
+POLISH = json.loads((ROOT/'tests/frontend/home-polish-expected.json').read_text())
 VOID = {'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
 
 class Node:
@@ -48,7 +49,9 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertEqual([n.text() for n in page.nodes if n.tag == 'h1'], ['Prompt to product.'])
         self.assertIn('Customize everyday products without learning CAD.', page.root.text())
         overview = page.identified('overview').text().lower()
-        for phrase in ['worldkinetics', 'prototype', 'editable', 'reference', 'measurements']: self.assertIn(phrase, overview)
+        self.assertIn('More than a model. A design you can check.', page.identified('overview').text())
+        self.assertIn('Astra proposes the design. WorldKinetics helps you define what matters, check the result, and approve the exact version you want to make.', page.identified('overview').text())
+        self.assertIn('worldkinetics', overview)
         for identity, label, status, words in [
             ('repair-example', 'Repair it', 'Concept', ['handle', 'sample', 'mounting']),
             ('fit-example', 'Make it fit', 'Recorded run', ['plate', '30 mm', '2 mm', '36 mm', '5 mm', 'confirmed']),
@@ -61,20 +64,47 @@ class OverviewAcceptance(unittest.TestCase):
             self.assertEqual(len(details), 1, 'Each case has an accessible on-page example')
             self.assertTrue(any(n.tag == 'summary' and n.text() for n in details[0].all()))
         workflow = page.identified('how-it-works')
-        self.assertEqual(len([n for n in workflow.all() if n.tag == 'li']), 4)
+        self.assertEqual([n.text() for n in workflow.all() if n.tag == 'h3'], ['Keep what fits', 'See what changed', 'Check before you make'])
+        self.assertEqual(len([n for n in workflow.all() if n.tag == 'li']), 3)
         for phrase in ['reference', 'change', 'review', 'download', 'prototyp']: self.assertIn(phrase, workflow.text().lower())
+        self.assertIn('intended', workflow.text().lower())
 
-    def test_existing_artwork_theme_controls_and_script_identity_preserved(self):
+    def test_existing_artwork_brand_and_script_entry_preserved(self):
         original = (ROOT/'tests/frontend/preserved-pre-overview/index.html').read_bytes()
         self.assertEqual(hashlib.sha256(original).hexdigest(), EXPECTED['prior_homepage_sha256'])
         old = original.decode()
-        for expression in [r'<svg\b.*?</svg>', r'<section class="directions".*?</section>']:
-            self.assertEqual(re.findall(expression, self.content, re.S), re.findall(expression, old, re.S))
+        # The former directions-section freeze is replaced by compact-control acceptance.
+        self.assertEqual(re.findall(r'<svg\b.*?</svg>', self.content, re.S), re.findall(r'<svg\b.*?</svg>', old, re.S))
         page = self.page; prior = Page(old)
         for tag, attrs in [('script', 'src'), ('link', 'href')]:
             self.assertEqual([n.attrs.get(attrs) for n in page.nodes if n.tag == tag], [n.attrs.get(attrs) for n in prior.nodes if n.tag == tag])
         self.assertEqual(sum(n.tag == 'script' for n in page.nodes), 1)
         self.assertNotRegex(self.content, r'api\.openai\.com|OPENAI_API_KEY|sk-[A-Za-z0-9]{12}')
+
+    def test_compact_native_theme_controls_replace_design_direction_section(self):
+        header = next(node for node in self.page.nodes if node.tag == 'header')
+        buttons = [node for node in self.page.nodes if 'data-set-theme' in node.attrs]
+        self.assertEqual([node.attrs['data-set-theme'] for node in buttons], list(POLISH['theme_colors']))
+        header_nodes = list(header.all())
+        for button in buttons:
+            name = button.attrs['data-set-theme']
+            self.assertIn(button, header_nodes)
+            self.assertEqual(button.tag, 'button', 'Native buttons retain keyboard activation')
+            self.assertEqual(button.attrs.get('type'), 'button')
+            self.assertIn(name, button.attrs.get('aria-label', '').lower())
+            self.assertIn(name, button.attrs.get('title', '').lower())
+            self.assertEqual(button.attrs.get('aria-pressed'), str(name == 'frost').lower())
+            self.assertEqual(button.text(), '', 'Theme names belong in accessible labels, not a large description')
+            self.assertTrue(any(n.attrs.get('aria-hidden') == 'true' for n in button.all() if n is not button))
+        self.assertTrue(any(n.attrs.get('role') == 'group' and n.attrs.get('aria-label') for n in header_nodes))
+        self.assertFalse(any(n.attrs.get('id') == 'directions' for n in self.page.nodes))
+        self.assertNotRegex(self.content, r'(?i)explore (?:the )?design direction|FORM STUDY|WK\s*/?\s*001|ABSTRACT MATERIAL|material-chip|material-title|material-detail|theme-description')
+
+    def test_case_evidence_and_statuses_remain_exact(self):
+        for identity, expected in POLISH['case_html_sha256'].items():
+            card = re.search(r'<article\b[^>]*\bid="' + identity + r'".*?</article>', self.content, re.S)
+            self.assertIsNotNone(card)
+            self.assertEqual(hashlib.sha256(card.group().encode()).hexdigest(), expected, identity)
 
     def test_recorded_run_attributes_confirmation_to_actual_api_evidence(self):
         # OUTSIDE_WRAPPER correction: retained evidence was an explicit supervisor API action.
@@ -102,13 +132,29 @@ class OverviewAcceptance(unittest.TestCase):
                 if href.startswith('#'): self.assertIn(href[1:], identities)
         self.assertNotIn('/demo/', self.content, 'Reuse the agreed workspace route')
 
-    def test_full_existing_css_prefix_preserved(self):
+    def test_theme_palette_and_compact_responsive_header(self):
         content = (ROOT/'src/client/theme.css').read_text()
-        self.assertEqual(content.count(EXPECTED['css_marker']), 1)
-        original, additions = content.split(EXPECTED['css_marker'])
-        self.assertEqual(hashlib.sha256(original.encode()).hexdigest(), EXPECTED['theme_prefix_sha256'])
-        for selector in ['.overview', '.use-cases', '.example-card', '.how-it-works']: self.assertIn(selector, additions)
-        self.assertIn('@media', additions)
-        self.assertNotIn('@import', additions); self.assertNotIn('url(', additions)
+        # Replaces the obsolete whole-prefix freeze while preserving every original theme token.
+        blocks = re.findall(r':root(?:\[data-theme="[^"]+"\])?\s*\{[^}]*\}', content)
+        self.assertEqual([hashlib.sha256(block.encode()).hexdigest() for block in blocks], POLISH['theme_blocks_sha256'])
+        for selector in ['.overview', '.use-cases', '.example-card', '.how-it-works']: self.assertIn(selector, content)
+        self.assertIn(':focus-visible', content)
+        self.assertIn('prefers-reduced-motion', content)
+        control = re.search(r'(?<![\w-])\.theme-option\s*\{([^}]*)\}', content)
+        self.assertIsNotNone(control)
+        sizes = dict(re.findall(r'(width|height|inline-size|block-size)\s*:\s*(\d+(?:\.\d+)?)px', control.group(1)))
+        self.assertTrue('width' in sizes or 'inline-size' in sizes)
+        self.assertTrue('height' in sizes or 'block-size' in sizes)
+        self.assertTrue(all(24 <= float(value) <= 44 for value in sizes.values()), 'Theme controls must remain compact usable targets')
+        for value in re.findall(r'min-(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px', control.group(1)):
+            self.assertLessEqual(float(value), 44)
+        mobile = []
+        for match in re.finditer(r'@media\s*\(max-width:\s*460px\)\s*\{', content):
+            depth, cursor = 1, match.end()
+            while depth and cursor < len(content):
+                depth += (content[cursor] == '{') - (content[cursor] == '}'); cursor += 1
+            mobile.append(content[match.end():cursor-1])
+        self.assertTrue(any(re.search(r'\.(?:site-header|header-end|demo-entry-compact)\b', block) for block in mobile), 'Compact header needs an explicit narrow-screen rule; browser layout is reviewed separately')
+        self.assertNotIn('@import', content); self.assertNotIn('url(', content)
 
 if __name__ == '__main__': unittest.main()
