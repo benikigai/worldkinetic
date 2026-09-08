@@ -2,6 +2,8 @@
 
 BACKEND-HANDLE-01 provides source/schema evidence for `wk-prototype-0.2`. It does not generate CAD, register actual acceptance, or enable handle execution. The original plate registry, canonical hashes and legacy fixtures remain unchanged. No dependencies were added.
 
+BACKEND-HANDLE-REFERENCE adds the strict public reference union and removes the synthetic-name plate dispatch exception. This is transport support only. Server registration of the handle reference remains a separate task; the fixed reference consists of two pad solids, not a generated handle.
+
 Use `Requirements` and `ResolvedSetup` as plate/handle unions. Narrow `requirements.registryId` or `setup.registryId` before accessing geometry. Plate properties retain their existing shape; handle controls are under `setup.geometry` and have no plate dimensions or bores.
 
 ```ts
@@ -66,13 +68,43 @@ The datum contains only frame, axes, two radius-7 pads between Z=0 and Z=2, enve
 
 Initial dispatch has `inputRevisionId: 'handle_mount_reference_v1'` and `inputArtifacts: []`. Refinement sets `inputRevisionId` to the accepted initial revision; every `inputArtifacts` descriptor must belong to that revision, with unique IDs and exactly one matching accepted STEP `artifactId`, `sha256` and `kind: 'export'`. Other artifacts may belong to that same revision. The separate reference always retains the original mount revision, reference ID, hash and datum; it must never be relabeled as the accepted revision.
 
-An explicit plate reference uses `referenceId: 'plate_revised_50x35x5'`, `revisionId: 'baseline_50'`, the frozen plate STEP hash and no datum descriptor. Only existing baseline legacy inputs can omit it: original `baseline_50` with a matching reference hash, `fixture_baseline_50` with `fixture_reference_step`, and the existing `synthetic_test_design` / `synthetic_initial` / `baseline_test` backend fixture. Each legacy input contains one reference artifact. Any other plate revision requires an explicit fixed reference.
+An explicit plate reference uses `referenceId: 'plate_revised_50x35x5'`, `revisionId: 'baseline_50'`, the frozen plate STEP hash and no datum descriptor. Only two legacy inputs can omit it: original `baseline_50`, or `fixture_baseline_50` with artifact ID `fixture_reference_step`. Both require exactly one `kind: 'reference'` input artifact bound to that input revision and the frozen STEP SHA-256 `9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3`. Every wrong hash and every other revision fails without an explicit fixed reference, including test-looking design or artifact IDs. The protected synthetic API tests now use registered plate STEP bytes at `baseline_50`; their generated outputs remain explicitly synthetic.
 
 `verifyToolInput` checks descriptors, frozen requirements/canonical bytes, proposal restrictions and revision bindings. `verifyDispatchArtifacts` from `src/server/dispatch-integrity.ts` first calls it, then opens every private reference/datum/input file, rejects missing files, symlinked artifact files and nonregular files, limits reads to 25 MiB per artifact and verifies SHA-256. It also compares datum bytes directly to the fixed canonical sequence. It does not execute source/CAD or infer acceptance from file contents. Operating-system parent aliases such as macOS `/var` remain usable. Private paths and immutable mounts must remain under trusted dispatcher control; this check is not an execution sandbox.
 
 The future generator mount contract is `/input/reference.step` for the original two-pad STEP and, only in refinement, `/input/baseline.step` for the actual accepted initial STEP. The trusted datum can be mounted as `/input/datums.json`. Candidate Python must write `/out/candidate.step`. Source remains the existing `python_source` proposal with a maximum of 65,536 UTF-8 bytes. Numeric operations fail for both handle stages. Generation, sealing, verification and acceptance remain separate authorities.
 
 Public run, event, candidate, artifact and acceptance envelopes are reused. Requirements updates accept either handle stage with `confirmedIntent: {}` and existing request/CAS/user-action fields only. References, geometry controls, checks and accepted IDs cannot be injected into that body. Source/schema support does not activate the store or CAD adapter.
+
+`ReferenceResponseSchema` in `src/shared/reference-v2.ts` defines the exact `GET /api/reference` envelope as `{ contractVersion: 'wk-prototype-0.2', reference }`. `ReferenceSchema` and the existing `Reference` type now accept either `PlateReferenceSchema` or the public `HandleReferenceSchema`. The plate object retains `referenceId: 'plate_revised_50x35x5'`, `revisionId: 'baseline_50'`, `units: 'mm'`, `provenance: 'saved_reference'` and exactly two artifacts, one STEP and one STL. JSON cannot replace either plate artifact.
+
+The handle envelope below shows all fields. Byte counts and STEP/STL hashes must come from registered immutable files; the variables are registration results, not fixture values or available-download claims.
+
+```ts
+const handleReferenceResponse = {
+  contractVersion: 'wk-prototype-0.2',
+  reference: {
+    referenceId: 'handle_mount_v1', revisionId: 'handle_mount_reference_v1',
+    units: 'mm', provenance: 'trusted_mount_reference',
+    datumSpecSha256: HANDLE_DATUM_SHA256,
+    artifacts: [
+      { artifactId: 'reference_handle_step', fileName: 'mount.step', mediaType: 'model/step',
+        bytes: registeredStepBytes, sha256: registeredStepSha256,
+        href: '/api/reference/artifacts/reference_handle_step' },
+      { artifactId: 'reference_handle_stl', fileName: 'mount.stl', mediaType: 'model/stl',
+        bytes: registeredStlBytes, sha256: registeredStlSha256,
+        href: '/api/reference/artifacts/reference_handle_stl' },
+      { artifactId: 'reference_handle_datums', fileName: 'datums.json', mediaType: 'application/json',
+        bytes: registeredDatumBytes, sha256: HANDLE_DATUM_SHA256,
+        href: '/api/reference/artifacts/reference_handle_datums' },
+    ],
+  },
+};
+```
+
+Handle references require exactly three unique artifact IDs and exactly one artifact per media type: `model/step`, `model/stl`, `application/json`. Both the top-level datum hash and JSON artifact hash must equal `HANDLE_DATUM_SHA256`. Artifact order is unrestricted. Every artifact retains the existing ID, safe filename, positive byte count up to 25 MiB, lowercase SHA-256 and exact `/api/reference/artifacts/${artifactId}` URL rules. The envelope, reference and artifact objects reject unknown fields, including run/evidence/acceptance identities and private paths.
+
+The public `HandleReferenceSchema` is local to `reference-v2.ts`; the same-named requirements descriptor exported through `contracts-v2.ts` retains its existing meaning. The published private `ToolInputData` ABI, including `referenceArtifact` and its private `datumSpec`, is unchanged. Public descriptors carry download URLs and cannot replace private dispatch descriptors. Registry and canonical datum bytes are unchanged, and schema parsing alone does not establish file registration, CAD validity or acceptance.
 
 `handle-reviewable.fixture.json` is a Bootstrap transport fixture with one candidate and eight actual-shaped check records, exact requirement/check-bundle binding, synthetic source/artifact hashes, `executionMode: 'fixture'`, a fixture engine and `acceptedRevisionId: null`. Every measurement is invented conformance data explicitly labeled synthetic, not actual geometry. Artifact links demonstrate transport shape and do not establish available downloads. Fixture artifacts are not CAD or physically tested evidence.
 
@@ -81,7 +113,5 @@ Validation: `node --import tsx --test tests/backend/*.test.ts && node --import t
 | Consumer | Locations | Required narrowing |
 | --- | --- | --- |
 | `src/client/workspace/review.ts` | 43:65, 44:61, 52:55, 63:89, 68:132 | Plate dimensions and minimum end material |
-| `tests/backend/api.test.ts` | 388:87, 503:47 | Plate dimensions |
-| `tests/backend/store.test.ts` | 117:77, 119:165, 139:49 | Plate dimensions |
 
-No server/shared diagnostics remain. The current TOOLS adapter produced no diagnostics through the production import graph; no TOOLS files were edited. Client and protected test consumers must narrow by registry ID or explicitly parse `PlateRequirementsSchema` where they require a plate. Production build success does not establish whole-app typecheck success, CAD behavior or actual acceptance. Runtime handle mounting, history resolution, generation and independent geometry verification remain separate integration work.
+No server/shared or protected backend test diagnostics remain. The acceptance bootstrap fixed the protected test narrowing outside this worker's changes. The current TOOLS adapter produced no diagnostics through the production import graph; no TOOLS files were edited. The client owner must narrow by registry ID or explicitly parse `PlateRequirementsSchema` where the review requires a plate. Production build success does not establish whole-app typecheck success, CAD behavior or actual acceptance. Runtime handle registration and mounting, history resolution, generation and independent geometry verification remain separate integration work.

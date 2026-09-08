@@ -284,10 +284,8 @@ export const ToolInputSchema = z.object({
     const originalBaseline = input.inputRevisionId === 'baseline_50' && baseline?.sha256 === r.referenceHash;
     const transportFixture = input.inputRevisionId === 'fixture_baseline_50'
       && baseline?.artifactId === 'fixture_reference_step' && baseline.sha256 === r.referenceHash;
-    const backendFixture = input.inputRevisionId === 'synthetic_initial' && input.designId === 'synthetic_test_design'
-      && baseline?.artifactId === 'baseline_test';
     if (input.inputArtifacts.length !== 1 || baseline?.kind !== 'reference'
-      || !(originalBaseline || transportFixture || backendFixture)) {
+      || !(originalBaseline || transportFixture)) {
       issue(context, 'Non-baseline plate dispatch requires an explicit fixed reference.');
     }
   }
