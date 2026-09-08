@@ -4,9 +4,10 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, test } from 'node:test';
-import { BootstrapSchema, CONTRACT_VERSION, computeCheckBundleHash, createRequirements, expectedForCheck, hashCanonical, type Candidate, type Design, type Run, type RunRequest, type AcceptanceRequest } from '../../src/shared/contracts.js';
+import { BootstrapSchema, CONTRACT_VERSION, computeCheckBundleHash, createRequirements, expectedForCheck, hashCanonical, type Candidate, type Design, type Run, type RunRequest, type AcceptanceRequest, type Requirements, type PlateRequirements } from '../../src/shared/contracts.js';
 import { RunStore, StoreError, requirementIdentity } from '../../src/server/store.js';
 
+function plate(value: Requirements): PlateRequirements { assert(value.registryId === 'plate_requirements_v1'); return value; }
 const directories: string[] = [];
 afterEach(() => { for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true }); });
 const fixture = BootstrapSchema.parse(JSON.parse(readFileSync(new URL('../../fixtures/api/v2/reviewable.fixture.json', import.meta.url), 'utf8')));
@@ -114,9 +115,9 @@ test('fixture evidence is labeled and never becomes accepted', async () => {
 test('callers cannot mutate design, runs, candidates or event evidence through snapshots', async () => {
   const { directory, store } = setup(); const run = await start(store, request('snapshots')); const c = await complete(store, directory, run);
   c.checks[0]!.state = 'failed'; store.getDesign()!.acceptedRevisionId = 'injected'; store.getEvents(run.runId).at(-1)!.candidate!.artifacts[0]!.runId = 'injected';
-  store.getRun(run.runId).status = 'failed'; store.getRequirements()!.setup.dimensions.lengthMm = 100;
+  store.getRun(run.runId).status = 'failed'; plate(store.getRequirements()!).setup.dimensions.lengthMm = 100;
   assert.equal(store.getCandidate(c.revisionId).checks[0]!.state, 'passed'); assert.equal(store.getCandidate(c.revisionId).artifacts[0]!.runId, run.runId);
-  assert.equal(store.getDesign()!.acceptedRevisionId, null); assert.equal(store.getRun(run.runId).status, 'completed'); assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 36);
+  assert.equal(store.getDesign()!.acceptedRevisionId, null); assert.equal(store.getRun(run.runId).status, 'completed'); assert.equal(plate(store.getRequirements()!).setup.dimensions.lengthMm, 36);
 });
 test('corrupt state is reported and preserved instead of silently resetting history', () => {
   const { directory } = setup(); writeFileSync(join(directory, 'state.json'), '{invalid');
@@ -136,7 +137,7 @@ test('acceptance and update races serialize in both orders; retries do not resto
       assert.deepEqual((await restarted.updateRequirements(update)).design, original.design);
       await restarted.acceptRevision(a); assert.equal(restarted.getDesign()!.acceptedRequirementsMatch, false);
     }
-    assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 30);
+    assert.equal(plate(store.getRequirements()!).setup.dimensions.lengthMm, 30);
   }
 });
 test('concurrent acceptance, input mutation, cross-operation collisions and failed CAS retries', async () => {
