@@ -1,0 +1,9 @@
+{
+  "scope": "Actual provider initial identity; synthetic acceptance used by this developer refinement proof",
+  "revisionId": "revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3",
+  "geometryHash": "5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67",
+  "sourceSha256": "7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525",
+  "checkBundleHash": "db2701af9537fb3602d5d6f1363b1ed59a178addbf5f7905c49cf8ee792242d3",
+  "requirementsId": "req_34b5b5d224e81b8c3ab816f69784355d",
+  "setupHash": "1b99bf3ce774f01164d23c02c00abdaa2cdd3e9282d3b579631cc28eeb264bd0"
+}

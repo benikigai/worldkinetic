@@ -1,0 +1,45 @@
+{
+  "scope": "Actual OUTSIDE_WRAPPER additive blend developer evidence",
+  "files": {
+    "source.py": {
+      "sha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+      "bytes": 1269
+    },
+    "editable.py": {
+      "sha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+      "bytes": 1269
+    },
+    "candidate.step": {
+      "sha256": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "bytes": 476365
+    },
+    "preview.stl": {
+      "sha256": "d3179d5d1ec90df46357c150e1d5820c5e5628b50a35652b2589121989593337",
+      "bytes": 3962584
+    },
+    "result.json": {
+      "sha256": "b22f3b616f8a7826f587bba637757f75a592783b023433f392b997e5a9a50dcf",
+      "bytes": 120927
+    },
+    "baseline.step": {
+      "sha256": "5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67",
+      "bytes": 198221
+    },
+    "initial-source.py": {
+      "sha256": "7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525",
+      "bytes": 1315
+    },
+    "initial-binding.json": {
+      "sha256": "7a787d87620ce03b4fdb757fa6ec77c43ad98ff76c0d2224e83507f1f4b8b2bc",
+      "bytes": 580
+    },
+    "provenance.json": {
+      "sha256": "9682b547a8b4f656954fe5581b168d28d01328787fe816bd0494781f63b0ef73",
+      "bytes": 1607
+    },
+    "README.md": {
+      "sha256": "8de86987abcb45c6716c17598d220afc0b2e1d1de5a4e45c3d733ed1dc0fedea",
+      "bytes": 1137
+    }
+  }
+}
