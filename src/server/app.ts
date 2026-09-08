@@ -10,6 +10,8 @@ import { Executor, type SelectedOperation } from './execution.js';
 import { readPublicFile } from './static-files.js';
 import { ReferenceResponseSchema } from '../shared/reference-v2.js';
 import type { PublicReference } from './reference.js';
+import { PackageRequestSchema, PACKAGE_HEADERS } from '../shared/package-v2.js';
+import { buildPrototypePackage } from './prototype-package.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = BootstrapSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/v2/reviewable.fixture.json'), 'utf8')));
@@ -37,6 +39,7 @@ async function readRequest(request: IncomingMessage): Promise<unknown> {
 export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string; reference?: PublicReference } = {}) {
   const artifacts = new ArtifactStore(path.join(runtimeDir, 'artifacts'));
   const executor = new Executor(store, artifacts, runtimeDir, selected, timeoutMs);
+  let preparingPackage = false;
   return createServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
@@ -94,6 +97,25 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
         if (!parsed.success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid request.');
         if (store.getDesign()?.designId !== updateRoute[1]) throw new StoreError(409, 'IDENTITY_CONFLICT', 'Design identity mismatch.');
         return json(response, 200, { contractVersion: CONTRACT_VERSION, ...await store.updateRequirements(parsed.data) });
+      }
+      const packageRoute = /^\/api\/revisions\/([^/]+)\/package$/.exec(pathname);
+      if (request.method === 'POST' && packageRoute) {
+        const parsed = PackageRequestSchema.safeParse(await readRequest(request));
+        if (!parsed.success || !IdSchema.safeParse(packageRoute[1]).success) throw new StoreError(400, 'INVALID_REQUEST', 'Invalid package request.');
+        if (preparingPackage) throw new StoreError(503, 'EXPORT_FAILED', 'Another package is being prepared.');
+        preparingPackage = true;
+        try {
+          const result = await buildPrototypePackage(store, artifacts, options.reference, packageRoute[1]!, parsed.data);
+          store.assertCurrentExport(packageRoute[1]!, result.identity);
+          response.writeHead(200, { 'Content-Type': 'application/zip', 'Content-Length': result.bytes.length,
+            'Content-Disposition': `attachment; filename="${result.fileName}"`, 'Cache-Control': 'no-store',
+            'X-Content-Type-Options': 'nosniff', [PACKAGE_HEADERS.contractVersion]: CONTRACT_VERSION,
+            [PACKAGE_HEADERS.requestId]: parsed.data.requestId, [PACKAGE_HEADERS.revisionId]: packageRoute[1]!,
+            [PACKAGE_HEADERS.acceptanceId]: parsed.data.acceptanceId, [PACKAGE_HEADERS.manifestId]: parsed.data.manifestId,
+            [PACKAGE_HEADERS.manifestHash]: parsed.data.manifestHash, [PACKAGE_HEADERS.sha256]: result.sha256,
+            [PACKAGE_HEADERS.applicability]: 'current' });
+          return response.end(result.bytes);
+        } finally { preparingPackage = false; }
       }
       const revisionRoute = /^\/api\/revisions\/([^/]+)\/(accept|export)$/.exec(pathname);
       if (request.method === 'POST' && revisionRoute) {

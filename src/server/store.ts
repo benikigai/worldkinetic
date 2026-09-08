@@ -405,14 +405,32 @@ export class RunStore {
     const request = ExportRequestSchema.parse(structuredClone(input)); const payload = { revisionId, request };
     return this.serialize(async s => {
       const retry = this.retry(s, 'export', request, payload);
-      const manifest = s.manifests.find(m => m.manifestId === request.manifestId);
-      const acceptance = s.acceptances.find(a => a.acceptanceId === request.acceptanceId);
-      if (!manifest || !acceptance || s.acceptances.at(-1)?.acceptanceId !== acceptance.acceptanceId || manifest.acceptanceId !== acceptance.acceptanceId || manifest.revisionId !== revisionId
-        || manifest.manifestHash !== request.manifestHash || s.design?.acceptedRevisionId !== revisionId || !s.design.acceptedRequirementsMatch) conflict();
+      const { acceptance, manifest } = this.selectCurrentExport(s, revisionId, request);
       await this.eligible(s, acceptance.candidate);
       if (!retry) this.remember(s, 'export', request, manifest.manifestId, payload);
       return { acceptance, manifest, reused: Boolean(retry) };
     });
+  }
+  private selectCurrentExport(s: Snapshot, revisionId: string, request: ExportRequest) {
+    const manifest = s.manifests.find(m => m.manifestId === request.manifestId);
+    const acceptance = s.acceptances.find(a => a.acceptanceId === request.acceptanceId);
+    if (!manifest || !acceptance || s.acceptances.at(-1)?.acceptanceId !== acceptance.acceptanceId
+      || manifest.acceptanceId !== acceptance.acceptanceId || manifest.revisionId !== revisionId
+      || manifest.manifestHash !== request.manifestHash || s.design?.acceptedRevisionId !== revisionId
+      || !s.design.acceptedRequirementsMatch || canonicalize(acceptance.requirements) !== canonicalize(currentRequirements(s))) conflict();
+    return { acceptance, manifest };
+  }
+  assertCurrentExport(revisionId: string, request: ExportRequest) {
+    this.selectCurrentExport(this.snapshot, revisionId, request);
+  }
+  /** Read-only export authority; quote preferences never enter the mutation queue or saved receipts. */
+  async readCurrentExport(revisionId: string, input: ExportRequest) {
+    const request = ExportRequestSchema.parse(input);
+    const snapshot = this.snapshot;
+    const result = this.selectCurrentExport(snapshot, revisionId, request);
+    await this.eligible(snapshot, result.acceptance.candidate);
+    this.assertCurrentExport(revisionId, request);
+    return structuredClone(result);
   }
   private event(s: Snapshot, type: RunEvent['type'], run: Run | null = null, candidate: Candidate | null = null, acceptanceId: string | null = null) {
     const d = s.design!;
