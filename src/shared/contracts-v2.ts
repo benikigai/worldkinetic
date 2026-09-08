@@ -7,6 +7,7 @@ import {
 } from './requirements-v2.js';
 export * from './canonical-json.js';
 export * from './requirements-v2.js';
+export * from './requirements-handle-v2.js';
 
 export const MAX_PUBLIC_REQUEST_BYTES = 8192;
 export const MAX_PYTHON_SOURCE_BYTES = 65536;
@@ -82,6 +83,8 @@ const updateFields = {
 export const RequirementsUpdateRequestSchema = z.discriminatedUnion('setupId', [
   z.object({ ...updateFields, setupId: z.literal('resize_centered_v1'), confirmedIntent: z.object({ lengthMm: LengthMmSchema }).strict() }).strict(),
   z.object({ ...updateFields, setupId: z.literal('tactile_feature_v1'), confirmedIntent: z.object({}).strict() }).strict(),
+  z.object({ ...updateFields, setupId: z.literal('handle_initial_v1'), confirmedIntent: z.object({}).strict() }).strict(),
+  z.object({ ...updateFields, setupId: z.literal('handle_refine_v1'), confirmedIntent: z.object({}).strict() }).strict(),
 ]);
 export const ExportRequestSchema = z.object({
   contractVersion: z.literal(CONTRACT_VERSION), requestId: IdSchema, acceptanceId: IdSchema, manifestId: IdSchema, manifestHash: HashSchema,
@@ -89,7 +92,7 @@ export const ExportRequestSchema = z.object({
 
 const requirementIdentity = {
   requirementsVersion: VersionSchema, requirementsId: IdSchema,
-  registryId: z.literal('plate_requirements_v1'), registryHash: HashSchema,
+  registryId: z.enum(['plate_requirements_v1', 'handle_sample_v1']), registryHash: HashSchema,
   setupId: SetupIdSchema, setupHash: HashSchema, referenceHash: HashSchema, validatorVersion: IdSchema,
 };
 export const ArtifactSchema = z.object({
@@ -114,7 +117,7 @@ export const CheckSchema = z.object({
   }).strict().optional(),
 }).strict().superRefine((check, context) => {
   try {
-    const definition = checkDefinition(check.checkId);
+    const definition = checkDefinition(check.checkId, check.registryId);
     if (check.method !== definition.method || !sameJson(check.units, definition.units)) issue(context, 'Check method and units must match the frozen registry.');
   } catch { issue(context, 'Unknown registered check.'); }
   if (check.state !== 'not_evaluated' && (check.measured === null || check.executionMode === 'unavailable')) issue(context, 'Evaluated checks require measurements and an available execution.');
@@ -240,18 +243,53 @@ export const BootstrapSchema = z.object({
 export const InputArtifactSchema = z.object({
   artifactId: IdSchema, revisionId: IdSchema, kind: artifactKind, units: UnitsSchema, path: privatePath, sha256: HashSchema,
 }).strict();
+export const DispatchReferenceArtifactSchema = z.object({
+  referenceId: IdSchema, artifactId: IdSchema, revisionId: IdSchema, kind: z.literal('reference'),
+  units: UnitsSchema, path: privatePath, sha256: HashSchema,
+  datumSpec: z.object({ path: privatePath, sha256: HashSchema }).strict().optional(),
+}).strict();
+export type DispatchReferenceArtifact = z.infer<typeof DispatchReferenceArtifactSchema>;
 export const ToolInputSchema = z.object({
   contractVersion: z.literal(CONTRACT_VERSION), runId: IdSchema, requestId: IdSchema, designId: IdSchema,
   inputRevisionId: IdSchema, outputRevisionId: IdSchema, attemptId: IdSchema, units: UnitsSchema,
   requirements: RequirementsSchema, registryCanonicalJson: z.string().min(1).max(32768), setupCanonicalJson: z.string().min(1).max(16384),
   proposal: ProviderProposalSchema, outputDir: privatePath,
   deadline: timestamp.optional(), remainingBudgetMs: z.number().int().positive().max(180000).optional(),
-  inputArtifacts: z.array(InputArtifactSchema).min(1).max(16),
+  referenceArtifact: DispatchReferenceArtifactSchema.optional(),
+  inputArtifacts: z.array(InputArtifactSchema).max(16),
 }).strict().superRefine((input, context) => {
   if (input.deadline === undefined && input.remainingBudgetMs === undefined) issue(context, 'A tool deadline or remaining budget is required.');
   if (input.designId !== input.requirements.designId || input.registryCanonicalJson !== input.requirements.registryCanonicalJson || input.setupCanonicalJson !== input.requirements.setupCanonicalJson) issue(context, 'Tool requirements and canonical bytes mismatch.');
   if (input.inputRevisionId === input.outputRevisionId || input.inputArtifacts.some(artifact => artifact.revisionId !== input.inputRevisionId)) issue(context, 'Tool input and output revision binding mismatch.');
-  if (input.proposal.kind === 'numeric_operation' && (input.requirements.setupId !== 'resize_centered_v1' || input.proposal.operation.parameters.lengthMm !== input.requirements.setup.dimensions.lengthMm)) issue(context, 'Numeric operation must match the confirmed resize requirements.');
+  const r = input.requirements, reference = input.referenceArtifact;
+  if (new Set(input.inputArtifacts.map(artifact => artifact.artifactId)).size !== input.inputArtifacts.length) issue(context, 'Duplicate input artifact ID.');
+  if (r.registryId === 'handle_sample_v1') {
+    const fixed = r.setup.reference, accepted = r.setup.acceptedInitial;
+    if (!reference || reference.referenceId !== fixed.referenceId || reference.revisionId !== fixed.revisionId
+      || reference.sha256 !== fixed.stepSha256 || reference.datumSpec?.sha256 !== fixed.datumSpecSha256) issue(context, 'Handle dispatch requires the original mount reference and fixed datum.');
+    if (accepted === null) {
+      if (input.inputRevisionId !== fixed.revisionId || input.inputArtifacts.length !== 0) issue(context, 'Initial handle uses only the fixed reference.');
+    } else if (input.inputRevisionId !== accepted.revisionId || input.inputArtifacts.filter(artifact =>
+      artifact.artifactId === accepted.artifactId && artifact.revisionId === accepted.revisionId
+      && artifact.sha256 === accepted.sha256 && artifact.kind === 'export').length !== 1) {
+      issue(context, 'Refinement requires the exact accepted initial STEP descriptor.');
+    }
+    if (reference && input.inputArtifacts.some(artifact => artifact.artifactId === reference.artifactId)) issue(context, 'Reference and current input artifacts must be distinct.');
+  } else if (reference) {
+    if (reference.referenceId !== r.referenceId || reference.revisionId !== 'baseline_50'
+      || reference.sha256 !== r.referenceHash || reference.datumSpec !== undefined) issue(context, 'Plate reference must retain its original baseline identity.');
+  } else {
+    // Only preregistered baseline transports retain the old embedded-reference shape.
+    const baseline = input.inputArtifacts[0];
+    const originalBaseline = input.inputRevisionId === 'baseline_50' && baseline?.sha256 === r.referenceHash;
+    const transportFixture = input.inputRevisionId === 'fixture_baseline_50'
+      && baseline?.artifactId === 'fixture_reference_step' && baseline.sha256 === r.referenceHash;
+    if (input.inputArtifacts.length !== 1 || baseline?.kind !== 'reference'
+      || !(originalBaseline || transportFixture)) {
+      issue(context, 'Non-baseline plate dispatch requires an explicit fixed reference.');
+    }
+  }
+  if (input.proposal.kind === 'numeric_operation' && (input.requirements.registryId !== 'plate_requirements_v1' || input.requirements.setupId !== 'resize_centered_v1' || input.proposal.operation.parameters.lengthMm !== input.requirements.setup.dimensions.lengthMm)) issue(context, 'Numeric operation must match the confirmed resize requirements.');
 });
 export const PrivateArtifactSchema = z.object({
   path: privatePath, kind: artifactKind, fileName, mediaType, bytes, sha256: HashSchema, executionMode: z.enum(['live', 'fixture']),
@@ -272,7 +310,7 @@ export const ToolResultSchema = z.object({
   validateChecks(result.checks, result.requirements, result.outputRevisionId, result.geometryHash, result.executionMode, result.status === 'completed', context);
   if (result.status === 'completed') validateSealedArtifacts(result.artifacts, result.geometryHash, result.sourceSha256, context);
   if (result.artifacts.some(artifact => artifact.executionMode !== result.executionMode)) issue(context, 'Tool artifact execution mode mismatch.');
-  if (result.proposal.kind === 'numeric_operation' && (result.requirements.setupId !== 'resize_centered_v1' || result.proposal.operation.parameters.lengthMm !== result.requirements.setup.dimensions.lengthMm)) issue(context, 'Tool numeric operation does not match requirements.');
+  if (result.proposal.kind === 'numeric_operation' && (result.requirements.registryId !== 'plate_requirements_v1' || result.requirements.setupId !== 'resize_centered_v1' || result.proposal.operation.parameters.lengthMm !== result.requirements.setup.dimensions.lengthMm)) issue(context, 'Tool numeric operation does not match requirements.');
 });
 export type ToolInputData = z.infer<typeof ToolInputSchema>;
 export type ToolInput = ToolInputData & { signal: AbortSignal };

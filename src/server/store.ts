@@ -234,6 +234,7 @@ export class RunStore {
       }
       const d = s.design; const old = currentRequirements(s);
       if (!d || request.expectedStateVersion !== d.stateVersion || request.expectedRequirementsVersion !== old.requirementsVersion) conflict();
+      if (request.setupId === 'handle_initial_v1' || request.setupId === 'handle_refine_v1') conflict();
       const requirements = await createRequirements({ designId: d.designId, requirementsVersion: old.requirementsVersion + 1,
         setupId: request.setupId, ...(request.setupId === 'resize_centered_v1' ? { lengthMm: request.confirmedIntent.lengthMm } : {}), validatorVersion: old.validatorVersion });
       s.requirements.push(requirements); d.activeRequirementsVersion = requirements.requirementsVersion;
@@ -379,7 +380,7 @@ export class RunStore {
         const r = s.requirements.find(r => r.requirementsVersion === e?.requirementsVersion);
         if (!e || !r || request.requestId !== entry.requestId || request.expectedStateVersion + 1 !== e.stateVersion
           || request.expectedRequirementsVersion + 1 !== r.requirementsVersion || request.setupId !== r.setupId
-          || (request.setupId === 'resize_centered_v1' && request.confirmedIntent.lengthMm !== r.setup.dimensions.lengthMm)) throw this.corrupt();
+          || (request.setupId === 'resize_centered_v1' && (r.registryId !== 'plate_requirements_v1' || request.confirmedIntent.lengthMm !== r.setup.dimensions.lengthMm))) throw this.corrupt();
       } else {
         const p = z.object({ revisionId: z.string(), request: ExportRequestSchema }).strict().parse(payload);
         const m = s.manifests.find(m => m.manifestId === entry.identity);

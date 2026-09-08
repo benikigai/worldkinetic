@@ -1,0 +1,1107 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "scopeStatus": "selected",
+  "executionMode": "fixture",
+  "design": {
+    "designId": "fixture_handle",
+    "label": "SYNTHETIC handle conformance fixture",
+    "units": "mm",
+    "stateVersion": 1,
+    "referenceId": "handle_mount_v1",
+    "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+    "setupId": "handle_initial_v1",
+    "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+    "baselineRevisionId": "handle_mount_reference_v1",
+    "activeRequirementsVersion": 1,
+    "acceptedRevisionId": null,
+    "acceptedRequirementsMatch": false,
+    "selectedCandidateRevisionId": "fixture_handle_revision",
+    "activeRunId": null
+  },
+  "requirements": {
+    "contractVersion": "wk-prototype-0.2",
+    "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+    "designId": "fixture_handle",
+    "requirementsVersion": 1,
+    "units": "mm",
+    "registryId": "handle_sample_v1",
+    "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+    "registryFileSha256": "6c1ae7ca15127d45146fc4c27e9659c206e9d7b77d1f7b925e0d7a54c60a4c7c",
+    "setupId": "handle_initial_v1",
+    "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+    "referenceId": "handle_mount_v1",
+    "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+    "validatorVersion": "fixture_handle_validator_v1",
+    "requiredChecks": [
+      "geometry.valid_single_solid",
+      "handle.mount_interface",
+      "handle.envelope",
+      "handle.grip_clearance",
+      "handle.grip_sections",
+      "export.step_reopen",
+      "export.stl_reopen",
+      "export.editable_reopen"
+    ],
+    "setup": {
+      "setupId": "handle_initial_v1",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "units": "mm",
+      "referenceId": "handle_mount_v1",
+      "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+      "reference": {
+        "referenceId": "handle_mount_v1",
+        "revisionId": "handle_mount_reference_v1",
+        "stepSha256": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+        "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83"
+      },
+      "geometry": {
+        "additionalRefinementChecks": [
+          "handle.refinement_delta"
+        ],
+        "assumedEnvelopeMm": {
+          "x": [
+            -70,
+            70
+          ],
+          "y": [
+            -20,
+            20
+          ],
+          "z": [
+            0,
+            50
+          ]
+        },
+        "fabricationProcess": null,
+        "frame": {
+          "handedness": "right",
+          "origin": "midpoint_between_mount_axes",
+          "panelPlaneZ": 0,
+          "positiveZ": "outward",
+          "x": "handle_length"
+        },
+        "grip": {
+          "allowedIntersectingSolids": 0,
+          "centralXRangeMm": [
+            -30,
+            30
+          ],
+          "centralYRangeMm": [
+            -20,
+            20
+          ],
+          "centralZRangeMm": [
+            0,
+            50
+          ],
+          "clippedSolidCount": 1,
+          "emptyBelowZmm": 25,
+          "gapKernelInsetMm": 1e-7,
+          "initialStationWidthRangeMm": [
+            8,
+            14
+          ],
+          "initialYRangeMm": [
+            -7,
+            7
+          ],
+          "requiredXSpanMm": 60,
+          "sectionConnectedFaceCount": 1,
+          "sectionStationsXmm": [
+            -24,
+            -12,
+            0,
+            12,
+            24
+          ],
+          "strictEmptyGap": true
+        },
+        "hardware": null,
+        "loadRating": null,
+        "material": null,
+        "mounting": {
+          "axesMm": [
+            [
+              -48,
+              0,
+              0
+            ],
+            [
+              48,
+              0,
+              0
+            ]
+          ],
+          "axisDirection": [
+            0,
+            0,
+            1
+          ],
+          "choice": "concept_pads_hardware_unspecified",
+          "datumSpecSha256": null,
+          "padDimensionSource": "PLAN_demo_assumption",
+          "padRadiusMm": 7,
+          "padZRangeMm": [
+            0,
+            2
+          ],
+          "panelHolesAreHandleBores": false,
+          "referenceContainsHandle": false,
+          "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+          "referenceSolidCount": 2,
+          "referenceStepSha256": null,
+          "userConfirmed": true
+        },
+        "physicalFit": "not_tested",
+        "refinement": {
+          "baseline": "actual_accepted_initial_STEP",
+          "baselineSha256": null,
+          "initialAcceptanceRequiredBeforeRefinement": true,
+          "minimumAddedSectionAreaEveryStationMm2": 8,
+          "minimumOutboardAddedVolumeMm3": 5,
+          "minimumProtrusionIncreaseMm": 2,
+          "minimumProtrusionMm": 2,
+          "minimumThumbRestAddedVolumeExclusiveMm3": 25,
+          "minimumWidthIncreaseEveryStationMm": 4,
+          "outboardBoundary": "max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm",
+          "preserveInitialMaterial": true,
+          "protrusionFormula": "maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)",
+          "thumbRestBoxMm": {
+            "x": [
+              -10,
+              10
+            ],
+            "y": [
+              4,
+              18
+            ],
+            "z": [
+              25,
+              50
+            ]
+          }
+        },
+        "registryId": "handle_sample_v1",
+        "requiredInitialChecks": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "export.step_reopen",
+          "export.stl_reopen",
+          "export.editable_reopen"
+        ],
+        "sampleRequirements": {
+          "maximumOverallLengthMm": 140,
+          "minimumFingerGapMm": 25,
+          "mountPitchMm": 96,
+          "panelHoleCount": 2,
+          "panelHoleDiameterMm": 4.5
+        },
+        "stages": [
+          "handle_initial_v1",
+          "handle_refine_v1"
+        ],
+        "tolerances": {
+          "differenceVolumeMm3": 0.01,
+          "linearMm": 0.01,
+          "sectionAreaMm2": 0.01,
+          "stepRelativeVolume": 0.00001,
+          "stlRelativeVolume": 0.001,
+          "strictMinimumGapUsesLinearSlack": false
+        },
+        "units": "mm"
+      },
+      "acceptedInitial": null,
+      "requiredChecks": [
+        "geometry.valid_single_solid",
+        "handle.mount_interface",
+        "handle.envelope",
+        "handle.grip_clearance",
+        "handle.grip_sections",
+        "export.step_reopen",
+        "export.stl_reopen",
+        "export.editable_reopen"
+      ]
+    },
+    "registryCanonicalJson": "{\"checks\":{\"export.editable_reopen\":{\"method\":\"Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.step_reopen\":{\"method\":\"Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.stl_reopen\":{\"method\":\"Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"geometry.valid_single_solid\":{\"method\":\"Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.\",\"units\":[\"count\",\"mm3\"]},\"handle.envelope\":{\"method\":\"Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.\",\"units\":[\"mm\"]},\"handle.grip_clearance\":{\"method\":\"Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.\",\"units\":[\"mm\",\"count\"]},\"handle.grip_sections\":{\"method\":\"Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.\",\"units\":[\"mm\",\"mm2\",\"count\"]},\"handle.mount_interface\":{\"method\":\"Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.\",\"units\":[\"mm\",\"mm3\",\"count\"]},\"handle.refinement_delta\":{\"method\":\"Compare against exact accepted initial STEP: preserve initial material, increase width and area at every station, measure added thumb-rest volume, protrusion and outboard added volume.\",\"units\":[\"mm\",\"mm2\",\"mm3\"]}},\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"registryId\":\"handle_sample_v1\"}",
+    "setupCanonicalJson": "{\"acceptedInitial\":null,\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"reference\":{\"datumSpecSha256\":\"6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83\",\"referenceId\":\"handle_mount_v1\",\"revisionId\":\"handle_mount_reference_v1\",\"stepSha256\":\"4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a\"},\"referenceHash\":\"4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a\",\"referenceId\":\"handle_mount_v1\",\"registryHash\":\"b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce\",\"registryId\":\"handle_sample_v1\",\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.valid_single_solid\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"handle.mount_interface\"],\"setupId\":\"handle_initial_v1\",\"units\":\"mm\"}"
+  },
+  "runs": [
+    {
+      "contractVersion": "wk-prototype-0.2",
+      "runId": "fixture_handle_run",
+      "requestId": "fixture_handle_request",
+      "designId": "fixture_handle",
+      "inputRevisionId": "handle_mount_reference_v1",
+      "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+      "requirementsVersion": 1,
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_initial_v1",
+      "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+      "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+      "validatorVersion": "fixture_handle_validator_v1",
+      "units": "mm",
+      "instruction": "SYNTHETIC handle transport example.",
+      "status": "completed",
+      "executionMode": "fixture",
+      "attemptIds": [
+        "fixture_handle_attempt"
+      ],
+      "candidateRevisionIds": [
+        "fixture_handle_revision"
+      ],
+      "activeAttemptId": null,
+      "createdAt": "2026-09-08T19:00:00.000Z",
+      "updatedAt": "2026-09-08T19:00:00.000Z",
+      "error": null
+    }
+  ],
+  "candidates": [
+    {
+      "contractVersion": "wk-prototype-0.2",
+      "runId": "fixture_handle_run",
+      "requestId": "fixture_handle_request",
+      "designId": "fixture_handle",
+      "attemptId": "fixture_handle_attempt",
+      "revisionId": "fixture_handle_revision",
+      "inputRevisionId": "handle_mount_reference_v1",
+      "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+      "requirementsVersion": 1,
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_initial_v1",
+      "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+      "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+      "validatorVersion": "fixture_handle_validator_v1",
+      "units": "mm",
+      "requirements": {
+        "contractVersion": "wk-prototype-0.2",
+        "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+        "designId": "fixture_handle",
+        "requirementsVersion": 1,
+        "units": "mm",
+        "registryId": "handle_sample_v1",
+        "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+        "registryFileSha256": "6c1ae7ca15127d45146fc4c27e9659c206e9d7b77d1f7b925e0d7a54c60a4c7c",
+        "setupId": "handle_initial_v1",
+        "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+        "referenceId": "handle_mount_v1",
+        "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+        "validatorVersion": "fixture_handle_validator_v1",
+        "requiredChecks": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "export.step_reopen",
+          "export.stl_reopen",
+          "export.editable_reopen"
+        ],
+        "setup": {
+          "setupId": "handle_initial_v1",
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "units": "mm",
+          "referenceId": "handle_mount_v1",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "reference": {
+            "referenceId": "handle_mount_v1",
+            "revisionId": "handle_mount_reference_v1",
+            "stepSha256": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+            "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83"
+          },
+          "geometry": {
+            "additionalRefinementChecks": [
+              "handle.refinement_delta"
+            ],
+            "assumedEnvelopeMm": {
+              "x": [
+                -70,
+                70
+              ],
+              "y": [
+                -20,
+                20
+              ],
+              "z": [
+                0,
+                50
+              ]
+            },
+            "fabricationProcess": null,
+            "frame": {
+              "handedness": "right",
+              "origin": "midpoint_between_mount_axes",
+              "panelPlaneZ": 0,
+              "positiveZ": "outward",
+              "x": "handle_length"
+            },
+            "grip": {
+              "allowedIntersectingSolids": 0,
+              "centralXRangeMm": [
+                -30,
+                30
+              ],
+              "centralYRangeMm": [
+                -20,
+                20
+              ],
+              "centralZRangeMm": [
+                0,
+                50
+              ],
+              "clippedSolidCount": 1,
+              "emptyBelowZmm": 25,
+              "gapKernelInsetMm": 1e-7,
+              "initialStationWidthRangeMm": [
+                8,
+                14
+              ],
+              "initialYRangeMm": [
+                -7,
+                7
+              ],
+              "requiredXSpanMm": 60,
+              "sectionConnectedFaceCount": 1,
+              "sectionStationsXmm": [
+                -24,
+                -12,
+                0,
+                12,
+                24
+              ],
+              "strictEmptyGap": true
+            },
+            "hardware": null,
+            "loadRating": null,
+            "material": null,
+            "mounting": {
+              "axesMm": [
+                [
+                  -48,
+                  0,
+                  0
+                ],
+                [
+                  48,
+                  0,
+                  0
+                ]
+              ],
+              "axisDirection": [
+                0,
+                0,
+                1
+              ],
+              "choice": "concept_pads_hardware_unspecified",
+              "datumSpecSha256": null,
+              "padDimensionSource": "PLAN_demo_assumption",
+              "padRadiusMm": 7,
+              "padZRangeMm": [
+                0,
+                2
+              ],
+              "panelHolesAreHandleBores": false,
+              "referenceContainsHandle": false,
+              "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+              "referenceSolidCount": 2,
+              "referenceStepSha256": null,
+              "userConfirmed": true
+            },
+            "physicalFit": "not_tested",
+            "refinement": {
+              "baseline": "actual_accepted_initial_STEP",
+              "baselineSha256": null,
+              "initialAcceptanceRequiredBeforeRefinement": true,
+              "minimumAddedSectionAreaEveryStationMm2": 8,
+              "minimumOutboardAddedVolumeMm3": 5,
+              "minimumProtrusionIncreaseMm": 2,
+              "minimumProtrusionMm": 2,
+              "minimumThumbRestAddedVolumeExclusiveMm3": 25,
+              "minimumWidthIncreaseEveryStationMm": 4,
+              "outboardBoundary": "max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm",
+              "preserveInitialMaterial": true,
+              "protrusionFormula": "maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)",
+              "thumbRestBoxMm": {
+                "x": [
+                  -10,
+                  10
+                ],
+                "y": [
+                  4,
+                  18
+                ],
+                "z": [
+                  25,
+                  50
+                ]
+              }
+            },
+            "registryId": "handle_sample_v1",
+            "requiredInitialChecks": [
+              "geometry.valid_single_solid",
+              "handle.mount_interface",
+              "handle.envelope",
+              "handle.grip_clearance",
+              "handle.grip_sections",
+              "export.step_reopen",
+              "export.stl_reopen",
+              "export.editable_reopen"
+            ],
+            "sampleRequirements": {
+              "maximumOverallLengthMm": 140,
+              "minimumFingerGapMm": 25,
+              "mountPitchMm": 96,
+              "panelHoleCount": 2,
+              "panelHoleDiameterMm": 4.5
+            },
+            "stages": [
+              "handle_initial_v1",
+              "handle_refine_v1"
+            ],
+            "tolerances": {
+              "differenceVolumeMm3": 0.01,
+              "linearMm": 0.01,
+              "sectionAreaMm2": 0.01,
+              "stepRelativeVolume": 0.00001,
+              "stlRelativeVolume": 0.001,
+              "strictMinimumGapUsesLinearSlack": false
+            },
+            "units": "mm"
+          },
+          "acceptedInitial": null,
+          "requiredChecks": [
+            "geometry.valid_single_solid",
+            "handle.mount_interface",
+            "handle.envelope",
+            "handle.grip_clearance",
+            "handle.grip_sections",
+            "export.step_reopen",
+            "export.stl_reopen",
+            "export.editable_reopen"
+          ]
+        },
+        "registryCanonicalJson": "{\"checks\":{\"export.editable_reopen\":{\"method\":\"Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.step_reopen\":{\"method\":\"Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.stl_reopen\":{\"method\":\"Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"geometry.valid_single_solid\":{\"method\":\"Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.\",\"units\":[\"count\",\"mm3\"]},\"handle.envelope\":{\"method\":\"Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.\",\"units\":[\"mm\"]},\"handle.grip_clearance\":{\"method\":\"Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.\",\"units\":[\"mm\",\"count\"]},\"handle.grip_sections\":{\"method\":\"Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.\",\"units\":[\"mm\",\"mm2\",\"count\"]},\"handle.mount_interface\":{\"method\":\"Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.\",\"units\":[\"mm\",\"mm3\",\"count\"]},\"handle.refinement_delta\":{\"method\":\"Compare against exact accepted initial STEP: preserve initial material, increase width and area at every station, measure added thumb-rest volume, protrusion and outboard added volume.\",\"units\":[\"mm\",\"mm2\",\"mm3\"]}},\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"registryId\":\"handle_sample_v1\"}",
+        "setupCanonicalJson": "{\"acceptedInitial\":null,\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"reference\":{\"datumSpecSha256\":\"6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83\",\"referenceId\":\"handle_mount_v1\",\"revisionId\":\"handle_mount_reference_v1\",\"stepSha256\":\"4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a\"},\"referenceHash\":\"4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a\",\"referenceId\":\"handle_mount_v1\",\"registryHash\":\"b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce\",\"registryId\":\"handle_sample_v1\",\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.valid_single_solid\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"handle.mount_interface\"],\"setupId\":\"handle_initial_v1\",\"units\":\"mm\"}"
+      },
+      "executionMode": "fixture",
+      "status": "reviewable",
+      "createdAt": "2026-09-08T19:00:00.000Z",
+      "updatedAt": "2026-09-08T19:00:00.000Z",
+      "changeSummary": "SYNTHETIC transport fixture. Values below are invented conformance data, not actual geometry or accepted evidence.",
+      "engine": {
+        "name": "fixture",
+        "version": "fixture_engine_v1",
+        "imageDigest": "sha256:e7b8066a3ff0b428a18f38f43bf125498b44cea236c27cc6fc004644ecee66b4"
+      },
+      "sourceSha256": "3af52238d2ffe105dff8598598e6328cd286fc43fd52b018572666146768c18e",
+      "proposalHash": "bb0527f9290f7c2d898cd727d03974d50f4240b5afffacce659486bec904e747",
+      "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+      "checkBundleHash": "648e81e8aaab9d952df59b10b1e3257adefe1f081257cbb88a6473efec3ac332",
+      "checks": [
+        {
+          "checkId": "geometry.valid_single_solid",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: geometry.valid_single_solid",
+          "method": "Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.",
+          "units": [
+            "count",
+            "mm3"
+          ],
+          "expected": {
+            "requirementFields": [
+              "registry.checks.geometry.valid_single_solid"
+            ],
+            "solidCount": 1,
+            "valid": true,
+            "connected": true,
+            "nonempty": true,
+            "finiteBounds": true,
+            "positiveFiniteVolume": true
+          },
+          "measured": {
+            "fixture": true,
+            "solidCount": 1,
+            "valid": true,
+            "connected": true,
+            "nonempty": true,
+            "finiteBounds": true,
+            "positiveFiniteVolume": true
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "handle.mount_interface",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: handle.mount_interface",
+          "method": "Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.",
+          "units": [
+            "mm",
+            "mm3",
+            "count"
+          ],
+          "expected": {
+            "requirementFields": [
+              "setup.geometry.mounting",
+              "setup.geometry.sampleRequirements",
+              "setup.reference",
+              "setup.geometry.tolerances"
+            ],
+            "mounting": {
+              "axesMm": [
+                [
+                  -48,
+                  0,
+                  0
+                ],
+                [
+                  48,
+                  0,
+                  0
+                ]
+              ],
+              "axisDirection": [
+                0,
+                0,
+                1
+              ],
+              "choice": "concept_pads_hardware_unspecified",
+              "datumSpecSha256": null,
+              "padDimensionSource": "PLAN_demo_assumption",
+              "padRadiusMm": 7,
+              "padZRangeMm": [
+                0,
+                2
+              ],
+              "panelHolesAreHandleBores": false,
+              "referenceContainsHandle": false,
+              "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+              "referenceSolidCount": 2,
+              "referenceStepSha256": null,
+              "userConfirmed": true
+            },
+            "mountPitchMm": 96,
+            "panelHoleDiameterMm": 4.5,
+            "panelHoleCount": 2,
+            "reference": {
+              "referenceId": "handle_mount_v1",
+              "revisionId": "handle_mount_reference_v1",
+              "stepSha256": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+              "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83"
+            },
+            "maximumRemovedPadVolumeMm3": 0.01,
+            "linearMm": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "axisDisplacementMm": [
+              0,
+              0
+            ],
+            "removedPadVolumesMm3": [
+              0,
+              0
+            ],
+            "referenceSolidCount": 2,
+            "panelHolesAreHandleBores": false
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "handle.envelope",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: handle.envelope",
+          "method": "Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.",
+          "units": [
+            "mm"
+          ],
+          "expected": {
+            "requirementFields": [
+              "setup.geometry.assumedEnvelopeMm",
+              "setup.geometry.sampleRequirements.maximumOverallLengthMm"
+            ],
+            "envelopeMm": {
+              "x": [
+                -70,
+                70
+              ],
+              "y": [
+                -20,
+                20
+              ],
+              "z": [
+                0,
+                50
+              ]
+            },
+            "maximumOverallLengthMm": 140,
+            "linearMm": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "outsideVolumeMm3": 0,
+            "maximumEnvelopeExcessMm": 0,
+            "overallLengthMm": 110
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "handle.grip_clearance",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: handle.grip_clearance",
+          "method": "Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.",
+          "units": [
+            "mm",
+            "count"
+          ],
+          "expected": {
+            "requirementFields": [
+              "setup.geometry.grip",
+              "setup.geometry.sampleRequirements.minimumFingerGapMm"
+            ],
+            "centralXRangeMm": [
+              -30,
+              30
+            ],
+            "centralYRangeMm": [
+              -20,
+              20
+            ],
+            "emptyBelowZmm": 25,
+            "minimumFingerGapMm": 25,
+            "strictEmptyGap": true,
+            "gapKernelInsetMm": 1e-7,
+            "allowedIntersectingSolids": 0,
+            "strictMinimumGapUsesLinearSlack": false
+          },
+          "measured": {
+            "fixture": true,
+            "intersectingSolids": 0,
+            "minimumGapMm": 25,
+            "gapKernelInsetMm": 1e-7
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "handle.grip_sections",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: handle.grip_sections",
+          "method": "Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.",
+          "units": [
+            "mm",
+            "mm2",
+            "count"
+          ],
+          "expected": {
+            "requirementFields": [
+              "setup.geometry.grip",
+              "setup.geometry.tolerances"
+            ],
+            "centralXRangeMm": [
+              -30,
+              30
+            ],
+            "centralYRangeMm": [
+              -20,
+              20
+            ],
+            "centralZRangeMm": [
+              0,
+              50
+            ],
+            "clippedSolidCount": 1,
+            "requiredXSpanMm": 60,
+            "sectionStationsXmm": [
+              -24,
+              -12,
+              0,
+              12,
+              24
+            ],
+            "sectionConnectedFaceCount": 1,
+            "initialYRangeMm": [
+              -7,
+              7
+            ],
+            "initialStationWidthRangeMm": [
+              8,
+              14
+            ],
+            "linearMm": 0.01,
+            "sectionAreaMm2": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "clippedSolidCount": 1,
+            "xSpanMm": 60,
+            "stations": [
+              {
+                "xMm": -24,
+                "connectedFaceCount": 1,
+                "widthMm": 10,
+                "areaMm2": 50,
+                "minYmm": -5,
+                "maxYmm": 5
+              },
+              {
+                "xMm": -12,
+                "connectedFaceCount": 1,
+                "widthMm": 10,
+                "areaMm2": 50,
+                "minYmm": -5,
+                "maxYmm": 5
+              },
+              {
+                "xMm": 0,
+                "connectedFaceCount": 1,
+                "widthMm": 10,
+                "areaMm2": 50,
+                "minYmm": -5,
+                "maxYmm": 5
+              },
+              {
+                "xMm": 12,
+                "connectedFaceCount": 1,
+                "widthMm": 10,
+                "areaMm2": 50,
+                "minYmm": -5,
+                "maxYmm": 5
+              },
+              {
+                "xMm": 24,
+                "connectedFaceCount": 1,
+                "widthMm": 10,
+                "areaMm2": 50,
+                "minYmm": -5,
+                "maxYmm": 5
+              }
+            ]
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "export.step_reopen",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.step_reopen",
+          "method": "Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.",
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.step_reopen",
+              "setup.geometry.tolerances"
+            ],
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "relativeVolume": 0.00001,
+            "validSingleSolid": true,
+            "handleChecksMatch": [
+              "geometry.valid_single_solid",
+              "handle.mount_interface",
+              "handle.envelope",
+              "handle.grip_clearance",
+              "handle.grip_sections"
+            ],
+            "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+            "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+            "sealedByteIdentity": true
+          },
+          "measured": {
+            "fixture": true,
+            "sha256": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+            "validSingleSolid": true,
+            "relativeVolumeError": 0,
+            "symmetricDifferenceVolumeMm3": 0,
+            "maximumAbsoluteErrorMm": 0,
+            "handleChecksMatch": true
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "export.stl_reopen",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.stl_reopen",
+          "method": "Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.",
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.stl_reopen",
+              "setup.geometry.tolerances"
+            ],
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "relativeVolume": 0.001,
+            "validSingleSolid": true,
+            "handleChecksMatch": [
+              "geometry.valid_single_solid",
+              "handle.mount_interface",
+              "handle.envelope",
+              "handle.grip_clearance",
+              "handle.grip_sections"
+            ],
+            "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+            "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+            "finiteVertices": true,
+            "watertight": true,
+            "connected": true,
+            "consistentlyOriented": true,
+            "positiveVolume": true,
+            "manifestUnits": "mm"
+          },
+          "measured": {
+            "fixture": true,
+            "finiteVertices": true,
+            "watertight": true,
+            "connected": true,
+            "consistentlyOriented": true,
+            "positiveVolume": true,
+            "relativeVolumeError": 0,
+            "maximumAbsoluteErrorMm": 0,
+            "handleChecksMatch": true,
+            "manifestUnits": "mm"
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        },
+        {
+          "checkId": "export.editable_reopen",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "geometryHash": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.editable_reopen",
+          "method": "Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.",
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.editable_reopen",
+              "setup.geometry.tolerances",
+              "setup.acceptedInitial"
+            ],
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "relativeVolume": 0.00001,
+            "validSingleSolid": true,
+            "handleChecksMatch": [
+              "geometry.valid_single_solid",
+              "handle.mount_interface",
+              "handle.envelope",
+              "handle.grip_clearance",
+              "handle.grip_sections"
+            ],
+            "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+            "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+            "isolatedReopenOrRegeneration": true,
+            "acceptedInitial": null
+          },
+          "measured": {
+            "fixture": true,
+            "sourceSha256": "3af52238d2ffe105dff8598598e6328cd286fc43fd52b018572666146768c18e",
+            "isolatedRegeneration": true,
+            "validSingleSolid": true,
+            "relativeVolumeError": 0,
+            "symmetricDifferenceVolumeMm3": 0,
+            "maximumAbsoluteErrorMm": 0,
+            "handleChecksMatch": true
+          },
+          "details": "SYNTHETIC conformance data only. No source, geometry, reopen or independent measurement was executed."
+        }
+      ],
+      "artifacts": [
+        {
+          "artifactId": "fixture_handle_source",
+          "runId": "fixture_handle_run",
+          "designId": "fixture_handle",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "units": "mm",
+          "kind": "source",
+          "fileName": "model.py",
+          "mediaType": "text/x-python",
+          "bytes": 56,
+          "sha256": "3af52238d2ffe105dff8598598e6328cd286fc43fd52b018572666146768c18e",
+          "href": "/api/artifacts/fixture_handle_source",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_handle_editable",
+          "runId": "fixture_handle_run",
+          "designId": "fixture_handle",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "units": "mm",
+          "kind": "editable",
+          "fileName": "editable.py",
+          "mediaType": "text/x-python",
+          "bytes": 56,
+          "sha256": "3af52238d2ffe105dff8598598e6328cd286fc43fd52b018572666146768c18e",
+          "href": "/api/artifacts/fixture_handle_editable",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_handle_step",
+          "runId": "fixture_handle_run",
+          "designId": "fixture_handle",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "units": "mm",
+          "kind": "export",
+          "fileName": "part.step",
+          "mediaType": "model/step",
+          "bytes": 50,
+          "sha256": "cfbaa736fb14c9ec5fbbca2193dd75bcf5af47547d17ece31877355fae155750",
+          "href": "/api/artifacts/fixture_handle_step",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_handle_stl",
+          "runId": "fixture_handle_run",
+          "designId": "fixture_handle",
+          "revisionId": "fixture_handle_revision",
+          "requirementsId": "req_2e2df0df3ae3f40e07026e86a8c5513e",
+          "requirementsVersion": 1,
+          "registryId": "handle_sample_v1",
+          "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+          "setupId": "handle_initial_v1",
+          "setupHash": "09f1ba1a9b9beb0b09e3d178a3c26f40c3b530165683545b9000bc1da57b1aff",
+          "referenceHash": "4d56b09ca842b0826cc59f9a9373ed1b4c05d49c48213b61fe62f8f61cfae73a",
+          "validatorVersion": "fixture_handle_validator_v1",
+          "units": "mm",
+          "kind": "preview",
+          "fileName": "part.stl",
+          "mediaType": "model/stl",
+          "bytes": 45,
+          "sha256": "845c58bc25ecddf1b4b8d8f4a897d6d674381932ef0df4375d49746533f9f097",
+          "href": "/api/artifacts/fixture_handle_stl",
+          "executionMode": "fixture"
+        }
+      ],
+      "error": null
+    }
+  ],
+  "unavailableReason": null
+}

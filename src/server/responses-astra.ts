@@ -73,7 +73,7 @@ export class ResponsesAstraPlanner implements Planner {
       run = structuredClone(run);
       requirements = await verifyRequirements(structuredClone(requirements));
       signal.throwIfAborted();
-      if (!this.options.apiKey.trim() || requirements.setupId !== 'resize_centered_v1') throw new Error('Unavailable planner');
+      if (!this.options.apiKey.trim() || requirements.registryId !== 'plate_requirements_v1' || requirements.setupId !== 'resize_centered_v1') throw new Error('Unavailable planner');
       const schema = z.object({ kind: z.literal('numeric_operation'), operation: z.object({
         name: z.literal('resize_plate'), parameters: z.object({ lengthMm: z.literal(requirements.setup.dimensions.lengthMm) }).strict(),
       }).strict() }).strict();
