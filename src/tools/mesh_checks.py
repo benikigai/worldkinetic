@@ -51,7 +51,7 @@ def fit_circle(points):
     return center, radius, residual
 
 
-def inspect_mesh(path, length, checked_bounds, checked_volume):
+def inspect_mesh(path, length, checked_bounds, checked_volume, feature=False, feature_bounds=None):
     data = path.read_bytes()
     diagnostics = {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
     try:
@@ -101,8 +101,20 @@ def inspect_mesh(path, length, checked_bounds, checked_volume):
             raise ValueError("Mesh volume disagrees with checked solid")
         if any(abs(a-b) > 0.01 for p, q in zip(bb, checked_bounds) for a, b in zip(p, q)):
             raise ValueError("Mesh bounds disagree with checked solid")
-        if len(vertices)-len(edge_uses)+count != -2:
+        # An added feature may have its own tunnels; required bores are checked below.
+        if not feature and len(vertices)-len(edge_uses)+count != -2:
             raise ValueError("Mesh topology does not contain exactly two handles")
+        if feature:
+            # Side triangles include the true z=5 bottom of the raised addition.
+            raised = {p for tri in triangles if min(p[2] for p in tri) >= 5-1e-6
+                      and max(p[2] for p in tri) > 5+1e-6 for p in tri}
+            if not raised or feature_bounds is None:
+                raise ValueError("No measurable raised feature in mesh")
+            raised_bounds = [[min(p[i] for p in raised) for i in range(3)],
+                             [max(p[i] for p in raised) for i in range(3)]]
+            diagnostics["featureBounds"] = raised_bounds
+            if any(abs(a-b) > 0.01 for p, q in zip(raised_bounds, feature_bounds) for a, b in zip(p, q)):
+                raise ValueError("Mesh feature bounds disagree with checked addition")
         holes = []
         for expected in (((length-20)/2, 17.5), ((length+20)/2, 17.5)):
             wall = [i for i, tri in enumerate(triangles)
@@ -113,7 +125,7 @@ def inspect_mesh(path, length, checked_bounds, checked_volume):
             wall_set = set(wall)
             rim_edges = [edge for edge, uses in edge_uses.items() if sum(i in wall_set for i, _, _ in uses) == 1]
             rims = []
-            for z in (bb[0][2], bb[1][2]):
+            for z in (0, 5):
                 edges = [e for e in rim_edges if all(abs(p[2]-z) <= 1e-6 for p in e)]
                 points = {p for edge in edges for p in edge}
                 if len(points) < 8 or len(edges) != len(points):
@@ -142,9 +154,9 @@ def inspect_mesh(path, length, checked_bounds, checked_volume):
                 if max(gaps) > 0.2:
                     raise ValueError("Bore rim coverage cannot establish circular opening")
                 rims.append({"center": list(center), "diameter": radius*2, "z": z, "fitResidual": residual})
-            if len(rim_edges) != sum(1 for e in rim_edges if any(all(abs(p[2]-z) <= 1e-6 for p in e) for z in (bb[0][2], bb[1][2]))):
+            if len(rim_edges) != sum(1 for e in rim_edges if any(all(abs(p[2]-z) <= 1e-6 for p in e) for z in (0, 5))):
                 raise ValueError("Bore wall has an internal gap")
-            if any(any(min(abs(p[2]-bb[0][2]), abs(p[2]-bb[1][2])) > 1e-6 for p in triangles[i]) for i in wall):
+            if any(any(min(abs(p[2]), abs(p[2]-5)) > 1e-6 for p in triangles[i]) for i in wall):
                 diagnostics["reason"] = "Non-extruded bore wall requires an additional mesh section verifier"
                 return "not_evaluated", diagnostics
             center = rims[0]["center"]
