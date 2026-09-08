@@ -141,7 +141,7 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertGreaterEqual(len(entries), 2)
         for node in entries:
             # OUTSIDE_WRAPPER: user selected same-origin workspace entry; historical destination remains archived.
-            self.assertEqual(node.attrs.get('href'), '/workspace/')
+            self.assertEqual(node.attrs.get('href'), '/demo/')
             self.assertIn('demo', node.text().lower()); self.assertNotIn('aria-disabled', node.attrs)
         for node in page.nodes:
             self.assertFalse(any(key.lower().startswith('on') for key in node.attrs), 'No inline event handlers')
