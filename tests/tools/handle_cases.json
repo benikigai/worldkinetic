@@ -1,0 +1,86 @@
+{
+  "scope": "Preregistered fixed developer source inputs for TOOLS-HANDLE-01; not product model generation or CAD evidence",
+  "planPacketSha256": "6a3789f38cebc5436e59dc329379b85c802d7dc1e889afeca3d0438805d4b334",
+  "sourcePathTokens": {
+    "__MOUNT_REFERENCE__": "Resolve only from the released tool source-input contract",
+    "__ACCEPTED_BASELINE__": "Resolve only from the released tool source-input contract"
+  },
+  "initialSource": "from build123d import *\np = import_step('__MOUNT_REFERENCE__')\nfor x in (-48,48):\n    p += Pos(x,0,2) * Cylinder(5,26,align=(Align.CENTER,Align.CENTER,Align.MIN))\np += Pos(-54,-5,25) * Box(108,10,10,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+  "roundedInitialSource": "from build123d import *\np = import_step('__MOUNT_REFERENCE__')\nfor x in (-48,48):\n    p += Pos(x,0,2) * Cylinder(5,29,align=(Align.CENTER,Align.CENTER,Align.MIN))\np += Pos(-54,0,31) * Rot(0,90,0) * Cylinder(6,108,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
+  "refinementSource": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-8,7,27) * Box(16,5,6,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+  "saveSource": "export_step(p, '/out/candidate.step')\n",
+  "initialCases": [
+    {
+      "id": "valid_initial",
+      "sourceBase": "initialSource",
+      "append": "",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [10,10,10,10,10], "stationAreasMm2": [100,100,100,100,100]}
+    },
+    {
+      "id": "rounded_initial",
+      "sourceBase": "roundedInitialSource",
+      "append": "",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [12,12,12,12,12]}
+    },
+    {
+      "id": "shifted_mounts",
+      "sourceBase": "initialSource",
+      "append": "p = Pos(1,0,0) * p\n",
+      "expectedFailedChecks": ["handle.mount_interface"]
+    },
+    {
+      "id": "tiny_gap_intrusion",
+      "sourceBase": "initialSource",
+      "append": "p += Pos(-0.5,-0.5,24.9999) * Box(1,1,0.0001,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.grip_clearance"],
+      "expectedMeasurements": {"intrusionBelowDifferenceVolumeTolerance": true}
+    },
+    {
+      "id": "missing_central_grip",
+      "sourceBase": "initialSource",
+      "append": "p -= Pos(-31,-20,20) * Box(62,40,30,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["geometry.valid_single_solid", "handle.grip_clearance", "handle.grip_sections"]
+    },
+    {
+      "id": "panel_penetration",
+      "sourceBase": "initialSource",
+      "append": "p += Pos(-48,0,-1) * Cylinder(2,2,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.envelope"]
+    }
+  ],
+  "refinementCases": [
+    {
+      "id": "valid_refinement",
+      "sourceBase": "refinementSource",
+      "append": "",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {"stationWidthsMm": [14,14,19,14,14], "minimumWidthIncreaseMm": 4, "protrusionMm": 5, "thumbAddedVolumeMm3": 880, "outboardAddedVolumeMm3": 384}
+    },
+    {
+      "id": "local_only_widening",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-10,-7,25) * Box(20,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-6,7,27) * Box(12,5,5,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.refinement_delta"],
+      "expectedMeasurements": {"unchangedStationXmm": [-24,-12,12,24]}
+    },
+    {
+      "id": "uniform_widening",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.refinement_delta"],
+      "expectedMeasurements": {"minimumWidthIncreaseMm": 4, "protrusionMm": 0, "outboardAddedVolumeMm3": 0}
+    },
+    {
+      "id": "tiny_rest_spike",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.0001,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.refinement_delta"],
+      "expectedMeasurements": {"protrusionMm": 2, "outboardAddedVolumeMm3LessThan": 5}
+    },
+    {
+      "id": "removed_initial_material",
+      "sourceBase": "refinementSource",
+      "append": "p -= Pos(40,0,20) * Cylinder(1,20,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.refinement_delta"]
+    }
+  ]
+}
