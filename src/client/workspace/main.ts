@@ -1,6 +1,8 @@
 import { MAX_PREVIEW_BYTES, parsePreviewGeometry } from './preview.js';
 import { PreviewViewer, type ViewName } from './viewer.js';
 import { mountReview } from './review.js';
+import { createLiveWorkspaceController } from './live-state.js';
+import { mountLive } from './live.js';
 import reviewableFixture from '../../../fixtures/api/v2/reviewable.fixture.json' with { type: 'json' };
 import rejectedFixture from '../../../fixtures/api/v2/rejected.fixture.json' with { type: 'json' };
 import featureRequirements from '../../../fixtures/api/v2/feature-requirements.fixture.json' with { type: 'json' };
@@ -34,7 +36,9 @@ let viewer: PreviewViewer | undefined;
 let request: AbortController | undefined;
 let selectionToken = 0;
 let webglError = '';
-let mode: 'saved' | 'review' = 'saved';
+let mode: 'saved' | 'review' | 'live' = 'saved';
+const liveController = createLiveWorkspaceController({ fetch: window.fetch.bind(window) });
+const live = mountLive(liveController, listeners.signal, () => { void loadSelection(); });
 const review = mountReview({
   history: { ...reviewableFixture, runs: [...reviewableFixture.runs, ...rejectedFixture.runs],
     candidates: [...reviewableFixture.candidates, ...rejectedFixture.candidates] },
@@ -115,6 +119,10 @@ async function loadSelection() {
     setStatus('Candidate geometry unavailable', 'Synthetic review fixtures contain NON-CAD strings. No saved reference mesh is displayed.');
     return;
   }
+  if (mode === 'live') {
+    await loadLivePreview(token, signal);
+    return;
+  }
   const fixture = fixtures[reference.value === 'original' ? 'original' : 'revised'];
   const saved = scenario.value === 'saved';
   element('identity-title').textContent = saved ? fixture.name : `${scenario.value === 'empty' ? 'Empty' : 'Unavailable'} preview scenario`;
@@ -153,6 +161,49 @@ async function loadSelection() {
   }
 }
 
+async function loadLivePreview(token: number, signal: AbortSignal) {
+  const s = liveController.snapshot();
+  const baseline = live.comparison() === 'baseline';
+  const candidate = s.bootstrap?.candidates.find(item => item.revisionId === s.viewedRevisionId);
+  const label = baseline ? `Registered baseline · ${s.reference?.revisionId ?? 'unavailable'}`
+    : `Inspected ${candidate?.revisionId === s.bootstrap?.design?.selectedCandidateRevisionId ? 'selected' : 'historical'} candidate · ${candidate?.revisionId ?? 'none'}`;
+  element('live-mesh-identity').textContent = label;
+  element('model-title').textContent = baseline ? 'Baseline geometry' : 'Candidate geometry';
+  if (!s.trusted || s.loading) {
+    setStatus(s.loading ? 'Loading live evidence' : 'Live preview unavailable', s.error ?? 'Verifying authoritative records and baseline bytes.');
+    return;
+  }
+  if (!baseline && !candidate) {
+    setStatus('No candidate preview', 'Request a numeric run, then inspect its registered candidate.');
+    return;
+  }
+  if (!viewer?.available) {
+    setStatus('WebGL preview unavailable', webglError || 'Enable hardware graphics support and reload.');
+    return;
+  }
+  setStatus('Loading registered STL', `${label}. Verifying media type, byte count and SHA-256.`);
+  try {
+    const preview = await liveController.preview(baseline ? null : candidate!.revisionId);
+    if (token !== selectionToken || signal.aborted) return;
+    if (!preview) {
+      setStatus('Registered preview unavailable', liveController.snapshot().error ?? 'This revision has no verified STL bytes. Refresh to retry.');
+      return;
+    }
+    const geometry = await parsePreviewGeometry(preview.bytes, preview.artifact.sha256);
+    if (token !== selectionToken || signal.aborted) { geometry.dispose(); return; }
+    const dimensions = viewer.show(geometry, wireframe.checked);
+    const measured = dimensions.map(value => Number(value.toFixed(3))).join(' × ');
+    element('mesh-dimensions').textContent = `${measured} mm · mesh bounds`;
+    element('live-mesh-identity').textContent = `${label} · ${preview.artifact.artifactId} · ${preview.bytes.byteLength} bytes · STL SHA-256 ${preview.artifact.sha256}`;
+    setStatus('Registered STL ready', label, true);
+  } catch {
+    if (token !== selectionToken || signal.aborted) return;
+    viewer.clear();
+    element('mesh-dimensions').textContent = 'No mesh loaded';
+    setStatus('Registered STL preview failed', 'The registered bytes could not be safely rendered. Refresh to retry. No substitute mesh is shown.');
+  }
+}
+
 function applyTheme() {
   const selected = ['frost', 'graphite', 'canvas'].includes(theme.value) ? theme.value : 'frost';
   document.documentElement.dataset.theme = selected;
@@ -170,16 +221,24 @@ try {
 }
 
 reference.addEventListener('change', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
-function switchMode(next: 'saved' | 'review') {
+function switchMode(next: 'saved' | 'review' | 'live') {
   if (mode === next) return;
+  live.close();
   mode = next;
   document.querySelectorAll<HTMLElement>('[data-saved-only]').forEach(node => { node.hidden = mode !== 'saved'; });
   document.querySelectorAll<HTMLElement>('[data-review-only]').forEach(node => { node.hidden = mode !== 'review'; });
+  document.querySelectorAll<HTMLElement>('[data-live-only]').forEach(node => { node.hidden = mode !== 'live'; });
+  document.querySelectorAll<HTMLElement>('[data-viewer-only]').forEach(node => { node.hidden = mode === 'review'; });
+  document.querySelectorAll<HTMLElement>('[data-offline-only]').forEach(node => { node.hidden = mode === 'live'; });
+  element('model-title').textContent = mode === 'live' ? 'Baseline geometry' : 'Reference geometry';
+  element('live-mode').setAttribute('aria-pressed', String(mode === 'live'));
   element('saved-mode').setAttribute('aria-pressed', String(mode === 'saved'));
   element('review-mode').setAttribute('aria-pressed', String(mode === 'review'));
   void loadSelection();
   if (mode === 'review') review.open();
+  if (mode === 'live') live.open();
 }
+element('live-mode').addEventListener('click', () => switchMode('live'), { signal: listeners.signal });
 element('saved-mode').addEventListener('click', () => switchMode('saved'), { signal: listeners.signal });
 element('review-mode').addEventListener('click', () => switchMode('review'), { signal: listeners.signal });
 scenario.addEventListener('change', () => { void loadSelection(); }, { signal: listeners.signal });
@@ -194,4 +253,6 @@ window.addEventListener('pagehide', (event) => {
   listeners.abort();
   viewer?.dispose();
 }, { signal: listeners.signal });
-void loadSelection();
+const initialMode = new URLSearchParams(window.location.search).get('mode');
+if (initialMode === 'saved') void loadSelection();
+else switchMode(initialMode === 'review' ? 'review' : 'live');

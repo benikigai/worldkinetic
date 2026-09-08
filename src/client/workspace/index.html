@@ -25,6 +25,7 @@
   </header>
   <main id="workspace" class="wk-main">
     <div class="wk-mode-switch" role="group" aria-label="Workspace mode">
+      <button id="live-mode" type="button" aria-pressed="false">Live numeric workspace</button>
       <button id="saved-mode" type="button" aria-pressed="true">Saved reference viewer</button>
       <button id="review-mode" type="button" aria-pressed="false">Revision review</button>
     </div>
@@ -33,16 +34,21 @@
       <p>Two saved CAD reference examples. No current run, check or acceptance evidence.</p>
     </div>
     <div class="wk-layout">
-      <section class="wk-model" aria-labelledby="model-title" data-saved-only>
+      <section class="wk-model" aria-labelledby="model-title" data-viewer-only>
         <div class="wk-model-heading">
           <h1 id="model-title">Reference geometry</h1>
-          <label class="wk-reference-label">Saved reference
+          <label class="wk-reference-label" data-saved-only>Saved reference
             <select id="reference">
               <option value="revised">Saved revised baseline</option>
               <option value="original">Saved original reference</option>
             </select>
           </label>
         </div>
+        <div class="wk-review-controls" data-live-only hidden>
+          <label for="live-comparison">Show geometry</label><select id="live-comparison"><option value="baseline">Registered baseline</option><option value="candidate">Inspected candidate</option></select>
+          <label for="live-revision">Inspect revision locally</label><select id="live-revision"></select>
+        </div>
+        <p id="live-mesh-identity" class="wk-review-status" data-live-only hidden></p>
         <div class="wk-toolbar" role="group" aria-label="Model view">
           <button type="button" data-view="fit" disabled>Fit view</button>
           <button type="button" data-view="isometric" disabled>Isometric</button>
@@ -62,6 +68,14 @@
           <span>mm · Z up · XY grid 5 mm</span>
         </div>
         <p id="navigation-help" class="wk-navigation">Drag to rotate · Right-drag to pan · Scroll to zoom. Touch: one finger rotates, two pan / zoom. Focus the canvas and use arrow keys to pan.</p>
+        <div data-live-only hidden>
+          <div class="wk-review-summary"><div><p class="wk-kicker">Confirmed requirements</p><h2 id="live-requirements"></h2><p id="live-fixed"></p></div><div><p class="wk-kicker">Authoritative state</p><p id="live-selection" class="wk-mono"></p><p id="live-run-status"></p></div></div>
+          <div class="wk-check-heading"><h2>Inspected revision checks</h2><span id="live-check-count"></span></div>
+          <p id="live-candidate-status" class="wk-review-note"></p>
+          <table class="wk-check-table"><caption class="wk-sr-only">Checks bound to the inspected revision requirements</caption><thead><tr><th scope="col">Check / measured evidence</th><th scope="col">State</th></tr></thead><tbody id="live-checks"></tbody></table>
+          <details class="wk-review-evidence"><summary>Inspected evidence identity</summary><pre id="live-evidence"></pre></details>
+          <div class="wk-review-activity"><h2>Observed activity</h2><p>Events never select or accept a revision. Completion still requires explicit acceptance.</p><label for="live-event-run">Show observations</label><select id="live-event-run"><option value="">All runs and design events</option></select><p id="live-cursor"></p><ol id="live-activity"></ol></div>
+        </div>
       </section>
       <section id="revision-review" class="wk-model wk-review" aria-labelledby="review-title" data-review-only hidden>
         <div class="wk-model-heading">
@@ -93,6 +107,27 @@
         <div class="wk-review-blockers"><h2>Actions unavailable</h2><ul id="review-blockers"></ul></div>
       </section>
       <aside class="wk-sidebar" aria-label="Reference identity and request">
+        <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
+          <p class="wk-kicker">Numeric plate / millimeters</p><h2 id="live-title">Live workspace</h2>
+          <p id="live-status" role="status" aria-live="polite">Connecting to the local API...</p>
+          <div class="wk-live-recovery"><button id="live-refresh" type="button">Refresh</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Retry pending action</button></div>
+          <label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note">
+          <p id="live-length-note">Confirm the exact length before requesting a run. A 30 mm request stays 30 mm; a correction requires a new confirmation.</p>
+          <label for="live-request">Run instruction</label><textarea id="live-request" rows="3" maxlength="2000" placeholder="Describe the numeric plate change"></textarea>
+          <p>Your draft stays local until you explicitly confirm or request a run.</p>
+          <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm requirements</button>
+          <button id="live-run" class="wk-primary" type="button" disabled>Request numeric run</button>
+          <p id="live-run-gate"></p>
+          <button id="live-accept" class="wk-primary" type="button" disabled>Accept selected revision</button><p id="live-accept-gate"></p>
+        </section>
+        <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-accepted-title">
+          <h2 id="live-accepted-title">Accepted download</h2><p id="live-accepted"></p>
+          <label for="live-artifact">File from accepted manifest</label><select id="live-artifact"></select>
+          <button id="live-download" class="wk-primary" type="button" disabled>Download verified file</button><p id="live-download-status" role="status" aria-live="polite"></p>
+          <p id="live-export-gate"></p>
+          <details class="wk-details"><summary>Acceptance history</summary><ol id="live-history"></ol></details>
+          <p>Verified file integrity and recorded checks do not establish physical fit, strength or manufacturing readiness.</p>
+        </section>
         <section class="wk-panel" aria-labelledby="identity-title" data-saved-only>
           <p class="wk-kicker">Selected reference</p>
           <h2 id="identity-title">Saved revised baseline</h2>
@@ -110,14 +145,14 @@
           </details>
           <p class="wk-evidence-note">Mesh dimensions and file integrity describe this preview only. They do not establish engineering checks or physical fit.</p>
         </section>
-        <section class="wk-panel wk-request" aria-labelledby="request-title">
+        <section class="wk-panel wk-request" aria-labelledby="request-title" data-offline-only>
           <h2 id="request-title">Describe a change</h2>
           <label for="request">Request</label>
           <textarea id="request" rows="3" maxlength="2000" aria-describedby="draft-note api-gap" placeholder="Describe a change for your local draft..."></textarea>
           <p id="draft-note">Local draft only. Text is not sent or saved to the server.</p>
           <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Confirm requirements</button>
           <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Request revision</button>
-          <p id="api-gap">The server still uses wk-backend-draft-0.1. wk-prototype-0.2 confirmation, run, acceptance and export handlers are not connected. Positive acceptance and export manifest records are unavailable.</p>
+          <p id="api-gap">Open Live numeric workspace to confirm requirements and request a run. Saved reference and synthetic review modes do not submit requests, accept revisions or export live artifacts.</p>
           <div class="wk-future-actions"><button type="button" disabled aria-describedby="api-gap">Accept revision</button><button type="button" disabled aria-describedby="api-gap">Download</button></div>
         </section>
         <section class="wk-panel wk-review-guide" data-review-only hidden>
@@ -135,7 +170,7 @@
         </section>
       </aside>
     </div>
-    <noscript><p class="wk-notice">JavaScript is required to inspect the saved STL examples. Requests and acceptance remain unavailable.</p></noscript>
+    <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect STL examples.</p></noscript>
   </main>
 </body>
 </html>

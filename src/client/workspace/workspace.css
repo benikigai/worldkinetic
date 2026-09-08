@@ -152,3 +152,15 @@
   .wk-check-table th:last-child, .wk-check-table td:last-child { width: 116px; }
   .wk-check-state { font-size: 10px; }
 }
+
+.wk-live-recovery { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+#live-length { width: 100%; font: inherit; color: var(--text); border: 1px solid var(--line); border-radius: 5px; background: var(--panel-strong); padding: 8px 10px; }
+#live-artifact { width: 100%; }
+#live-status[data-error="true"] { border-left: 3px solid var(--wk-accent); padding-left: 10px; color: var(--text); }
+#live-mesh-identity { padding-top: 12px; overflow-wrap: anywhere; }
+#live-checks pre, #live-evidence { white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 "SFMono-Regular", Consolas, monospace; }
+#live-checks pre { margin: 10px 0 0; }
+#live-download-status, #live-accepted, #live-history, #live-selection { overflow-wrap: anywhere; }
+#live-history { padding-left: 16px; font-size: 11px; }
+#live-fixed, #live-run-status { color: var(--muted); font-size: 12px; margin-top: 8px; }
+[data-live-only] .wk-check-heading { padding-top: 16px; }
