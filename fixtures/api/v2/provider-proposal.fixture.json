@@ -1,0 +1,9 @@
+{
+  "kind": "numeric_operation",
+  "operation": {
+    "name": "resize_plate",
+    "parameters": {
+      "lengthMm": 36
+    }
+  }
+}
