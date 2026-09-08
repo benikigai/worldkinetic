@@ -113,7 +113,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     }
     element('live-download').hidden = !s.canDownload;
     element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
-    element('live-download').className = action === 'download' ? 'wk-primary' : '';
+    element('live-download').className = '';
     element('live-change').hidden = !s.canRefine || changing || !s.canDownload;
     element<HTMLButtonElement>('live-change').disabled = !s.canRefine || s.busy || s.loading || Boolean(s.error);
     element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || Boolean(s.pendingAction);
@@ -202,6 +202,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     const previousArtifact = artifact.value;
     artifact.replaceChildren(...(manifest?.artifacts.map(item => option(item.artifactId, `${item.mediaType === 'model/step' ? 'STEP · editable CAD' : item.mediaType === 'model/stl' ? 'STL · 3D mesh' : item.mediaType.includes('python') || item.fileName.endsWith('.py') ? 'Python · editable source' : item.fileName}`)) ?? []));
     if (manifest?.artifacts.some(item => item.artifactId === previousArtifact)) artifact.value = previousArtifact;
+    else if (manifest?.artifacts.some(item => item.mediaType === 'model/step')) artifact.value = manifest.artifacts.find(item => item.mediaType === 'model/step')!.artifactId;
     artifact.disabled = !s.canDownload;
     element('live-history').replaceChildren(...(s.history?.acceptances.map(item => {
       const entry = document.createElement('li');
