@@ -4,15 +4,17 @@ Customize an accessory you own without learning CAD. WorldKinetics is a prototyp
 
 The first demonstration uses an owned, generated two-hole plate: add a tactile feature while preserving the plate and its open bores. A controller accessory is a later possibility once its attachment, neighboring geometry and travel are measured.
 
-## Current status
+## Historical implementation snapshot
 
-**The repository contains a tested scaffold, not a connected CAD product.** The root page is the existing 2D Precision design preview, with its artwork, typography and theme choices. [worldkinetics.app](https://worldkinetics.app) is the prototype site. The separate `/workspace` product surface is being built; its source is not integrated in the documented snapshot.
+Implementation observations and pending statuses in this README describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8` on September 8, 2026, around 13:14 PDT. They do not describe whichever commit includes this documentation; newer accepted commits may supersede these snapshot statuses.
+
+**At that snapshot, the repository contained a tested scaffold, not a connected CAD product.** The root page was the existing 2D Precision design preview, with its artwork, typography and theme choices. [worldkinetics.app](https://worldkinetics.app) is the prototype site. The separate `/workspace` product surface was being built; its source was not integrated at that snapshot.
 
 - **Integrated scaffold:** Node 22, TypeScript and Zod HTTP/run/artifact handling, Three.js dependency wiring, nested static assets and optional workspace bundle support.
 - **Separate local proofs:** preserved FreeCAD plate examples; one-shot Responses API access with requested/reported `gpt-6-astra`; isolated build123d generation followed by trusted STEP verification. These do not establish an application workflow.
 - **Proposed integration:** generated Python, real CAD adapter, viewer, numerical feedback and repair, explicit user acceptance and exact source/STEP/STL downloads.
 
-The [evidence snapshot](docs/provenance.md#evidence-snapshot) records revisions and limits. Current transport is `wk-backend-draft-0.1`; the target is `wk-prototype-0.2`.
+The [evidence snapshot](docs/provenance.md#evidence-snapshot) records revisions and limits. At that snapshot, transport was `wk-backend-draft-0.1`; the target `wk-prototype-0.2` schemas were pending.
 
 ## Intended product path
 
@@ -37,7 +39,7 @@ Optional **Images 2.5** could turn an actual CAD render into a visual concept. S
 
 ## Run the scaffold
 
-Requires Node.js 22 or newer.
+These commands and runtime observations describe the cited snapshot, which required Node.js 22 or newer.
 
 ```sh
 npm ci
@@ -45,7 +47,7 @@ npm run build
 npm start
 ```
 
-Open [localhost:4310](http://127.0.0.1:4310) for the design preview. `/api/bootstrap` reports configured scope and readiness. The default entry point has no selected design or CAD adapter and reports execution as unavailable.
+Open [localhost:4310](http://127.0.0.1:4310) for the design preview. `/api/bootstrap` reports configured scope and readiness. At that snapshot, the default entry point had no selected design or CAD adapter and reported execution as unavailable.
 
 ```sh
 npm run typecheck
@@ -66,6 +68,6 @@ Use `PORT` and `WORLDKINETICS_RUNTIME_DIR` for a separate development instance. 
 
 ## Known gaps
 
-The integrated generation/repair loop, complete check registry, workspace viewer and explicit acceptance remain pending. Local runtime packaging is not a published reproducible CAD image. No physical fit, strength, printing, manufacturing certification or simulation is verified. Public live CAD hosting and supplier handoff are also pending.
+At the cited snapshot, the integrated generation/repair loop, complete check registry, workspace viewer and explicit acceptance were pending. Local runtime packaging was not a published reproducible CAD image. No physical fit, strength, printing, manufacturing certification or simulation was verified. Public live CAD hosting and supplier handoff were also pending.
 
 Project source is [MIT licensed](LICENSE). External dependencies and services retain their own terms.

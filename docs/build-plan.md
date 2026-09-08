@@ -1,12 +1,12 @@
 # Prototype build plan
 
-September 8, 2026. PLAN-01 scope and semantics are released. Local API access and isolated CAD capability setup passed separately; the first integrated CAD loop, executable v0.2 contract, functional viewer and integrated DEMO acceptance remain pending. See [provenance](provenance.md#evidence-snapshot) for the exact evidence scope.
+September 8, 2026. PLAN-01 scope and semantics are released. Implementation observations and gate statuses throughout this plan describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8`, around 13:14 PDT, not whichever commit includes this documentation. Newer accepted commits may supersede these snapshot statuses. At that snapshot, local API access and isolated CAD capability setup had passed separately; the first integrated CAD loop, executable v0.2 contract, functional viewer and integrated DEMO acceptance were pending. See [provenance](provenance.md#evidence-snapshot) for the exact evidence scope.
 
 ## Completion gates
 
 The core result is a real generated plate feature, independent measurements, bounded repair, explicit user acceptance and download of the exact checked source/STEP/STL. Preserve the original plate and landing design. The [architecture](architecture.md#reference-setups-and-exact-checks) defines the two separate setups and required checks.
 
-| Gate | Status | Owners and dependencies | Concrete completion evidence |
+| Gate | Status at the cited snapshot | Owners and dependencies | Concrete completion evidence |
 | --- | --- | --- | --- |
 | M0: Capability setup | Passed locally, packaging pending | PLAN semantics; BACKEND API access; TOOLS isolation | Separate one-shot Responses access and isolated plate generation/STEP verification with recorded image digest. These do not satisfy M1. |
 | M1: First integrated plate loop | Pending | BACKEND v0.2 schemas/state plus TOOLS runtime/adapter; FRONTEND viewer | A browser request generates real geometry through HTTP, then independent checks and trusted exports; the viewer shows that exact candidate. No fixture substitution. |
@@ -24,12 +24,12 @@ All six roles are active. BACKEND is the sole code integrator and publisher. PLA
 | --- | --- | --- |
 | PLAN | `docs/architecture.md`, `docs/build-plan.md`, `docs/provenance.md`, `docs/development-evidence.md` | Scope, check meaning, reference setup and documentation |
 | FRONTEND | `src/client/**`, `tests/frontend/**` | Preserve landing; build workspace, viewer and review controls |
-| BACKEND / integrator | `src/server/**`, `src/shared/**`, root manifests/config, `scripts/**`, `fixtures/api/**`, `tests/backend/**`, `README.md`, CI/deployment config | Executable contracts, model orchestration, state, artifact registration and integration |
-| TOOLS | `src/tools/**`, `fixtures/tools/**`, `tests/tools/**`, CAD example source | Isolated generation, independent geometry checks and trusted exports |
+| BACKEND / integrator | `src/server/**`, `src/shared/**`, root manifests/config, `scripts/**` except the two TOOLS runtime packaging paths below, `fixtures/api/**`, `tests/backend/**`, `README.md`, CI/deployment config | Executable contracts, model orchestration, state, artifact registration and integration |
+| TOOLS | `src/tools/**`, `fixtures/tools/**`, `tests/tools/**`, CAD example source, `scripts/runtime/cad.Dockerfile`, `scripts/runtime/cad-requirements.txt` | Isolated generation, independent geometry checks and trusted exports |
 | DEMO | `tests/e2e/**`, `docs/demo/**` | Acceptance cases, rehearsal and honest demo evidence |
 | IDEA | Product clarification notes outside the public repository | Resolve product questions without expanding the integrated scope |
 
-For this public documentation slice only, BACKEND transferred README authoring to PLAN; BACKEND remains integrator/publisher. The slice changes only README, architecture, build plan and provenance. Development-evidence policy is unchanged. Every file has one owner; agree transfers before edits and avoid whole-repository formatting.
+TOOLS owns only `scripts/runtime/cad.Dockerfile` and `scripts/runtime/cad-requirements.txt` as an existing exception for runtime packaging; BACKEND owns all remaining scripts and integration. This ownership assignment does not assert that those files are integrated. README remains BACKEND owned. Every file has one owner; agree transfers before edits and avoid whole-repository formatting.
 
 Use a dedicated clean worktree per role from the agreed committed baseline. Branches do not isolate runtime state: assign private ports, runtime directories and per-candidate job directories. Keep one CAD job active, and never restart another owner's server or mutate their FreeCAD session. Integrate small, independently reviewable slices through BACKEND.
 
@@ -37,12 +37,14 @@ All roles follow the [Astra development workflow](development-evidence.md). Subs
 
 ## Implementation dependencies
 
-1. BACKEND publishes the shared `wk-prototype-0.2` schemas, canonical encoding fixtures, candidate states and serialized requirements/acceptance rules from PLAN semantics. Existing draft routes are not evidence of that migration.
+The following dependencies describe the implementation work pending at the cited snapshot.
+
+1. BACKEND publishes the shared `wk-prototype-0.2` schemas, canonical encoding fixtures, candidate states and serialized requirements/acceptance rules from PLAN semantics. The draft routes observed at that snapshot were not evidence of that migration.
 2. TOOLS packages the proven isolated runtime and adapter, implements the full registry and source-regeneration check, and reruns boundary probes. BACKEND reviews the packaged engine identity and integrates it.
 3. FRONTEND can develop against explicitly labeled shared fixtures while TOOLS works. Connect the viewer to real registered artifacts before claiming M1; selected candidate and accepted history must remain distinct.
 4. BACKEND connects Responses generation, numerical feedback and bounded repair. The model cannot change requirements or validator code. DEMO tests success, actual failure, stale completions and export identity against the same contract.
 
-Three.js and esbuild are already wired. Any additional SDK, transport, renderer or CAD dependency must be announced and coordinated through BACKEND. Do not add a second app, CAD DSL, database or agent framework to solve this slice.
+Three.js and esbuild were already wired at the cited snapshot. Any additional SDK, transport, renderer or CAD dependency must be announced and coordinated through BACKEND. Do not add a second app, CAD DSL, database or agent framework to deliver this prototype.
 
 ## One-minute demonstration
 

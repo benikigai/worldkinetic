@@ -1,6 +1,6 @@
 # WorldKinetics architecture
 
-Design `wk-plan-0.2`, September 8, 2026. PLAN-01 semantics are released for implementation. The executable transport remains `wk-backend-draft-0.1`; `wk-prototype-0.2` is the target. All diagrams below describe intended integration, not a completed product run. See the timestamped [evidence snapshot](provenance.md#evidence-snapshot).
+Design `wk-plan-0.2`, September 8, 2026. PLAN-01 semantics are released for implementation. Implementation observations and pending statuses throughout this document describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8` on September 8, 2026, around 13:14 PDT, not whichever commit includes this documentation. Newer accepted commits may supersede these snapshot statuses. At that snapshot, executable transport was `wk-backend-draft-0.1`; the target `wk-prototype-0.2` schemas were pending. All diagrams below describe intended integration, not a completed product run. See the timestamped [evidence snapshot](provenance.md#evidence-snapshot).
 
 ## Product and components
 
@@ -19,11 +19,11 @@ Help someone customize an owned accessory while retaining known interfaces and o
 | Images 2.5 | Optional `gpt-image-2.5-flare` visual concepts | Proposed direct API path; separate marketing image experiment is not integration. |
 | Native steering | Optional Responses WebSocket continuation | Integrated applied continuation unverified; not a core dependency. |
 
-Current [contracts](../src/shared/contracts.ts), [execution](../src/server/execution.ts) and [store](../src/server/store.ts) implement numeric operations, not candidate Python or explicit user acceptance. A compatible successful tool result advances `currentRevisionId` without requiring all engineering checks to pass. `run.accepted` means a request was admitted, not that a user accepted geometry. The [entry point](../src/server/index.ts) configures no selected design or tool. Build support in [scripts/build.ts](../scripts/build.ts) does not establish a working workspace.
+At that historical snapshot, [contracts](https://github.com/benikigai/worldkinetic/blob/4090c8166a2e52eb3e16e094d42c7bd1423407a8/src/shared/contracts.ts), [execution](https://github.com/benikigai/worldkinetic/blob/4090c8166a2e52eb3e16e094d42c7bd1423407a8/src/server/execution.ts) and [store](https://github.com/benikigai/worldkinetic/blob/4090c8166a2e52eb3e16e094d42c7bd1423407a8/src/server/store.ts) implemented numeric operations, not candidate Python or explicit user acceptance. A compatible successful tool result advanced `currentRevisionId` without requiring all engineering checks to pass. `run.accepted` meant a request was admitted, not that a user accepted geometry. The [entry point](https://github.com/benikigai/worldkinetic/blob/4090c8166a2e52eb3e16e094d42c7bd1423407a8/src/server/index.ts) configured no selected design or tool. Build support in [scripts/build.ts](https://github.com/benikigai/worldkinetic/blob/4090c8166a2e52eb3e16e094d42c7bd1423407a8/scripts/build.ts) did not establish a working workspace. These source links are pinned to the snapshot commit.
 
 ## System and trust boundaries
 
-The application scaffold exists. The model/CAD/check/review connections and new application records shown here are proposed; the CAD boundary has only a separate local capability proof.
+At the cited snapshot, the application scaffold existed; the model/CAD/check/review connections and new application records shown here were proposed, and the CAD boundary had only a separate local capability proof.
 
 ```mermaid
 flowchart TB
@@ -180,11 +180,11 @@ Seven base check IDs are required. The feature setup adds two more:
 | `interface.protected_region` | Feature only: Boolean comparison preserves all baseline material and full-extent open bores; disallow changes outside the allowed addition. |
 | `feature.requested_change` | Feature only: measure the actual addition's location, spans and positive volume against the table. |
 
-The local capability gate does not prove all these checks are implemented. For `export.editable_reopen`, the backend schedules the isolated regeneration; the verifier never executes candidate Python. Editable build123d delivery means source, parameters when applicable and references. A FreeCAD final-solid document is not automatically parametric history; preserve the actual native histories in the existing examples.
+The local capability gate reported at the cited snapshot did not prove all these checks were implemented. For `export.editable_reopen`, the backend schedules the isolated regeneration; the verifier never executes candidate Python. Editable build123d delivery means source, parameters when applicable and references. A FreeCAD final-solid document is not automatically parametric history; preserve the actual native histories in the existing examples.
 
 ## Requirements, evidence and concurrency
 
-The application owns these proposed records; BACKEND owns their executable schemas and canonical JSON fixtures:
+The application owns the following records, whose v0.2 executable schemas were pending at the cited snapshot; BACKEND owns those schemas and canonical JSON fixtures:
 
 | Record | Required identity and meaning |
 | --- | --- |
@@ -215,6 +215,6 @@ Native steering is optional. The Responses API can queue a mid-turn update, but 
 
 Before acceptance, trusted code prepares and checks `model.py`, optional `parameters.json`, reference geometry, `part.step`, `part.stl`, `requirements.json`, `checks.json` and revision metadata. The accepted download packages those exact checked bytes with a hash manifest and change summary. It must not perform a new unchecked CAD re-export. Record engine/validator versions, units and exact revision; confirm downloads match their registered hashes.
 
-Required integration evidence remains: one real edit, a newly generated feature, actual failure and repair, preserved original, working viewer, explicit acceptance, reopened exports, stale-result rejection and clean reset/repeat. Physical fit, strength, fabrication, simulation and supplier actions remain unverified. Public live CAD hosting needs a separately tested execution host and access controls; the static preview cannot run the CAD worker. Any replay must be labeled recorded execution.
+Required integration evidence still pending at the cited snapshot was: one real edit, a newly generated feature, actual failure and repair, preserved original, working viewer, explicit acceptance, reopened exports, stale-result rejection and clean reset/repeat. Physical fit, strength, fabrication, simulation and supplier actions were unverified at that snapshot. Public live CAD hosting needs a separately tested execution host and access controls; the static preview cannot run the CAD worker. Any replay must be labeled recorded execution.
 
 See [build plan](build-plan.md) for ownership and completion gates and [provenance](provenance.md) for attribution.
