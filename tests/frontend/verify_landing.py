@@ -76,6 +76,14 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertEqual(sum(n.tag == 'script' for n in page.nodes), 1)
         self.assertNotRegex(self.content, r'api\.openai\.com|OPENAI_API_KEY|sk-[A-Za-z0-9]{12}')
 
+    def test_recorded_run_attributes_confirmation_to_actual_api_evidence(self):
+        # OUTSIDE_WRAPPER correction: retained evidence was an explicit supervisor API action.
+        recorded = self.page.identified('fit-example').text().lower()
+        self.assertNotIn('user-confirmed', recorded)
+        self.assertNotIn('the user confirmed', recorded)
+        self.assertIn('separately confirmed 36 mm requirement', recorded)
+        self.assertIn('explicit api confirmation', recorded)
+
     def test_demo_links_internal_targets_and_accessible_sections(self):
         page = self.page
         identities = [n.attrs['id'] for n in page.nodes if 'id' in n.attrs]
