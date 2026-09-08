@@ -44,7 +44,26 @@ export function createSessionClient(fetcher: typeof fetch, hostname: string) {
   };
 }
 
-export function mountSession(signal: AbortSignal, access: (allowed: boolean) => void) {
+export function createWorkspaceTransport(fetcher: typeof fetch) {
+  let binding: string | null | undefined;
+  return {
+    bind(workspaceId: string | null) {
+      if (binding !== undefined && binding !== workspaceId) throw new Error('Reload before entering a different workspace.');
+      binding = workspaceId;
+    },
+    fetch: ((input: RequestInfo | URL, init?: RequestInit) => {
+      if (binding === undefined) throw new Error('Workspace access has not been verified.');
+      const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase();
+      const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+      // Agreed backend child-mutation header; the binding is fixed for this controller lifetime.
+      headers.delete('X-WorldKinetics-Workspace');
+      if (binding !== null && method !== 'GET' && method !== 'HEAD') headers.set('X-WorldKinetics-Workspace', binding);
+      return fetcher(input, { ...init, headers });
+    }) as typeof fetch,
+  };
+}
+
+export function mountSession(signal: AbortSignal, access: (allowed: boolean, workspaceId: string | null) => void) {
   const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const client = createSessionClient(window.fetch.bind(window), window.location.hostname);
   let status: SessionStatus | null = null, local = false, busy = false, timer: ReturnType<typeof setTimeout> | undefined;
@@ -58,7 +77,7 @@ export function mountSession(signal: AbortSignal, access: (allowed: boolean) => 
     for (const id of ['session-login', 'session-check', 'session-logout']) get<HTMLButtonElement>(id).disabled = busy;
     get<HTMLButtonElement>('session-new').disabled = busy || !status?.authenticated || !status.canStartNewDesign || status.busy;
     if (status?.authenticated) get('session-budget').textContent = `${status.runsRemaining} runs left · ${status.launchRunsRemaining} shared runs available${status.busy ? ' · Demo busy' : ''}`;
-    access(allowed);
+    access(allowed, status?.authenticated ? status.workspaceId : null);
   }
   async function run(action: () => Promise<SessionStatus | null>, reset = false) {
     if (busy) return;

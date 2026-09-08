@@ -1,7 +1,7 @@
 // OUTSIDE_WRAPPER: synthetic session transport tests, no credentials or model calls.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSessionClient } from '../../src/client/workspace/session.js';
+import { createSessionClient, createWorkspaceTransport } from '../../src/client/workspace/session.js';
 import { CONTRACT_VERSION } from '../../src/shared/contracts-v2.js';
 const status = (workspaceId = 'workspace_test') => ({ contractVersion: CONTRACT_VERSION, accessMode: 'invite', authenticated: true,
   runsPerSession: 4, runsPerLaunch: 12, workspaceId, runsRemaining: 4, launchRunsRemaining: 12,
@@ -55,4 +55,23 @@ test('fresh design requires a changed authenticated workspace and never silently
 test('oversized session responses are rejected', async () => {
   const client = createSessionClient(async () => new Response('x'.repeat(20000), { headers: { 'Content-Type': 'application/json' } }), 'worldkinetics.app');
   await assert.rejects(client.status(), /verified/);
+});
+
+
+test('stale controller mutations and retries remain bound to the original workspace', async () => {
+  const headers: Headers[] = [];
+  const transport = createWorkspaceTransport(async (_input, init) => { headers.push(new Headers(init?.headers)); return wire({}); });
+  assert.throws(() => transport.fetch('/api/runs', { method: 'POST' }), /not been verified/);
+  transport.bind('workspace_original');
+  await transport.fetch('/api/runs', { method: 'POST', headers: { 'X-WorldKinetics-Workspace': 'forged' } });
+  assert.throws(() => transport.bind('workspace_new'), /Reload/);
+  await transport.fetch('/api/runs', { method: 'POST' });
+  assert.deepEqual(headers.map(h => h.get('X-WorldKinetics-Workspace')), ['workspace_original', 'workspace_original']);
+  const fresh = createWorkspaceTransport(async (_input, init) => { headers.push(new Headers(init?.headers)); return wire({}); });
+  fresh.bind('workspace_new'); await fresh.fetch('/api/designs/handle/requirements', { method: 'PATCH' });
+  assert.equal(headers.at(-1)?.get('X-WorldKinetics-Workspace'), 'workspace_new');
+});
+test('legacy loopback controller omits workspace mutation binding', async () => {
+  const transport = createWorkspaceTransport(async (_input, init) => { assert.equal(new Headers(init?.headers).get('X-WorldKinetics-Workspace'), null); return wire({}); });
+  transport.bind(null); await transport.fetch('/api/runs', { method: 'POST', headers: { 'X-WorldKinetics-Workspace': 'forged' } });
 });

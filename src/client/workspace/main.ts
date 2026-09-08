@@ -1,4 +1,4 @@
-import { mountSession } from './session.js';
+import { createWorkspaceTransport, mountSession } from './session.js';
 import { MAX_PREVIEW_BYTES, parsePreviewGeometry } from './preview.js';
 import { PreviewViewer, type ViewName } from './viewer.js';
 import { mountReview } from './review.js';
@@ -38,7 +38,8 @@ let request: AbortController | undefined;
 let selectionToken = 0;
 let webglError = '';
 let mode: 'saved' | 'review' | 'live' = 'saved';
-const liveController = createLiveWorkspaceController({ fetch: window.fetch.bind(window) });
+const workspaceTransport = createWorkspaceTransport(window.fetch.bind(window));
+const liveController = createLiveWorkspaceController({ fetch: workspaceTransport.fetch });
 const live = mountLive(liveController, listeners.signal, update => { void loadSelection(update.previewKey); });
 const review = mountReview({
   history: { ...reviewableFixture, runs: [...reviewableFixture.runs, ...rejectedFixture.runs],
@@ -279,8 +280,9 @@ window.addEventListener('pagehide', (event) => {
 }, { signal: listeners.signal });
 const initialMode = new URLSearchParams(window.location.search).get('mode');
 let sessionAllowed = false;
-mountSession(listeners.signal, allowed => {
+mountSession(listeners.signal, (allowed, workspaceId) => {
   if (allowed === sessionAllowed) return;
+  if (allowed) workspaceTransport.bind(workspaceId);
   sessionAllowed = allowed;
   if (!allowed) { live.close(); request?.abort(); selectionToken++; viewer?.clear(); return; }
   if (initialMode === 'saved') void loadSelection();
