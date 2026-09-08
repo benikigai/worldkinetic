@@ -10,6 +10,10 @@ Start with a reference or photo plus confirmed measurements, refine an editable 
 
 [worldkinetics.app](https://worldkinetics.app) is the live design preview. The public interactive demo is not yet live.
 
+![WorldKinetics homepage with Prompt to product headline and design artwork](docs/images/worldkinetics-homepage-2026-09-08.png)
+
+*Current prototype interface, captured September 8, 2026. Design preview, not evidence of a completed CAD workflow.*
+
 ## Everyday possibilities
 
 These are three illustrative planned workflows, not all implemented:
@@ -17,6 +21,10 @@ These are three illustrative planned workflows, not all implemented:
 - **Repair a cabinet handle:** use the existing handle as a reference, confirm mount spacing and fastener dimensions, then reshape the grip while preserving the mounting interface.
 - **Make a vacuum adapter fit:** measure both connecting ends, confirm insertion depths and clearance, then refine an adapter that connects those measured interfaces.
 - **Make a tactile keyboard or control grip yours:** explore a texture or shape that is easier to locate by touch. Measure the attachment separately, along with neighboring geometry and moving-part clearance, before designing the grip.
+
+![Cabinet handle illustration with sample dimensions](docs/images/cabinet-handle-sample-dimensions-v1.png)
+
+*Sample design brief: AI-generated illustration, not a measured, manufactured or tested part. Panel clearance holes do not specify handle threads or fasteners.*
 
 ## Intended workflow
 
