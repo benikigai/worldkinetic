@@ -1,3 +1,4 @@
+import { PackageRequestSchema, PACKAGE_HEADERS, PACKAGE_MAX_BYTES, type PackageRfq } from '../../shared/package-v2.js';
 import {
   AcceptanceRequestSchema, BootstrapSchema, CONTRACT_VERSION, ExportRequestSchema,
   LengthMmSchema, RequirementsUpdateRequestSchema, RunRequestSchema, canonicalize, HANDLE_DATUM_CANONICAL_JSON,
@@ -19,6 +20,7 @@ type Pending =
   | { kind: 'export'; path: string; body: ExportRequest; artifactId: string; revisionId: string };
 type Draft = { lengthMm: string; instruction: string };
 type Download = { artifact: Artifact; bytes: ArrayBuffer };
+type PrototypeDownload = { bytes: ArrayBuffer; fileName: string; sha256: string; revisionId: string; acceptanceId: string; manifestId: string; manifestHash: string };
 
 class LiveError extends Error {
   constructor(message: string, readonly status = 0, readonly uncertain = false) { super(message); }
@@ -399,6 +401,57 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       const ready = await refresh(true, true);
       if (!ready) { busy = false; emit(); return null; }
       return mutate(action);
+    },
+    canSavePackage(result: PrototypeDownload) {
+      const pair = latestPair();
+      return Boolean(gates().canDownload && pair && pair.manifest.revisionId === result.revisionId
+        && pair.acceptance.acceptanceId === result.acceptanceId && pair.manifest.manifestId === result.manifestId
+        && pair.manifest.manifestHash === result.manifestHash);
+    },
+    async downloadPackage(rfq: PackageRfq = {}): Promise<PrototypeDownload | null> {
+      if (!gates().canDownload) return null;
+      const pair = latestPair()!;
+      const body = PackageRequestSchema.parse({ contractVersion: CONTRACT_VERSION, requestId: newId(),
+        acceptanceId: pair.acceptance.acceptanceId, manifestId: pair.manifest.manifestId,
+        manifestHash: pair.manifest.manifestHash, rfq });
+      const revisionId = pair.manifest.revisionId;
+      const token = generation;
+      busy = true; emit();
+      try {
+        const response = await request(`/api/revisions/${revisionId}/package`, { method: 'POST',
+          headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        if (response.status !== 200) {
+          await response.body?.cancel();
+          throw new LiveError(`Package unavailable (HTTP ${response.status}). Check status and try again. No file was downloaded.`);
+        }
+        const expected = { contractVersion: CONTRACT_VERSION, requestId: body.requestId, revisionId,
+          acceptanceId: body.acceptanceId, manifestId: body.manifestId, manifestHash: body.manifestHash, applicability: 'current' };
+        const fileName = `worldkinetics-${revisionId}-prototype.zip`;
+        const disposition = response.headers.get('content-disposition');
+        const declared = response.headers.get('content-length');
+        const digest = response.headers.get(PACKAGE_HEADERS.sha256) ?? '';
+        if (response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !== 'application/zip'
+          || !Object.entries(expected).every(([key, value]) => response.headers.get(PACKAGE_HEADERS[key as keyof typeof expected]) === value)
+          || !declared || !/^[0-9]+$/.test(declared) || Number(declared) < 1 || Number(declared) > PACKAGE_MAX_BYTES
+          || !/^[a-f0-9]{64}$/.test(digest)
+          || (disposition !== `attachment; filename="${fileName}"` && disposition !== `attachment; filename=${fileName}`)) {
+          await response.body?.cancel();
+          throw new LiveError('Package identity or download headers did not match. No file was downloaded.');
+        }
+        const bytes = await readBytes(response, PACKAGE_MAX_BYTES);
+        if (bytes.byteLength !== Number(declared) || await sha256(new Uint8Array(bytes)) !== digest) {
+          throw new LiveError('Package size or checksum did not match. No file was downloaded.');
+        }
+        if (token !== generation || !trusted || error) throw new LiveError('Design state changed during download. Check status and try again.');
+        if (!await refresh()) throw new LiveError('Could not confirm the accepted design. No file was downloaded.');
+        const current = latestPair();
+        if (!current || current.acceptance.acceptanceId !== body.acceptanceId || current.manifest.manifestId !== body.manifestId
+          || current.manifest.manifestHash !== body.manifestHash || current.manifest.revisionId !== revisionId) {
+          throw new LiveError('The accepted design changed. Download its new package instead.');
+        }
+        return { bytes, fileName, sha256: digest, revisionId, acceptanceId: body.acceptanceId,
+          manifestId: body.manifestId, manifestHash: body.manifestHash };
+      } finally { busy = false; emit(); }
     },
     async exportArtifact(artifactId: string) {
       if (!gates().canDownload) return null;
