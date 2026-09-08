@@ -9,7 +9,7 @@ import { after, afterEach, test } from 'node:test';
 import { z } from 'zod';
 import {
   BootstrapSchema, CONTRACT_VERSION, EventSchema, RunSchema, createRequirements, computeCheckBundleHash, hashCanonical, expectedForCheck, type Candidate, type ProviderProposal,
-  type Design, type Run, type RunRequest, type ToolAdapter, type ToolInput, type ToolResult,
+  type Design, type Run, type RunRequest, type ToolAdapter, type ToolInput, type ToolResult, type Requirements, type PlateRequirements,
 } from '../../src/shared/contracts.js';
 import { createApp } from '../../src/server/app.js';
 import { ArtifactStore } from '../../src/server/artifacts.js';
@@ -20,7 +20,7 @@ import { RunStore, requirementIdentity } from '../../src/server/store.js';
 // These adapters exercise transport and storage using JSON files. They perform no CAD operation.
 const fixture = BootstrapSchema.parse(JSON.parse(await readFile(new URL('../../fixtures/api/v2/reviewable.fixture.json', import.meta.url), 'utf8')));
 const requirements = await createRequirements({ designId: 'synthetic_test_design', requirementsVersion: 1, setupId: 'resize_centered_v1', lengthMm: 36 });
-const design: Design = { ...fixture.design!, designId: requirements.designId, stateVersion: 0, activeRequirementsVersion: 1, baselineRevisionId: 'synthetic_initial', activeRunId: null, selectedCandidateRevisionId: null, setupHash: requirements.setupHash };
+const design: Design = { ...fixture.design!, designId: requirements.designId, stateVersion: 0, activeRequirementsVersion: 1, baselineRevisionId: 'baseline_50', activeRunId: null, selectedCandidateRevisionId: null, setupHash: requirements.setupHash };
 const operation = { name: 'resize_plate' as const, parameters: { lengthMm: 36 } };
 const testBytes = Buffer.from('{"syntheticBackendTest":true,"lengthMm":36}\n');
 const testHash = createHash('sha256').update(testBytes).digest('hex');
@@ -28,7 +28,9 @@ const directories: string[] = [];
 const servers: Server[] = [];
 const baselineDir = await mkdtemp(path.join(tmpdir(), 'wk-test-reference-'));
 const baselinePath = path.join(baselineDir, 'reference.step');
-await writeFile(baselinePath, testBytes);
+// Use registered baseline input bytes; outputs remain synthetic transport fixtures.
+await writeFile(baselinePath, await readFile(new URL('../../examples/plate/revised/plate-50x35x5.step', import.meta.url)));
+function plate(value: Requirements): PlateRequirements { assert(value.registryId === 'plate_requirements_v1'); return value; }
 after(async () => rm(baselineDir, { recursive: true, force: true }));
 
 afterEach(async () => {
@@ -78,7 +80,7 @@ function selected(tool: ToolAdapter = syntheticTool): SelectedOperation {
       identity: { name: 'injected-backend-test-planner', requestedModel: 'synthetic-test-double', reportedModel: 'synthetic-test-double' },
       propose: async () => ({ kind: 'numeric_operation', operation: structuredClone(operation) }),
     },
-    baselineArtifacts: [{ artifactId: 'baseline_test', revisionId: design.baselineRevisionId, kind: 'reference', units: 'mm', path: baselinePath, sha256: testHash }],
+    baselineArtifacts: [{ artifactId: 'baseline_test', revisionId: design.baselineRevisionId, kind: 'reference', units: 'mm', path: baselinePath, sha256: requirements.referenceHash }],
     // Synthetic adapters own their output directory, as the actual CAD adapter does.
     tool: async input => { await mkdir(input.outputDir, { recursive: true }); return tool(input); },
   };
@@ -385,7 +387,7 @@ test('mutating the tool input cannot replace the validated operation or promote 
   await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool)).execute(run.runId);
   const failed = store.getRun(run.runId);
   assert.equal(attemptedHeight, 1000);
-  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).requirements.setup.dimensions.lengthMm, 36);
+  assert.equal(plate(store.getCandidate(failed.candidateRevisionIds[0]!).requirements).setup.dimensions.lengthMm, 36);
   assert.equal(failed.status, 'failed');
   assert.equal(failed.error?.code, 'EXECUTION_FAILED');
   assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).status, 'failed');
@@ -500,7 +502,7 @@ test('completed internal state can be accepted and exported over HTTP with adapt
     expectedRequirementsVersion: 1, setupId: 'resize_centered_v1', confirmedIntent: { lengthMm: 30 }, userActionId: 'confirm_action' };
   assert.equal((await send('/api/designs/wrong/requirements', 'PATCH', u)).status, 409);
   assert.equal((await send(`/api/designs/${design.designId}/requirements`, 'PATCH', u)).status, 200);
-  assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 30); assert.equal(store.getDesign()!.acceptedRequirementsMatch, false);
+  assert.equal(plate(store.getRequirements()!).setup.dimensions.lengthMm, 30); assert.equal(store.getDesign()!.acceptedRequirementsMatch, false);
   assert.equal((await send(`/api/revisions/${candidate.revisionId}/export`, 'POST', x)).status, 409);
   assert.equal((await fetch(url + candidate.artifacts[0]!.href)).headers.get('X-WorldKinetics-Applicability'), 'historical');
   const ambiguous = await fetch(`${url}/api/designs/${design.designId}/requirements`, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: '{"requestId":"a","requestId":"b"}' });
