@@ -11,5 +11,5 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/server/**/*.ts", "src/shared/**/*.ts", "tests/backend/**/*.ts", "scripts/**/*.ts"]
+  "include": ["src/server/**/*.ts", "src/shared/**/*.ts", "src/client/**/*.ts", "tests/backend/**/*.ts", "scripts/**/*.ts"]
 }

@@ -6,6 +6,7 @@ import { BootstrapSchema, CONTRACT_VERSION, IdSchema, RunRequestSchema, RunSchem
 import { RunStore, StoreError } from './store.js';
 import { ArtifactStore } from './artifacts.js';
 import { Executor, type SelectedOperation } from './execution.js';
+import { readPublicFile } from './static-files.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixtureRun = RunSchema.parse(JSON.parse(await readFile(path.join(root, 'fixtures/api/run.fixture.json'), 'utf8')));
@@ -27,7 +28,7 @@ async function readRequest(request: IncomingMessage): Promise<unknown> {
   catch { throw new StoreError(400, 'INVALID_JSON', 'Request body is not valid JSON.'); }
 }
 
-export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number) {
+export function createApp(store: RunStore, runtimeDir: string, selected: SelectedOperation | null = null, timeoutMs?: number, options: { clientDir?: string } = {}) {
   const artifacts = new ArtifactStore(path.join(runtimeDir, 'artifacts'));
   const executor = new Executor(store, artifacts, runtimeDir, selected, timeoutMs);
   return createServer(async (request, response) => {
@@ -81,16 +82,13 @@ export function createApp(store: RunStore, runtimeDir: string, selected: Selecte
         });
         return response.end(bytes);
       }
-      if (request.method === 'GET' && (['/', '/theme.css', '/theme.js', '/mark.svg'].includes(pathname) || pathname.startsWith('/assets/'))) {
-        const relative = pathname === '/' ? 'index.html' : pathname.slice(1);
-        const file = path.resolve(root, 'dist/client', relative);
-        if (!file.startsWith(path.resolve(root, 'dist/client') + path.sep)) throw new StoreError(404, 'NOT_FOUND', 'Not found.');
-        try {
-          const content = await readFile(file);
-          const type = file.endsWith('.html') ? 'text/html; charset=utf-8' : file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : file.endsWith('.svg') ? 'image/svg+xml' : 'application/octet-stream';
-          response.writeHead(200, { 'Content-Type': type, 'X-Content-Type-Options': 'nosniff' });
-          return response.end(content);
-        } catch { throw new StoreError(503, 'FRONTEND_UNAVAILABLE', 'The frontend build is not integrated yet. API: /api/bootstrap.'); }
+      if (request.method === 'GET' && pathname !== '/api' && !pathname.startsWith('/api/')) {
+        // Check the raw path before URL parsing can normalize encoded dot segments.
+        const asset = await readPublicFile(options.clientDir ?? path.join(root, 'dist/client'), (request.url ?? '/').split('?')[0]!);
+        if (asset) {
+          response.writeHead(200, { 'Content-Type': asset.mediaType, 'Content-Length': asset.content.length, 'X-Content-Type-Options': 'nosniff' });
+          return response.end(asset.content);
+        }
       }
       throw new StoreError(404, 'NOT_FOUND', 'Route not found.');
     } catch (error) {
