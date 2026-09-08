@@ -1,0 +1,172 @@
+{
+  "status": "passed",
+  "created_utc": "20260908T184754410753Z",
+  "freecad_version": [
+    "1",
+    "1",
+    "3"
+  ],
+  "original_sha256_unchanged": "ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc",
+  "original_live_document_unchanged": true,
+  "before": {
+    "dimensions_mm": [
+      40.0,
+      30.0,
+      8.0
+    ],
+    "bounding_box_mm": [
+      40.0,
+      30.0,
+      8.0
+    ],
+    "hole_diameters_mm": [
+      6.0,
+      6.0
+    ],
+    "hole_depths_mm": [
+      8.0,
+      8.0
+    ],
+    "hole_centers_mm": [
+      [
+        10.0,
+        15.0,
+        0.0
+      ],
+      [
+        30.0,
+        15.0,
+        0.0
+      ]
+    ],
+    "hole_spacing_mm": 20.0,
+    "volume_mm3": 9147.61065788307,
+    "valid": true,
+    "solids": 1
+  },
+  "after": {
+    "dimensions_mm": [
+      50.0,
+      35.0,
+      5.0
+    ],
+    "bounding_box_mm": [
+      50.0,
+      35.0,
+      5.0
+    ],
+    "hole_diameters_mm": [
+      6.0,
+      6.0
+    ],
+    "hole_depths_mm": [
+      5.0,
+      5.0
+    ],
+    "hole_centers_mm": [
+      [
+        15.0,
+        17.5,
+        0.0
+      ],
+      [
+        35.0,
+        17.5,
+        0.0
+      ]
+    ],
+    "hole_spacing_mm": 20.0,
+    "volume_mm3": 8467.256661176916,
+    "valid": true,
+    "solids": 1
+  },
+  "volume_change_mm3": -680.3539967061533,
+  "volume_change_percent": -7.437504963329955,
+  "minimum_hole_to_outer_edge_mm": 12,
+  "material_between_holes_mm": 14,
+  "checks": {
+    "valid_single_solid": true,
+    "requested_dimensions_and_hole_layout": true,
+    "analytical_volume_match": true,
+    "native_reopened_and_recomputed": true,
+    "step_reopened_and_geometry_equivalent": true,
+    "stl_reopened": {
+      "watertight_solid": true,
+      "components": 1,
+      "non_manifold_edges": false,
+      "self_intersections": false,
+      "facets": 1028,
+      "volume_mm3": 8467.35546875,
+      "relative_volume_error": 1.1669372624178601e-05,
+      "export_units": "mm (STL itself has no unit metadata)"
+    }
+  },
+  "hole_expressions": {
+    "LeftHole": [
+      [
+        ".Placement.Base.x",
+        "(BasePlate.Length - 20 mm) / 2"
+      ],
+      [
+        ".Placement.Base.y",
+        "BasePlate.Width / 2"
+      ],
+      [
+        "Height",
+        "BasePlate.Height"
+      ]
+    ],
+    "RightHole": [
+      [
+        ".Placement.Base.x",
+        "(BasePlate.Length + 20 mm) / 2"
+      ],
+      [
+        ".Placement.Base.y",
+        "BasePlate.Width / 2"
+      ],
+      [
+        "Height",
+        "BasePlate.Height"
+      ]
+    ]
+  },
+  "scope": "Saved results from a separate live FreeCAD experiment, not a product API run or physical fit test.",
+  "artifacts": [
+    {
+      "path": "original/mcp-test-plate.FCStd",
+      "bytes": 15446,
+      "sha256": "ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc"
+    },
+    {
+      "path": "original/mcp-test-plate.step",
+      "bytes": 9729,
+      "sha256": "7ef52662b688709c36aadebe4e18d5cf509dfe71ebfd8512266220b53914ca8d"
+    },
+    {
+      "path": "original/mcp-test-plate.stl",
+      "bytes": 11484,
+      "sha256": "e078a52ece47d126ca7a22d19070e73d170b709f14847359e94252379f0ed76c"
+    },
+    {
+      "path": "revised/plate-50x35x5.FCStd",
+      "bytes": 15890,
+      "sha256": "c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89"
+    },
+    {
+      "path": "revised/plate-50x35x5.png",
+      "bytes": 18809,
+      "sha256": "9e04c642f3515b99352d0c2263a92187ba73cd70167e5f802a3cd5bec61d8974"
+    },
+    {
+      "path": "revised/plate-50x35x5.step",
+      "bytes": 9741,
+      "sha256": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3"
+    },
+    {
+      "path": "revised/plate-50x35x5.stl",
+      "bytes": 51484,
+      "sha256": "be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+# Preserve the exact bytes of checked CAD exports.
+*.FCStd binary
+*.stl binary
+*.step -text -whitespace

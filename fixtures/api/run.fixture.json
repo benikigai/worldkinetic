@@ -1,0 +1,50 @@
+{
+  "contractVersion": "wk-backend-draft-0.1",
+  "runId": "fixture_run_1",
+  "requestId": "fixture_request_1",
+  "designId": "fixture_design",
+  "inputRevisionId": "fixture_rev_0",
+  "outputRevisionId": "fixture_rev_1",
+  "units": "mm",
+  "instruction": "Illustrative request for browser development only.",
+  "status": "succeeded",
+  "executionMode": "fixture",
+  "createdAt": "2026-09-08T17:45:00.000Z",
+  "updatedAt": "2026-09-08T17:45:01.000Z",
+  "operation": {
+    "name": "unselected_fixture",
+    "parameters": {}
+  },
+  "checks": [
+    {
+      "checkId": "fixture_check",
+      "label": "Illustrative check; no engineering operation ran",
+      "revisionId": "fixture_rev_1",
+      "state": "not_evaluated",
+      "method": "API fixture",
+      "details": "PLAN has not selected the object or check criteria.",
+      "measuredValue": null,
+      "expected": null,
+      "units": null
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "fixture_design_json",
+      "runId": "fixture_run_1",
+      "designId": "fixture_design",
+      "revisionId": "fixture_rev_1",
+      "units": "mm",
+      "kind": "specification",
+      "fileName": "fixture-design.json",
+      "mediaType": "application/json",
+      "bytes": 160,
+      "sha256": "f2ad463d089eb8898098c9a0a53f442c24dba6ff9e7eb398cb499c72d346025a",
+      "href": "/api/artifacts/fixture_design_json",
+      "executionMode": "fixture"
+    }
+  ],
+  "evidenceApplicability": "fixture",
+  "error": null,
+  "provider": null
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f3f5f5" />
+  <title>WorldKinetics | Adaptive K brand study</title>
+  <meta name="description" content="The WorldKinetics Adaptive K identity: a stable world, editable geometry, and a visible act of change." />
+  <link rel="icon" href="./mark-small.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./study.css" />
+  <script src="./study.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="shell">
+    <header><a class="brand" href="../" aria-label="WorldKinetics home"><img src="./mark-color.svg" width="32" height="32" alt=""/><span>worldkinetics</span></a><span class="mono">IDENTITY STUDY / 01</span></header>
+    <main id="main">
+      <section class="intro">
+        <div><p class="eyebrow">ADAPTIVE K</p><h1>A logo with<br />a sense of space.</h1></div>
+        <p class="intro-description">A stable structure. A changeable surface.<br />Intelligence expressed through a visible action.</p>
+      </section>
+      <section class="identity" aria-label="Refined logo and spatial motion concept">
+        <div class="logo-card">
+          <div class="card-top"><span class="mono">01 / THE MARK</span><span class="tag">Refined A</span></div>
+          <div class="logo-lockup"><img class="primary-mark" src="./mark-color.svg" alt="Refined Adaptive K, graphite with a blue upper segment"/><img class="primary-wordmark" src="./worldkinetics-wordmark.svg" alt="worldkinetics"/></div>
+          <div class="card-bottom"><span>Clear at every scale.</span><a href="./worldkinetics-logo-kit.zip" download>Download SVG kit <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="motion-card" data-step="0">
+          <div class="card-top"><span class="mono">02 / THE SPATIAL EXPRESSION</span><span class="tag">Brand motion concept</span></div>
+          <svg class="scene" viewBox="0 0 600 430" role="img" aria-labelledby="scene-title scene-description">
+            <title id="scene-title">Adaptive K in a spatial coordinate frame</title>
+            <desc id="scene-description">An illustrative brand animation: reveal construction geometry, move one blue selected segment, and review the resulting K. No CAD execution occurs.</desc>
+            <defs>
+              <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#a8b8be" stroke-width=".7"/></pattern>
+              <path id="stable" d="M16 12H40Q44 12 44 16V46Q44 51 41 54L35 61Q32 64 35 67L41 74Q44 77 44 82V112Q44 116 40 116H16Q12 116 12 112V16Q12 12 16 12Z M57 70H74Q78 70 81 74L118 110Q123 116 115 116H95Q90 116 86 112L54 77Q48 70 57 70Z"/>
+              <path id="editable" d="M57 58Q49 58 54 52L87 16Q91 12 96 12H115Q123 12 117 19L82 54Q78 58 73 58Z"/>
+            </defs>
+            <g class="world-frame">
+              <path d="M74 309 328 391 542 249 287 168Z" fill="url(#grid)" opacity=".3"/>
+              <path d="M74 309 328 391 542 249M328 391V93M74 309V111L328 26 542 109V249M328 26V93M74 111 328 193 542 109" fill="none" stroke="#cbd4d8" stroke-width=".8"/>
+              <path d="M328 193V391M287 168V47" fill="none" stroke="#cad3d7" stroke-width=".7" stroke-dasharray="3 5"/>
+              <g fill="#879ba3" font-family="monospace" font-size="9"><text x="554" y="252">X</text><text x="327" y="19">Z</text><text x="58" y="314">Y</text></g>
+              <g fill="#b4c3c7"><circle cx="74" cy="309" r="2"/><circle cx="328" cy="391" r="2"/><circle cx="542" cy="249" r="2"/><circle cx="328" cy="26" r="2"/><circle cx="74" cy="111" r="2"/><circle cx="542" cy="109" r="2"/></g>
+            </g>
+            <g transform="translate(175 74) matrix(1.62 .33 -.16 1.78 0 0)">
+              <g class="depth" transform="translate(10 -7)"><use href="#stable" fill="#d1dadc" stroke="#bac7cc" stroke-width=".5"/><use href="#editable" fill="#c7d2fb" stroke="#9cabd9" stroke-width=".5"/></g>
+              <g class="body"><use href="#stable" fill="#354448" stroke="#354448" stroke-width=".6"/></g>
+              <use class="ghost" href="#editable" transform="translate(-13 13)" fill="none" stroke="#6683d0" stroke-width=".8" stroke-dasharray="2 2"/>
+              <g class="active-face"><use href="#editable" fill="#365eed" stroke="#365eed" stroke-width=".6"/></g>
+              <g class="construction" fill="none" stroke="#738b94" stroke-width=".6"><use href="#stable"/><use href="#editable"/><path d="M0 0H128V128H0ZM0 64H128M64 0V128" stroke-dasharray="2 3"/><path d="M12 12 116 116M12 116 116 12" opacity=".5"/></g>
+              <g class="handles" fill="#f3f5f5" stroke="#365eed" stroke-width=".8"><rect x="9" y="9" width="5" height="5"/><rect x="113" y="9" width="5" height="5"/><rect x="113" y="113" width="5" height="5"/><rect x="9" y="113" width="5" height="5"/></g>
+              <g class="agent-handle"><path d="M102 23 134 -9H155" fill="none" stroke="#365eed" stroke-width=".8"/><circle cx="101" cy="24" r="3" fill="#fff" stroke="#365eed" stroke-width="1.4"/><circle class="selection-ring" cx="101" cy="24" r="6" fill="none" stroke="#365eed" stroke-width=".7"/></g>
+            </g>
+            <g class="selected-label"><rect x="414" y="82" width="104" height="25" rx="4" fill="#fff" stroke="#dbe2f1"/><text x="426" y="98" fill="#365eed" font-family="monospace" font-size="9">SELECTED FACE</text></g>
+          </svg>
+          <div class="scene-caption"><span class="live-dot" aria-hidden="true"></span><span id="scene-caption">Reveal the geometry.</span><span class="mono">ILLUSTRATIVE</span></div>
+        </div>
+      </section>
+      <section class="motion-controls" aria-label="Explore the brand motion">
+        <div class="step-controls" role="group" aria-label="Motion stage">
+          <button data-step-button="0" aria-pressed="true"><span class="mono">01</span> Observe</button>
+          <button data-step-button="1" aria-pressed="false"><span class="mono">02</span> Adjust</button>
+          <button data-step-button="2" aria-pressed="false"><span class="mono">03</span> Review</button>
+        </div>
+        <p class="step-description" id="step-description" aria-live="polite">A coordinate frame and construction lines establish the object in space.</p>
+        <button class="play" id="play-motion"><span class="play-icon" aria-hidden="true">▷</span><span id="play-label">Play motion</span></button>
+      </section>
+      <section class="principles" aria-label="Identity principles">
+        <div><span class="mono">WORLD</span><h2>Space gives it context.</h2><p>A quiet coordinate frame connects the mark to the physical world.</p></div>
+        <div><span class="mono">MODEL</span><h2>Geometry makes it tangible.</h2><p>Construction lines and a ghost of the original shape make change visible.</p></div>
+        <div><span class="mono">INTELLIGENCE</span><h2>Action gives it meaning.</h2><p>The blue segment is the part being adjusted. The surrounding structure stays fixed.</p></div>
+      </section>
+      <section class="specimens" aria-labelledby="specimen-heading">
+        <div><p class="eyebrow">THE PRACTICAL DETAILS</p><h2 id="specimen-heading">Small. Solid. Recognizable.</h2><p>Optical gaps, softened corners, lighter type.<br />A simplified mark for the smallest sizes.</p></div>
+        <div class="size-samples" aria-label="Actual size logo samples"><figure><img src="./mark-small.svg" width="16" height="16" alt="16 pixel small mark"/><figcaption>16 px</figcaption></figure><figure><img src="./mark-color.svg" width="24" height="24" alt="24 pixel mark"/><figcaption>24 px</figcaption></figure><figure><img src="./mark-color.svg" width="32" height="32" alt="32 pixel mark"/><figcaption>32 px</figcaption></figure></div>
+        <div class="mono-samples"><a href="./mark-mono.svg" download aria-label="Download black monochrome logo"><img src="./mark-mono.svg" width="45" height="45" alt=""/><span>One ink</span></a><a class="inverse" href="./mark-inverse.svg" download aria-label="Download white monochrome logo"><img src="./mark-inverse.svg" width="45" height="45" alt=""/><span>Reversed</span></a></div>
+      </section>
+    </main>
+    <footer><span>WORLDKINETICS / ADAPTIVE K</span><span>Brand motion concept. No CAD execution.</span><a href="../">Back to WorldKinetics ↗</a></footer>
+  </div>
+</body>
+</html>

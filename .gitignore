@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.runtime/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# Private planning and generated CAD output stay local.
+private/
+research/
+planning-review/
+examples/plate/artifacts/
+__pycache__/
+*.pyc
+*.FCStd1
+*.FCBak
