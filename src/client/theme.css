@@ -152,7 +152,7 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
 .overview-copy { max-width: 58ch; align-self: center; }
 .overview-copy p { margin: 0 0 16px; font-size: 16px; line-height: 1.75; color: var(--muted); }
 .overview-copy p:last-child { margin-bottom: 0; }
-.use-cases { padding: 0 0 64px; }
+.use-cases { padding: 56px 0 64px; border-top: 1px solid var(--line); }
 .section-intro { margin-bottom: 32px; }
 .section-intro > p { margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
 .example-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
@@ -182,7 +182,7 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
   .workflow-steps { grid-template-columns: 1fr; gap: 24px; }
   .overview { grid-template-columns: 1fr; gap: 24px; padding: 40px 0; }
   .example-grid { grid-template-columns: 1fr; gap: 16px; }
-  .use-cases { padding-bottom: 40px; }
+  .use-cases { padding: 40px 0; }
   .how-it-works { padding: 40px 0; }
   .section-intro { margin-bottom: 24px; }
 }

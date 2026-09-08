@@ -48,10 +48,13 @@ class OverviewAcceptance(unittest.TestCase):
         page = self.page
         self.assertEqual([n.text() for n in page.nodes if n.tag == 'h1'], ['Prompt to product.'])
         self.assertIn('Customize everyday products without learning CAD.', page.root.text())
-        overview = page.identified('overview').text().lower()
-        self.assertIn('More than a model. A design you can check.', page.identified('overview').text())
-        self.assertIn('Describe the change. Compare the design. Check it before you build.', page.identified('overview').text())
-        self.assertIn('check', overview)
+        self.assertEqual(page.identified('possibilities-heading').text(), 'Keep the things you love.')
+        self.assertFalse(any(n.attrs.get('id') == 'overview' for n in page.nodes), 'Use one introduction, not two stacked sections')
+        for identity, problem in [('repair-example', 'discontinued part'), ('fit-example', 'too long for the space'), ('yours-example', 'awkward to hold')]:
+            card = page.identified(identity)
+            visible = ' '.join(n.text() for n in card.children if isinstance(n, Node) and n.tag == 'p')
+            self.assertIn(problem, visible)
+        self.assertIn('WorldKinetics', page.identified('repair-example').text())
         for identity, label, status, words in [
             ('repair-example', 'Repair it', 'Concept', ['handle', 'sample', 'mounting']),
             ('fit-example', 'Make it fit', 'Recorded run', ['plate', '30 mm', '2 mm', '36 mm', '5 mm', 'confirmed']),
