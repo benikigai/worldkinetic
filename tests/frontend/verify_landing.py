@@ -54,7 +54,7 @@ class OverviewAcceptance(unittest.TestCase):
             card = page.identified(identity)
             visible = ' '.join(n.text() for n in card.children if isinstance(n, Node) and n.tag == 'p')
             self.assertIn(problem, visible)
-        self.assertIn('WorldKinetics', page.identified('repair-example').text())
+        self.assertIn('beloved old cabinet', page.identified('possibilities').text())
         for identity, label, status, words in [
             ('repair-example', 'Repair it', 'Concept', ['handle', 'sample', 'mounting']),
             ('fit-example', 'Make it fit', 'Recorded run', ['plate', '30 mm', '2 mm', '36 mm', '5 mm', 'confirmed']),
@@ -71,7 +71,7 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertEqual(len([n for n in workflow.all() if n.tag == 'li']), 3)
         for phrase in ['reference', 'change', 'review', 'download', 'prototyp']: self.assertIn(phrase, workflow.text().lower())
         self.assertEqual(page.identified('workflow-heading').text(), 'Create a design you can review and build.')
-        self.assertIn('Describe your idea, check the design, and download editable CAD files for prototyping.', workflow.text())
+        self.assertIn('Describe your idea, review the design, and prepare a prototype yourself or with a supplier.', workflow.text())
 
     def test_existing_artwork_brand_and_script_entry_preserved(self):
         original = (ROOT/'tests/frontend/preserved-pre-overview/index.html').read_bytes()

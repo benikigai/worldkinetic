@@ -283,6 +283,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
   let previewKey:string|null=null;
   try {
     const ui=mountLive(s.controller,abort.signal,update=>{previewKey=update.previewKey;}); ui.open(); await settled();
+    assert.equal(node('live-results').hidden,true,'No empty results before generation');
+    assert.equal(node('live-earlier-designs').hidden,true,'No empty history before generation');
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
     node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
@@ -296,6 +298,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.equal(node('live-inputs').hidden,true,'Completed prompt is removed from the primary flow');
     assert.equal(node('live-size-review').hidden,true,'Completed size brief does not dominate the download stage');
     assert.equal(node('live-title').textContent,'Your design is ready');
+    assert.equal(node('make-package').disabled,true,'Package action stays disabled before its contract is connected');
+    node('make-fit-notes').value='Initial handle note';
     const initialId=s.state.design.acceptedRevisionId;
     node('live-change').click(); assert.equal(node('live-inputs').hidden,false,'Explicit new change restores the request'); assert.equal(s.history.acceptances.length,1); assert.equal(s.state.requirements.setupId,'handle_initial_v1');
     node('live-sample').click(); assert.match(node('live-request').value,/thumb rest/);
@@ -320,9 +324,12 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
       assert.equal(s.controller.snapshot().canDownload,true,'Controller reconciled exact final files');
     }
     assert.equal(s.history.acceptances.length,2); assert.notEqual(s.state.design.acceptedRevisionId,initialId);
+    assert.equal(node('make-fit-notes').value,'','Notes cannot silently carry to a different accepted revision');
     assert.equal(node('live-files').hidden,false); assert.equal(node('live-download').disabled,false);
     assert.equal(node('live-inputs').hidden,true,'Verified final recovery keeps the completed prompt out of the download flow');
     assert.equal(node('live-check-details').open,false,'Passed checks are summarized and can be expanded');
+    assert.equal(node('live-results').hidden,false,'Actual revision evidence remains available');
+    assert.equal(node('live-earlier-designs').hidden,false,'History appears when there are earlier designs');
     assert.equal(node('live-change').hidden,true,'Only the accepted initial supports this refinement stage');
     s.controller.selectRevision(initialId); assert.equal(node('live-download').disabled,false,'History inspection cannot change accepted file eligibility');
   } finally {abort.abort();if(previous)Object.defineProperty(globalThis,'document',previous);else Reflect.deleteProperty(globalThis,'document');}
