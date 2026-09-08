@@ -1,8 +1,8 @@
 # v0.2 contract fixtures
 
-These are **SYNTHETIC conformance fixtures**, not live CAD measurements, executed requests, accepted revisions, or downloadable geometry. Every bootstrap, run, candidate, check and artifact is labeled `fixture`. Both designs have `acceptedRevisionId: null` and `acceptedRequirementsMatch: false`. `reviewable` describes the synthetic check state only; fixture evidence is never eligible for live acceptance.
+These are **SYNTHETIC conformance fixtures**, not live CAD measurements, executed requests, accepted revisions, or downloadable CAD geometry. Every bootstrap, run, candidate, check and artifact is labeled `fixture`. Both designs have `acceptedRevisionId: null` and `acceptedRequirementsMatch: false`. `reviewable` describes the synthetic check state only; fixture evidence is never eligible for live acceptance.
 
-The existing server and `src/shared/contracts.ts` still use `wk-backend-draft-0.1`. This additive release implements schemas and pure helpers only. It does not implement v0.2 HTTP handlers, compare-and-swap, idempotency, acceptance, export manifests, provider execution or CAD isolation.
+The server and `src/shared/contracts.ts` now use `wk-prototype-0.2`. The local API implements serialized candidate state, explicit acceptance, confirmed requirements updates, registered artifact delivery and export manifests. The normal server initializes the plate reference and requirements but reports unavailable adapters. Live CAD and Responses API wiring remain unconnected.
 
 ## Files
 
@@ -12,25 +12,33 @@ The existing server and `src/shared/contracts.ts` still use `wk-backend-draft-0.
 - `*.check-bundle.fixture.json`: full hash payload, exact canonical string and SHA-256 for each candidate.
 - `registry-hashes.fixture.json`: exact registry file hash, distinct registry semantic hash, and whole canonical registry bytes as a JSON string.
 - `canonical-hashes.fixture.json`: valid raw JSON, canonical text, UTF-8 hex and hashes; rejected raw JSON and non-JSON JavaScript cases.
-- `synthetic-artifact-bytes.fixture.json`: the synthetic strings used to reproduce artifact descriptor byte counts and hashes. STEP/STL strings are deliberately labeled non-CAD content. No artifact routes are registered by these files.
+- `synthetic-artifact-bytes.fixture.json`: the synthetic strings used to reproduce artifact descriptor byte counts and hashes. STEP/STL strings are deliberately labeled non-CAD content. The explicit fixture endpoints register these synthetic descriptors for fixture-only downloads.
 - Request, event, provider and tool examples below contain concrete fixture identities. Acceptance/export requests are hypothetical payloads, not evidence that those actions occurred.
 
 The approved registry's reference hashes are preserved identities. This task does not rehash or reopen the actual reference CAD files.
 
-## Proposed public transport
+## Current public transport
 
-Import schemas and inferred types from `src/shared/contracts-v2.ts`. All objects are strict. The table documents consumer shapes for the next migration, not endpoints enabled by this release.
+Import schemas and inferred types from `src/shared/contracts-v2.ts`. All objects are strict. The table documents the current local routes. Fixture responses have no live fallback.
 
-| Proposed surface | Schema and exact example |
+| Surface | Schema and exact example |
 | --- | --- |
 | `GET /api/bootstrap` | `BootstrapSchema`; `reviewable.fixture.json`, `rejected.fixture.json` |
 | `POST /api/runs` | `RunRequestSchema`; `run-request.fixture.json` |
-| Run polling | `RunSchema`; each bootstrap's `runs` array. Existing v0.1 polling is not migrated. |
-| Event delivery | `EventSchema`; `event.fixture.json`. No new v0.2 stream route is implemented. |
+| Run polling | `RunSchema`; each bootstrap's `runs` array. `GET /api/runs/:runId`; `GET /api/runs` returns `{contractVersion,runs}`. |
+| Event delivery | `EventSchema`; `event.fixture.json`. `GET /api/runs/:runId/events?after=0` and `GET /api/events?after=0` return `{contractVersion,events}`; polling only, no SSE. |
 | `PATCH /api/designs/:designId/requirements` | `RequirementsUpdateRequestSchema`; `requirements-update-request.fixture.json`. Design identity is in the route. |
 | `POST /api/revisions/:revisionId/accept` | `AcceptanceRequestSchema`; `acceptance-request.fixture.json`. Route revision must equal `candidateRevisionId`. |
 | `POST /api/revisions/:revisionId/export` | `ExportRequestSchema`; `export-request.fixture.json`. The server must resolve and bind revision, acceptance and manifest. |
-| `GET /api/artifacts/:artifactId` | `ArtifactSchema` descriptors in the bootstrap; immutable registered ID URL. No private path in public descriptors. |
+| `GET /api/artifacts/:artifactId` | `ArtifactSchema` descriptors in the bootstrap; immutable registered ID URL. No private path in public descriptors. Downloads include execution and current/historical applicability headers. |
+
+`GET /api/fixtures/bootstrap?state=reviewable|rejected` returns the corresponding frozen bootstrap. `GET /api/fixtures/run` and `/api/fixtures/events` return v2 fixture DTOs. Registered fixture artifact URLs serve the exact labeled synthetic bytes, never CAD geometry.
+
+Mutation responses include `contractVersion` and `reused`. Run creation adds `run` (202 first queue, 200 retry). Requirements updates add `design` and `requirements` (200). Acceptance and export add immutable `acceptance` and `manifest` snapshots (200). `GET /api/candidates/:revisionId`, `/api/acceptances/:acceptanceId`, and `/api/manifests/:manifestId` return their DTO directly. Acceptance/manifest schemas are narrowly defined in `src/shared/state-v2.ts`; the released v2 request, candidate and tool schemas are unchanged.
+
+An acceptance stores the exact request, accepted timestamp/state version, full candidate and requirements. A manifest binds its ID and acceptance ID to design/run/revision, requirements, geometry/source/proposal/check-bundle hashes, engine, checks, change summary, millimeter units and registered artifact descriptors. `manifestHash` hashes canonical JSON of the complete manifest with only `manifestHash` omitted. Packaging references existing checked bytes. Export revalidates the current accepted revision, exact acceptance/manifest and all artifact bytes. A requirements change blocks current export but preserves labeled historical artifact GETs. An old acceptance retry returns its original record without restoring current state.
+
+Default startup uses `.runtime/backend-v2-<port>`. A supplied storageVersion 1 runtime throws a new-session error without changing its bytes. Interrupted v2 runs fail once on restart. No legacy automatic promotion is inferred to be human acceptance.
 
 `parsePublicRequest(raw, schema)` caps raw UTF-8 mutation bodies at 8192 bytes, rejects duplicate JSON keys, then parses the selected strict schema. Instructions and change summaries are capped at 2000 characters. HTTP integration must apply the body cap while reading too. Do not apply this small public-request helper to internal tool or evidence responses.
 
@@ -94,4 +102,4 @@ node node_modules/typescript/bin/tsc --noEmit
 node --import tsx scripts/build.ts
 ```
 
-Phase B must atomically migrate existing store/HTTP/provider/tool/frontend callers and v0.1 history, implement acceptance and requirements serialization, register checked artifacts, enforce trusted provenance, and exercise stale/racing/replayed requests. Old automatic revision advancement is not proof of prior human acceptance. Live isolated generation/verification, feature feasibility, real exports, browser downloads and physical testing remain outside this schema release.
+The server migration preserves v0.1 history by requiring a fresh runtime, migrates owned server/CLI callers and supplies v2 routes for the frontend handoff. Frontend integration and live tool/provider wiring remain separate tasks. Old automatic revision advancement is not proof of prior human acceptance. Live isolated generation/verification, feature feasibility, real exports, browser downloads and physical testing remain outside this schema release.

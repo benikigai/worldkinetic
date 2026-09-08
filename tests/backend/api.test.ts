@@ -1,27 +1,35 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import type { Server } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setImmediate as nextTurn, setTimeout as delay } from 'node:timers/promises';
-import { afterEach, test } from 'node:test';
+import { after, afterEach, test } from 'node:test';
 import { z } from 'zod';
 import {
-  BootstrapSchema, CONTRACT_VERSION, EventSchema, RunSchema, ToolExecutionError,
+  BootstrapSchema, CONTRACT_VERSION, EventSchema, RunSchema, createRequirements, computeCheckBundleHash, hashCanonical, expectedForCheck, type Candidate, type ProviderProposal,
   type Design, type Run, type RunRequest, type ToolAdapter, type ToolInput, type ToolResult,
 } from '../../src/shared/contracts.js';
 import { createApp } from '../../src/server/app.js';
 import { ArtifactStore } from '../../src/server/artifacts.js';
 import { Executor, type SelectedOperation } from '../../src/server/execution.js';
-import { RunStore } from '../../src/server/store.js';
+import { ToolExecutionError } from '../../src/server/errors.js';
+import { RunStore, requirementIdentity } from '../../src/server/store.js';
 
 // These adapters exercise transport and storage using JSON files. They perform no CAD operation.
-const design: Design = { designId: 'synthetic_test_design', label: 'Synthetic backend test', currentRevisionId: 'synthetic_initial', latestRunId: null, units: 'mm' };
-const operation = { name: 'synthetic_test_edit', parameters: { height: 20 } };
-const testBytes = Buffer.from('{"syntheticBackendTest":true,"height":20}\n');
+const fixture = BootstrapSchema.parse(JSON.parse(await readFile(new URL('../../fixtures/api/v2/reviewable.fixture.json', import.meta.url), 'utf8')));
+const requirements = await createRequirements({ designId: 'synthetic_test_design', requirementsVersion: 1, setupId: 'resize_centered_v1', lengthMm: 36 });
+const design: Design = { ...fixture.design!, designId: requirements.designId, stateVersion: 0, activeRequirementsVersion: 1, baselineRevisionId: 'synthetic_initial', activeRunId: null, selectedCandidateRevisionId: null, setupHash: requirements.setupHash };
+const operation = { name: 'resize_plate' as const, parameters: { lengthMm: 36 } };
+const testBytes = Buffer.from('{"syntheticBackendTest":true,"lengthMm":36}\n');
+const testHash = createHash('sha256').update(testBytes).digest('hex');
 const directories: string[] = [];
 const servers: Server[] = [];
+const baselineDir = await mkdtemp(path.join(tmpdir(), 'wk-test-reference-'));
+const baselinePath = path.join(baselineDir, 'reference.step');
+await writeFile(baselinePath, testBytes);
+after(async () => rm(baselineDir, { recursive: true, force: true }));
 
 afterEach(async () => {
   for (const server of servers.splice(0)) {
@@ -40,20 +48,24 @@ function deferred<T = void>() {
 }
 
 function request(requestId: string): RunRequest {
-  return { contractVersion: CONTRACT_VERSION, requestId, designId: design.designId, inputRevisionId: design.currentRevisionId, units: 'mm', instruction: 'Produce the synthetic backend test file.' };
+  return { contractVersion: CONTRACT_VERSION, requestId, designId: design.designId, inputRevisionId: design.baselineRevisionId, requirementsVersion: 1, setupId: requirements.setupId, units: 'mm', instruction: 'Produce the synthetic backend test file.' };
 }
 
-function result(input: ToolInput, filePath = 'synthetic.json'): ToolResult {
-  return {
-    contractVersion: CONTRACT_VERSION, runId: input.runId, designId: input.designId,
-    inputRevisionId: input.inputRevisionId, outputRevisionId: input.outputRevisionId,
-    units: 'mm', executionMode: 'live', operation: input.operation,
-    checks: [{ checkId: 'synthetic_bytes', label: 'Synthetic JSON fixture content', revisionId: input.outputRevisionId, state: 'passed', method: 'Injected backend test adapter', details: 'No CAD or geometry check was performed.', measuredValue: null, expected: null, units: null }],
-    artifacts: [{ path: filePath, kind: 'editable', mediaType: 'application/json', fileName: 'synthetic.json' }],
+async function result(input: ToolInput, filePath = 'synthetic.json'): Promise<ToolResult> {
+  const r = input.requirements;
+  const output: ToolResult = {
+    contractVersion: CONTRACT_VERSION, ...requirementIdentity(r), requirements: r, runId: input.runId, requestId: input.requestId, designId: input.designId,
+    inputRevisionId: input.inputRevisionId, outputRevisionId: input.outputRevisionId, attemptId: input.attemptId,
+    units: 'mm', executionMode: 'live', status: 'completed', proposal: input.proposal, proposalHash: await hashCanonical(input.proposal),
+    sourceSha256: testHash, geometryHash: testHash, checkBundleHash: null, error: null,
+    engine: { name: 'build123d', version: 'synthetic-test-double', imageDigest: 'sha256:' + '1'.repeat(64) },
+    checks: fixture.candidates[0]!.checks.map(c => ({ ...c, ...requirementIdentity(r), revisionId: input.outputRevisionId, geometryHash: testHash, executionMode: 'live', expected: expectedForCheck(r, c.checkId), measured: { synthetic: true } })),
+    artifacts: (['source', 'editable', 'export', 'preview'] as const).map((kind, i) => ({ path: filePath, kind, fileName: 'synthetic.json', mediaType: ['application/json', 'text/x-python', 'model/step', 'model/stl'][i]!, bytes: testBytes.length, sha256: testHash, executionMode: 'live' })),
   };
+  output.checkBundleHash = await computeCheckBundleHash({ ...output, revisionId: output.outputRevisionId });
+  return output;
 }
-
-const syntheticTool: ToolAdapter = async (input) => {
+const syntheticTool: ToolAdapter = async input => {
   await writeFile(path.join(input.outputDir, 'synthetic.json'), testBytes);
   return result(input);
 };
@@ -61,11 +73,12 @@ const syntheticTool: ToolAdapter = async (input) => {
 function selected(tool: ToolAdapter = syntheticTool): SelectedOperation {
   return {
     name: operation.name,
-    parameters: z.object({ height: z.number().min(1).max(100) }).strict(),
+    parameters: z.object({ lengthMm: z.number().min(26).max(200) }).strict(),
     planner: {
       identity: { name: 'injected-backend-test-planner', requestedModel: 'synthetic-test-double', reportedModel: 'synthetic-test-double' },
-      propose: async () => structuredClone(operation),
+      propose: async () => ({ kind: 'numeric_operation', operation: structuredClone(operation) }),
     },
+    baselineArtifacts: [{ artifactId: 'baseline_test', revisionId: design.baselineRevisionId, kind: 'reference', units: 'mm', path: baselinePath, sha256: testHash }],
     tool,
   };
 }
@@ -73,7 +86,7 @@ function selected(tool: ToolAdapter = syntheticTool): SelectedOperation {
 async function setup(initialDesign: Design | null = design) {
   const directory = await mkdtemp(path.join(tmpdir(), 'worldkinetics-api-test-'));
   directories.push(directory);
-  return { directory, store: new RunStore(directory, initialDesign) };
+  return { directory, store: new RunStore(directory, initialDesign, initialDesign ? requirements : undefined) };
 }
 
 async function listen(selectedOperation: SelectedOperation | null = null, timeoutMs?: number) {
@@ -103,7 +116,7 @@ async function terminal(url: string, runId: string): Promise<Run> {
     const response = await fetch(`${url}/api/runs/${runId}`);
     assert.equal(response.status, 200);
     const run = RunSchema.parse(await response.json());
-    if (['succeeded', 'failed', 'superseded'].includes(run.status)) return run;
+    if (['completed', 'failed', 'superseded'].includes(run.status)) return run;
     await delay(5);
   }
   throw new Error(`Synthetic test run did not finish: ${runId}`);
@@ -130,19 +143,20 @@ test('unavailable HTTP responses and labeled fixtures conform to the shared sche
 
   const unavailable = await post(url, request('unavailable_request'));
   assert.equal(unavailable.status, 503);
-  assert.equal((await unavailable.json()).error.code, 'SCOPE_NOT_SELECTED');
+  assert.equal((await unavailable.json()).error.code, 'TOOL_UNAVAILABLE');
   assert.equal(store.listRuns().length, 0);
   const fixtureResponse = await fetch(`${url}/api/fixtures/run`);
   assert.equal(fixtureResponse.status, 200);
   const fixture = RunSchema.parse(await fixtureResponse.json());
   assert.equal(fixture.executionMode, 'fixture');
-  assert.equal(fixture.evidenceApplicability, 'fixture');
+  assert.equal(fixture.candidateRevisionIds.length, 1);
   const fixtureEventsResponse = await fetch(`${url}/api/fixtures/events`);
   const fixtureEventsBody = await fixtureEventsResponse.json();
   const fixtureEvents = z.array(EventSchema).parse(Array.isArray(fixtureEventsBody) ? fixtureEventsBody : fixtureEventsBody.events);
   assert.ok(fixtureEvents.length > 0);
-  assert.ok(fixtureEvents.every((event) => event.run.evidenceApplicability === 'fixture'));
-  const fixtureArtifact = fixture.artifacts[0]!;
+  assert.ok(fixtureEvents.every((event) => event.executionMode === 'fixture'));
+  const fixtureState = BootstrapSchema.parse(await (await fetch(`${url}/api/fixtures/bootstrap?state=reviewable`)).json());
+  const fixtureArtifact = fixtureState.candidates[0]!.artifacts[0]!;
   const download = await fetch(`${url}${fixtureArtifact.href}`);
   assert.equal(download.status, 200);
   assert.equal(download.headers.get('X-WorldKinetics-Execution'), 'fixture');
@@ -165,7 +179,7 @@ test('HTTP rejects malformed contracts, content types, cursor values and unrelat
   }
   const malformed = await fetch(`${url}/api/runs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{bad json' });
   assert.equal(malformed.status, 400);
-  assert.equal((await malformed.json()).error.code, 'INVALID_JSON');
+  assert.equal((await malformed.json()).error.code, 'INVALID_REQUEST');
   const contentType = await fetch(`${url}/api/runs`, { method: 'POST', body: '{}' });
   assert.equal(contentType.status, 415);
   const origin = await fetch(`${url}/api/bootstrap`, { headers: { Origin: 'http://unrelated.invalid' } });
@@ -173,10 +187,10 @@ test('HTTP rejects malformed contracts, content types, cursor values and unrelat
   assert.equal(store.listRuns().length, 0);
   const missing = await fetch(`${url}/api/runs/missing_run`);
   assert.equal(missing.status, 404);
-  const { run } = store.accept(request('cursor_request'));
+  const { run } = await store.enqueueRun(request('cursor_request'));
   const cursor = await fetch(`${url}/api/runs/${run.runId}/events?after=-1`);
   assert.equal(cursor.status, 400);
-  assert.equal((await cursor.json()).error.code, 'INVALID_CURSOR');
+  assert.equal((await cursor.json()).error.code, 'INVALID_REQUEST');
 });
 
 test('synthetic file is downloaded with exact bytes and revision identity, and identical HTTP retries dispatch once', async () => {
@@ -206,29 +220,33 @@ test('synthetic file is downloaded with exact bytes and revision identity, and i
   assert.equal(calls, 1);
   release.resolve();
   const run = await terminal(url, acceptedRun.runId);
-  assert.equal(run.status, 'succeeded');
-  assert.equal(run.evidenceApplicability, 'current');
-  assert.equal(run.checks[0]?.revisionId, run.outputRevisionId);
-  assert.equal(store.getDesign()?.currentRevisionId, run.outputRevisionId);
-  const artifact = run.artifacts[0]!;
+  assert.equal(run.status, 'completed');
+  assert.equal(store.getDesign()!.acceptedRevisionId, null);
+  const candidate = store.getCandidate(run.candidateRevisionIds[0]!);
+  assert.equal(store.getCandidate(run.candidateRevisionIds[0]!).checks[0]?.revisionId, run.candidateRevisionIds[0]!);
+  assert.equal(store.getDesign()?.selectedCandidateRevisionId, run.candidateRevisionIds[0]!);
+  const acceptance = await fetch(`${url}/api/revisions/${candidate.revisionId}/accept`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ contractVersion: CONTRACT_VERSION, requestId: 'explicit_accept', designId: design.designId, candidateRevisionId: candidate.revisionId, requirementsVersion: 1, expectedStateVersion: store.getDesign()!.stateVersion, expectedAcceptedRevisionId: null, registryHash: candidate.registryHash, setupHash: candidate.setupHash, geometryHash: candidate.geometryHash, checkBundleHash: candidate.checkBundleHash, userActionId: 'explicit_action' }) });
+  assert.equal(acceptance.status, 200);
+  assert.equal(store.getDesign()!.acceptedRevisionId, candidate.revisionId);
+  const artifact = store.getCandidate(run.candidateRevisionIds[0]!).artifacts[0]!;
   assert.equal(artifact.runId, run.runId);
-  assert.equal(artifact.revisionId, run.outputRevisionId);
+  assert.equal(artifact.revisionId, run.candidateRevisionIds[0]!);
   const download = await fetch(`${url}${artifact.href}`);
   assert.equal(download.status, 200);
   assert.equal(download.headers.get('Content-Length'), String(testBytes.length));
   assert.equal(download.headers.get('Content-Type'), 'application/json');
   assert.equal(download.headers.get('Content-Disposition'), 'attachment; filename="synthetic.json"');
-  assert.equal(download.headers.get('X-WorldKinetics-Revision'), run.outputRevisionId);
+  assert.equal(download.headers.get('X-WorldKinetics-Revision'), run.candidateRevisionIds[0]!);
   assert.equal(download.headers.get('X-WorldKinetics-Execution'), 'live');
   const downloaded = Buffer.from(await download.arrayBuffer());
   assert.deepEqual(downloaded, testBytes);
   assert.equal(artifact.bytes, downloaded.length);
   assert.equal(artifact.sha256, createHash('sha256').update(downloaded).digest('hex'));
   const events = (await (await fetch(`${url}/api/runs/${run.runId}/events`)).json()).events.map((event: unknown) => EventSchema.parse(event));
-  assert.deepEqual(events.map((event: z.infer<typeof EventSchema>) => event.type), ['run.accepted', 'run.planning', 'run.running', 'run.completed']);
-  assert.ok(events.every((event: z.infer<typeof EventSchema>) => event.revisionId === run.outputRevisionId));
+  assert.deepEqual(events.map((event: z.infer<typeof EventSchema>) => event.type), ['run.queued', 'candidate.building', 'run.planning', 'run.running', 'candidate.checking', 'candidate.reviewable', 'run.completed', 'revision.accepted']);
+  assert.ok(events.every((event: z.infer<typeof EventSchema>) => event.revisionId === run.candidateRevisionIds[0]!));
   const filtered = await (await fetch(`${url}/api/runs/${run.runId}/events?after=${events[1].eventId}`)).json();
-  assert.deepEqual(filtered.events.map((event: z.infer<typeof EventSchema>) => event.type), ['run.running', 'run.completed']);
+  assert.deepEqual(filtered.events.map((event: z.infer<typeof EventSchema>) => event.type), ['run.planning', 'run.running', 'candidate.checking', 'candidate.reviewable', 'run.completed', 'revision.accepted']);
   const completedRetry = await post(url, input);
   assert.equal(completedRetry.status, 200);
   assert.equal((await completedRetry.json()).run.runId, run.runId);
@@ -245,10 +263,10 @@ test('mismatched tool revisions fail without promoting a design or importing art
   const failed = await terminal(url, accepted.run.runId);
   assert.equal(failed.status, 'failed');
   assert.equal(failed.error?.code, 'EXECUTION_FAILED');
-  assert.equal(failed.evidenceApplicability, 'unavailable');
-  assert.equal(failed.artifacts.length, 0);
-  assert.equal(failed.checks.length, 0);
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).status, 'failed');
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).artifacts.length, 0);
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).checks.length, 0);
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
@@ -267,7 +285,7 @@ test('a timed-out tool result arriving later cannot promote state or import arti
     return output;
   };
   const executor = new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool), 200);
-  const run = store.accept(request('timeout_tool')).run;
+  const run = (await store.enqueueRun(request('timeout_tool'))).run;
   const execution = executor.execute(run.runId);
   await entered.promise;
   await execution;
@@ -280,24 +298,24 @@ test('a timed-out tool result arriving later cannot promote state or import arti
   await settled.promise;
   await nextTurn();
   assert.deepEqual(store.getEvents(run.runId), eventsAtFailure);
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.deepEqual(store.getRun(run.runId).artifacts, []);
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
+  assert.deepEqual(store.getCandidate(run.candidateRevisionIds[0]!).artifacts, []);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
 test('unsupported planner operations and out-of-range parameters never dispatch the tool', async () => {
-  for (const proposed of [{ name: 'unsupported_edit', parameters: { height: 20 } }, { ...operation, parameters: { height: 1000 } }]) {
+  for (const proposed of [{ name: 'unsupported_edit', parameters: { lengthMm: 36 } }, { ...operation, parameters: { lengthMm: 1000 } }]) {
     const { directory, store } = await setup();
     let calls = 0;
     const selectedOperation = selected(async (input) => { calls += 1; return syntheticTool(input); });
-    selectedOperation.planner.propose = async () => proposed;
+    selectedOperation.planner.propose = async () => ({ kind: 'numeric_operation', operation: proposed }) as ProviderProposal;
     const executor = new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selectedOperation);
-    const run = store.accept(request(`unsupported_${directories.length}`)).run;
+    const run = (await store.enqueueRun(request(`unsupported_${directories.length}`))).run;
     await executor.execute(run.runId);
     assert.equal(calls, 0);
     assert.equal(store.getRun(run.runId).status, 'failed');
-    assert.equal(store.getRun(run.runId).error?.code, proposed.name === operation.name ? 'EXECUTION_FAILED' : 'UNSUPPORTED_OPERATION');
-    assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+    assert.equal(store.getRun(run.runId).error?.code, 'EXECUTION_FAILED');
+    assert.equal(store.getDesign()?.acceptedRevisionId, null);
     assert.deepEqual(await importedFiles(directory), []);
   }
 });
@@ -317,12 +335,12 @@ test('artifact paths outside a run output directory and symlink files are reject
       return result(input, 'linked.json');
     };
     const executor = new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool));
-    const run = store.accept(request(`rejected_${mode}`)).run;
+    const run = (await store.enqueueRun(request(`rejected_${mode}`))).run;
     await executor.execute(run.runId);
     assert.equal(store.getRun(run.runId).status, 'failed');
     assert.equal(store.getRun(run.runId).error?.code, 'EXECUTION_FAILED');
-    assert.deepEqual(store.getRun(run.runId).artifacts, []);
-    assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+    assert.deepEqual(store.getCandidate(run.candidateRevisionIds[0]!).artifacts, []);
+    assert.equal(store.getDesign()?.acceptedRevisionId, null);
     assert.deepEqual(await importedFiles(directory), []);
   }
 });
@@ -341,7 +359,7 @@ test('a timeout during artifact import leaves no stored artifacts after the late
     }
   }
   const executor = new Executor(store, new DelayedArtifactStore(path.join(directory, 'artifacts')), directory, selected(), 200);
-  const run = store.accept(request('timeout_import')).run;
+  const run = (await store.enqueueRun(request('timeout_import'))).run;
   const execution = executor.execute(run.runId);
   await entered.promise;
   await execution;
@@ -349,8 +367,8 @@ test('a timeout during artifact import leaves no stored artifacts after the late
   release.resolve();
   await settled.promise;
   await nextTurn();
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.deepEqual(store.getRun(run.runId).artifacts, []);
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
+  assert.deepEqual(store.getCandidate(run.candidateRevisionIds[0]!).artifacts, []);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
@@ -358,20 +376,20 @@ test('mutating the tool input cannot replace the validated operation or promote 
   const { directory, store } = await setup();
   let attemptedHeight: number | undefined;
   const tool: ToolAdapter = async (input) => {
-    input.operation.parameters.height = 1000;
-    attemptedHeight = input.operation.parameters.height;
+    assert.equal(input.proposal.kind, 'numeric_operation');
+    if (input.proposal.kind === 'numeric_operation') { input.proposal.operation.parameters.lengthMm = 1000; attemptedHeight = input.proposal.operation.parameters.lengthMm; }
     return syntheticTool(input);
   };
-  const run = store.accept(request('mutated_operation')).run;
+  const run = (await store.enqueueRun(request('mutated_operation'))).run;
   await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool)).execute(run.runId);
   const failed = store.getRun(run.runId);
   assert.equal(attemptedHeight, 1000);
-  assert.equal(failed.operation?.parameters.height, 20);
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).requirements.setup.dimensions.lengthMm, 36);
   assert.equal(failed.status, 'failed');
   assert.equal(failed.error?.code, 'EXECUTION_FAILED');
-  assert.equal(failed.evidenceApplicability, 'unavailable');
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.deepEqual(failed.artifacts, []);
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).status, 'failed');
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
+  assert.deepEqual(store.getCandidate(failed.candidateRevisionIds[0]!).artifacts, []);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
@@ -383,15 +401,15 @@ for (const checkCase of ['duplicate', 'empty'] as const) {
       output.checks = checkCase === 'empty' ? [] : [output.checks[0]!, structuredClone(output.checks[0]!)];
       return output;
     };
-    const run = store.accept(request(`${checkCase}_checks`)).run;
+    const run = (await store.enqueueRun(request(`${checkCase}_checks`))).run;
     await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool)).execute(run.runId);
     const failed = store.getRun(run.runId);
     assert.equal(failed.status, 'failed');
     assert.equal(failed.error?.code, 'EXECUTION_FAILED');
-    assert.equal(failed.evidenceApplicability, 'unavailable');
-    assert.deepEqual(failed.checks, []);
-    assert.deepEqual(failed.artifacts, []);
-    assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+    assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).status, 'failed');
+    assert.deepEqual(store.getCandidate(failed.candidateRevisionIds[0]!).checks, []);
+    assert.deepEqual(store.getCandidate(failed.candidateRevisionIds[0]!).artifacts, []);
+    assert.equal(store.getDesign()?.acceptedRevisionId, null);
     assert.deepEqual(await importedFiles(directory), []);
   });
 }
@@ -400,33 +418,33 @@ test('a rejected completion discards files already imported for that run', async
   const { directory } = await setup();
   let importedBeforeRejection = 0;
   class CompletionRejectingStore extends RunStore {
-    override complete(...args: Parameters<RunStore['complete']>): Run {
-      importedBeforeRejection = args[2].length;
+    override async completeCandidate(...args: Parameters<RunStore['completeCandidate']>): Promise<Candidate> {
+      importedBeforeRejection = args[0].artifacts.length;
       throw new Error('Synthetic completion rejection');
     }
   }
-  const store = new CompletionRejectingStore(directory, design);
-  const run = store.accept(request('completion_rejected')).run;
+  const store = new CompletionRejectingStore(directory, design, requirements);
+  const run = (await store.enqueueRun(request('completion_rejected'))).run;
   await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected()).execute(run.runId);
-  assert.equal(importedBeforeRejection, 1);
+  assert.equal(importedBeforeRejection, 4);
   assert.equal(store.getRun(run.runId).status, 'failed');
-  assert.deepEqual(store.getRun(run.runId).artifacts, []);
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+  assert.deepEqual(store.getCandidate(run.candidateRevisionIds[0]!).artifacts, []);
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
 test('fixture tool results cannot complete live requests or import their artifacts', async () => {
   const { directory, store } = await setup();
   const tool: ToolAdapter = async (input) => ({ ...await syntheticTool(input), executionMode: 'fixture' });
-  const run = store.accept(request('fixture_tool_result')).run;
+  const run = (await store.enqueueRun(request('fixture_tool_result'))).run;
   await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected(tool)).execute(run.runId);
   const failed = store.getRun(run.runId);
   assert.equal(failed.status, 'failed');
-  assert.equal(failed.error?.code, 'TOOL_NOT_LIVE');
-  assert.equal(failed.evidenceApplicability, 'unavailable');
-  assert.deepEqual(failed.checks, []);
-  assert.deepEqual(failed.artifacts, []);
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
+  assert.equal(failed.error?.code, 'EXECUTION_FAILED');
+  assert.equal(store.getCandidate(failed.candidateRevisionIds[0]!).status, 'failed');
+  assert.deepEqual(store.getCandidate(failed.candidateRevisionIds[0]!).checks, []);
+  assert.deepEqual(store.getCandidate(failed.candidateRevisionIds[0]!).artifacts, []);
+  assert.equal(store.getDesign()?.acceptedRevisionId, null);
   assert.deepEqual(await importedFiles(directory), []);
 });
 
@@ -439,9 +457,53 @@ test('typed tool failures retain their safe code, message, and retry status over
     const run = await terminal(url, (await accepted.json()).run.runId);
     assert.equal(run.status, 'failed');
     assert.deepEqual(run.error, { code, message: error.message, retryable: code === 'TOOL_UNAVAILABLE' });
-    assert.equal(run.evidenceApplicability, 'unavailable');
-    assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-    assert.deepEqual(run.artifacts, []);
+    assert.equal(store.getCandidate(run.candidateRevisionIds[0]!).status, 'failed');
+    assert.equal(store.getDesign()?.acceptedRevisionId, null);
+    assert.deepEqual(store.getCandidate(run.candidateRevisionIds[0]!).artifacts, []);
     assert.deepEqual(await importedFiles(directory), []);
   }
+});
+
+test('completed internal state can be accepted and exported over HTTP with adapters unavailable, then becomes historical on confirmed update', async () => {
+  const { directory, store } = await setup();
+  const run = (await store.enqueueRun(request('internal_completed'))).run;
+  await new Executor(store, new ArtifactStore(path.join(directory, 'artifacts')), directory, selected()).execute(run.runId);
+  assert.equal(store.getRun(run.runId).status, 'completed');
+  const candidate = store.getCandidate(run.candidateRevisionIds[0]!);
+  const server = createApp(store, directory, null);
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve)); servers.push(server);
+  const address = server.address(); assert.ok(address && typeof address !== 'string'); const url = `http://127.0.0.1:${address.port}`;
+  const send = (route: string, method: string, body: unknown) => fetch(url + route, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const retryOffline = await post(url, request('internal_completed'));
+  assert.equal(retryOffline.status, 200); assert.equal((await retryOffline.json()).run.runId, run.runId);
+  assert.equal((await post(url, { ...request('internal_completed'), instruction: 'Changed payload' })).status, 409);
+  const bootstrap = BootstrapSchema.parse(await (await fetch(url + '/api/bootstrap')).json());
+  assert.equal(bootstrap.scopeStatus, 'selected'); assert.equal(bootstrap.executionMode, 'unavailable'); assert.match(bootstrap.unavailableReason!, /unavailable/);
+  const a = { contractVersion: CONTRACT_VERSION, requestId: 'accept_offline', designId: design.designId, candidateRevisionId: candidate.revisionId,
+    requirementsVersion: 1, expectedStateVersion: store.getDesign()!.stateVersion, expectedAcceptedRevisionId: null,
+    registryHash: candidate.registryHash, setupHash: candidate.setupHash, geometryHash: candidate.geometryHash, checkBundleHash: candidate.checkBundleHash, userActionId: 'accept_action' };
+  assert.equal((await send('/api/revisions/wrong/accept', 'POST', a)).status, 409);
+  const response = await send(`/api/revisions/${candidate.revisionId}/accept`, 'POST', a); assert.equal(response.status, 200);
+  const { acceptance, manifest } = await response.json();
+  for (const [kind, id, expected] of [['candidates', candidate.revisionId, store.getCandidate(candidate.revisionId)], ['acceptances', acceptance.acceptanceId, acceptance], ['manifests', manifest.manifestId, manifest]] as const) {
+    assert.deepEqual(await (await fetch(`${url}/api/${kind}/${id}`)).json(), expected);
+  }
+  const x = { contractVersion: CONTRACT_VERSION, requestId: 'export_offline', acceptanceId: acceptance.acceptanceId, manifestId: manifest.manifestId, manifestHash: manifest.manifestHash };
+  const exportResponse = await send(`/api/revisions/${candidate.revisionId}/export`, 'POST', x); assert.equal(exportResponse.status, 200);
+  assert.deepEqual((await exportResponse.json()).manifest, manifest);
+  for (const artifact of candidate.artifacts) {
+    const downloaded = await fetch(url + artifact.href); assert.equal(downloaded.headers.get('X-WorldKinetics-Applicability'), 'current');
+    assert.equal(createHash('sha256').update(Buffer.from(await downloaded.arrayBuffer())).digest('hex'), artifact.sha256);
+  }
+  const u = { contractVersion: CONTRACT_VERSION, requestId: 'confirm_30', expectedStateVersion: store.getDesign()!.stateVersion,
+    expectedRequirementsVersion: 1, setupId: 'resize_centered_v1', confirmedIntent: { lengthMm: 30 }, userActionId: 'confirm_action' };
+  assert.equal((await send('/api/designs/wrong/requirements', 'PATCH', u)).status, 409);
+  assert.equal((await send(`/api/designs/${design.designId}/requirements`, 'PATCH', u)).status, 200);
+  assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 30); assert.equal(store.getDesign()!.acceptedRequirementsMatch, false);
+  assert.equal((await send(`/api/revisions/${candidate.revisionId}/export`, 'POST', x)).status, 409);
+  assert.equal((await fetch(url + candidate.artifacts[0]!.href)).headers.get('X-WorldKinetics-Applicability'), 'historical');
+  const ambiguous = await fetch(`${url}/api/designs/${design.designId}/requirements`, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: '{"requestId":"a","requestId":"b"}' });
+  assert.equal(ambiguous.status, 400);
+  const oversized = await fetch(url + '/api/runs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ instruction: 'a'.repeat(8192) }) });
+  assert.equal(oversized.status, 413);
 });

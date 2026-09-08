@@ -1,50 +1,29 @@
 {
-  "contractVersion": "wk-backend-draft-0.1",
-  "runId": "fixture_run_1",
-  "requestId": "fixture_request_1",
-  "designId": "fixture_design",
-  "inputRevisionId": "fixture_rev_0",
-  "outputRevisionId": "fixture_rev_1",
+  "contractVersion": "wk-prototype-0.2",
+  "runId": "fixture_36_run",
+  "requestId": "fixture_36_request",
+  "designId": "fixture_plate",
+  "inputRevisionId": "fixture_baseline_50",
+  "requirementsVersion": 2,
+  "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+  "registryId": "plate_requirements_v1",
+  "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+  "setupId": "resize_centered_v1",
+  "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+  "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+  "validatorVersion": "fixture_validator_v1",
   "units": "mm",
-  "instruction": "Illustrative request for browser development only.",
-  "status": "succeeded",
+  "instruction": "Synthetic request: make length 36 mm.",
+  "status": "completed",
   "executionMode": "fixture",
-  "createdAt": "2026-09-08T17:45:00.000Z",
-  "updatedAt": "2026-09-08T17:45:01.000Z",
-  "operation": {
-    "name": "unselected_fixture",
-    "parameters": {}
-  },
-  "checks": [
-    {
-      "checkId": "fixture_check",
-      "label": "Illustrative check; no engineering operation ran",
-      "revisionId": "fixture_rev_1",
-      "state": "not_evaluated",
-      "method": "API fixture",
-      "details": "PLAN has not selected the object or check criteria.",
-      "measuredValue": null,
-      "expected": null,
-      "units": null
-    }
+  "attemptIds": [
+    "fixture_36_attempt_1"
   ],
-  "artifacts": [
-    {
-      "artifactId": "fixture_design_json",
-      "runId": "fixture_run_1",
-      "designId": "fixture_design",
-      "revisionId": "fixture_rev_1",
-      "units": "mm",
-      "kind": "specification",
-      "fileName": "fixture-design.json",
-      "mediaType": "application/json",
-      "bytes": 160,
-      "sha256": "f2ad463d089eb8898098c9a0a53f442c24dba6ff9e7eb398cb499c72d346025a",
-      "href": "/api/artifacts/fixture_design_json",
-      "executionMode": "fixture"
-    }
+  "candidateRevisionIds": [
+    "fixture_36_revision"
   ],
-  "evidenceApplicability": "fixture",
-  "error": null,
-  "provider": null
+  "activeAttemptId": null,
+  "createdAt": "2026-09-08T19:00:00.000Z",
+  "updatedAt": "2026-09-08T19:00:00.000Z",
+  "error": null
 }
