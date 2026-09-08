@@ -37,7 +37,7 @@ def fresh_output(value):
 
 def trusted_files():
     return {name: (HERE / name).read_bytes() for name in
-            ('handle_geometry.py', 'handle_mesh.py', 'mesh_checks.py', 'handle_binding.py', 'requirements_binding.py')}
+            ('handle_geometry.py', 'handle_mesh.py', 'handle_export.py', 'mesh_checks.py', 'handle_binding.py', 'requirements_binding.py')}
 
 
 def create_reference(args, runtime):
