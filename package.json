@@ -12,10 +12,13 @@
     "verify:astra": "tsx scripts/verify-astra.ts"
   },
   "dependencies": {
+    "three": "0.186.0",
     "zod": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/three": "0.185.4",
+    "esbuild": "0.28.2",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   },
