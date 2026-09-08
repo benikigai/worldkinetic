@@ -164,3 +164,46 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
 .hero-actions .explore-link:hover { color: var(--text); border-bottom-color: var(--text); }
 @media (max-width: 780px) { .hero-actions { margin-top: 20px; } }
 @media (max-width: 460px) { .hero-actions { align-items: flex-start; gap: 12px 20px; } .demo-entry-compact { gap: 7px; padding: 8px 10px; font-size: 10px; } }
+/* Public overview styles */
+.overview { display: grid; grid-template-columns: 1fr 1.07fr; gap: 4%; padding: 64px 0; border-top: 1px solid var(--line); }
+.overview h2, .section-intro h2 { max-width: 24ch; font-size: clamp(28px, 3vw, 40px); line-height: 1.15; letter-spacing: -1px; }
+.overview-copy { max-width: 58ch; align-self: center; }
+.overview-copy p { margin: 0 0 16px; font-size: 16px; line-height: 1.75; color: var(--muted); }
+.overview-copy p:last-child { margin-bottom: 0; }
+.use-cases { padding: 0 0 64px; }
+.section-intro { margin-bottom: 32px; }
+.section-intro > p { margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.example-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.example-card { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); overflow-wrap: anywhere; }
+.example-status { display: inline-block; padding: 5px 10px; border: 1px solid var(--line); border-radius: 30px; color: var(--accent); font-size: 11px; line-height: 1.5; }
+.example-card h3 { margin: 24px 0 12px; font-size: 27px; font-weight: 400; line-height: 1.2; letter-spacing: -.7px; }
+.example-card p { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.75; }
+.example-card .example-title { color: var(--text); font-size: 16px; line-height: 1.5; }
+.example-card details { margin-top: 24px; border-top: 1px solid var(--line); }
+.example-card summary { padding: 18px 0 4px; color: var(--text); font-size: 13px; line-height: 1.6; cursor: pointer; }
+.example-card summary::marker { color: var(--accent); }
+.example-card summary:hover { text-decoration: underline; text-underline-offset: 4px; }
+.example-card summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 2px; }
+.example-card details[open] summary { margin-bottom: 16px; }
+.example-card details p:last-child { margin-bottom: 0; }
+.how-it-works { padding: 56px 0 64px; border-top: 1px solid var(--line); }
+.workflow-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; margin: 0; padding: 0 0 0 22px; }
+.workflow-steps li { padding-left: 4px; overflow-wrap: anywhere; }
+.workflow-steps li::marker { color: var(--accent); font-size: 13px; }
+.workflow-steps h3 { margin: 0 0 12px; font-size: 16px; font-weight: 500; line-height: 1.5; }
+.workflow-steps p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+@media (max-width: 1100px) {
+  .example-grid { gap: 12px; }
+  .example-card { padding: 22px; }
+  .workflow-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 780px) {
+  .overview { grid-template-columns: 1fr; gap: 24px; padding: 40px 0; }
+  .example-grid { grid-template-columns: 1fr; gap: 16px; }
+  .use-cases { padding-bottom: 40px; }
+  .how-it-works { padding: 40px 0; }
+  .section-intro { margin-bottom: 24px; }
+}
+@media (max-width: 460px) {
+  .workflow-steps { grid-template-columns: 1fr; gap: 24px; }
+}
