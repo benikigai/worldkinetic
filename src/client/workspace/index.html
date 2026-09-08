@@ -24,7 +24,11 @@
     </label>
   </header>
   <main id="workspace" class="wk-main">
-    <section id="session-gate" class="wk-panel wk-session-gate" aria-labelledby="session-title">
+    <nav class="wk-entry-choices" aria-label="Choose a workspace">
+      <a href="/workspace/?mode=handle-demo" id="recorded-entry"><strong>Cabinet handle demo</strong><span>Explore the approved 3D example. No access code needed.</span></a>
+      <a href="/workspace/?mode=live" id="create-entry"><strong>Create your own handle</strong><span>Use your own words. Live access requires an invitation when available.</span></a>
+    </nav>
+    <section id="session-gate" hidden class="wk-panel wk-session-gate" aria-labelledby="session-title">
       <h1 id="session-title">Try the live demo</h1>
       <p>Create a cabinet handle, then refine its grip and thumb rest. Your invitation includes a limited number of runs.</p>
       <form id="session-form"><label for="session-code">Access code</label><input id="session-code" type="password" autocomplete="off" maxlength="128" required><button id="session-login" class="wk-primary" type="submit" disabled>Enter demo</button></form>
@@ -40,6 +44,15 @@
     <ol id="consumer-progress" class="wk-progress" aria-label="Design steps"><li>Describe</li><li>Confirm sizes</li><li>Review</li><li>Make your part</li></ol>
     <div class="wk-layout wk-consumer-layout">
       <aside class="wk-sidebar" aria-label="Create your design">
+        <section id="recorded-panel" class="wk-panel wk-request" data-recorded-only hidden aria-labelledby="recorded-title">
+          <p class="wk-kicker">Recorded example</p><h2 id="recorded-title">A handle for the cabinet you love</h2>
+          <p>The original supplier is gone. Explore a replacement handle and its broader grip with a thumb rest.</p>
+          <p id="recorded-summary" role="status">Loading the approved example…</p>
+          <label for="recorded-file">Approved files for this version</label><select id="recorded-file" disabled></select>
+          <button id="recorded-download" class="wk-primary" type="button" disabled>Download file</button><p id="recorded-download-status" role="status"></p>
+          <p class="wk-review-note">Previously generated and approved. Nothing is being generated now. Sample dimensions; physical fit and strength are untested.</p>
+          <p>For editable source and its references, choose the complete After package.</p><a href="/demo/">Watch the 60-second story</a>
+        </section>
         <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
           <h2 id="live-title">What would you like to change?</h2>
           <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
@@ -113,7 +126,7 @@
         </section>
       </aside>
       <section class="wk-model" aria-labelledby="model-title" data-viewer-only>
-        <div class="wk-model-heading"><h2 id="model-title">Your handle</h2><div id="live-view-actions" class="wk-model-actions"><label class="wk-sr-only" for="live-comparison">Compare designs</label><select id="live-comparison" data-live-only hidden><option value="baseline">Before</option><option value="candidate">Your design</option></select><button type="button" data-view="fit" disabled>Reset view</button></div></div>
+        <div class="wk-model-heading"><h2 id="model-title">Your handle</h2><div id="live-view-actions" class="wk-model-actions"><label class="wk-sr-only" for="recorded-comparison" data-recorded-only hidden>Recorded version</label><select id="recorded-comparison" data-recorded-only hidden aria-label="Recorded version"><option value="before">Before · curved handle</option><option value="after" selected>After · broader grip</option></select><label class="wk-sr-only" for="live-comparison" data-live-only hidden>Compare designs</label><select id="live-comparison" data-live-only hidden><option value="baseline">Before</option><option value="candidate">Your design</option></select><button type="button" data-view="fit" disabled>Reset view</button></div></div>
         <div id="viewport" class="wk-viewport" aria-label="Interactive 3D preview" aria-describedby="navigation-help">
           <div id="preview-message" class="wk-preview-message" role="status" aria-live="polite"><strong id="preview-status">Preparing viewer</strong><p id="preview-detail">Your reference will appear here when the service connects.</p></div>
           <div class="wk-axis-labels" aria-hidden="true"><span data-axis="x">X 50</span><span data-axis="y">Y 50</span><span data-axis="origin">0, 0, 0</span></div>

@@ -77,6 +77,21 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertNotIn('required', self.node(identity).attrs)
             self.assertTrue(self.collapsed_ancestor(self.node(identity)))
 
+    def test_recorded_handle_is_discoverable_outside_the_session_gate(self):
+        for identity, href in [('recorded-entry', '/workspace/?mode=handle-demo'), ('create-entry', '/workspace/?mode=live')]:
+            node = self.node(identity)
+            self.assertEqual(node.attrs.get('href'), href)
+            self.assertFalse(self.collapsed_ancestor(node))
+            ancestors = []
+            while id(node) in self.parents:
+                node = self.parents[id(node)]
+                ancestors.append(node.attrs.get('id'))
+            self.assertNotIn('workspace-content', ancestors)
+            self.assertNotIn('session-gate', ancestors)
+        self.assertIn('Recorded example', self.node('recorded-panel').text())
+        self.assertIn('Nothing is being generated now', self.node('recorded-panel').text())
+        self.assertEqual(self.node('recorded-comparison').tag, 'select')
+
     def test_every_existing_control_identity_and_safe_entry_are_retained(self):
         expected = json.loads((ROOT/'tests/frontend/consumer-expected.json').read_text())
         for identity in expected['existing_control_ids']:

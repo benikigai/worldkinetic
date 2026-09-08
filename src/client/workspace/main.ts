@@ -1,3 +1,5 @@
+import { loadRecordedDemo, recordedBytes, recordedView } from './recorded-files.js';
+import type { SavedHandleDemo } from '../../shared/saved-handle-v2.js';
 import { createWorkspaceTransport, mountSession } from './session.js';
 import { MAX_PREVIEW_BYTES, parsePreviewGeometry } from './preview.js';
 import { PreviewViewer, type ViewName } from './viewer.js';
@@ -27,6 +29,9 @@ const fixtures = {
 const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const reference = element<HTMLSelectElement>('reference');
 const scenario = element<HTMLSelectElement>('scenario');
+const recordedComparison = element<HTMLSelectElement>('recorded-comparison');
+const recordedFile = element<HTMLSelectElement>('recorded-file');
+let recordedDemo: SavedHandleDemo | null = null;
 const theme = element<HTMLSelectElement>('theme');
 const wireframe = element<HTMLInputElement>('wireframe');
 const viewport = element<HTMLDivElement>('viewport');
@@ -37,7 +42,7 @@ let viewer: PreviewViewer | undefined;
 let request: AbortController | undefined;
 let selectionToken = 0;
 let webglError = '';
-let mode: 'saved' | 'review' | 'live' = 'saved';
+let mode: 'saved' | 'review' | 'live' | 'recorded' = 'saved';
 const workspaceTransport = createWorkspaceTransport(window.fetch.bind(window));
 const liveController = createLiveWorkspaceController({ fetch: workspaceTransport.fetch });
 const live = mountLive(liveController, listeners.signal, update => { void loadSelection(update.previewKey); });
@@ -122,6 +127,10 @@ async function loadSelection(previewKey: string | null = null) {
     setStatus('Candidate geometry unavailable', 'Synthetic review fixtures contain NON-CAD strings. No saved reference mesh is displayed.');
     return;
   }
+  if (mode === 'recorded') {
+    await loadRecordedPreview(token, signal);
+    return;
+  }
   if (mode === 'live') {
     await loadLivePreview(token, signal, previewKey);
     return;
@@ -161,6 +170,38 @@ async function loadSelection(previewKey: string | null = null) {
     clearIdentity();
     element('identity-status').textContent = 'Unavailable';
     setStatus('Preview unavailable', error instanceof Error ? error.message : 'The saved STL could not be loaded. Reload the saved reference to retry.');
+  }
+}
+
+async function loadRecordedPreview(token: number, signal: AbortSignal) {
+  element<HTMLButtonElement>('recorded-download').disabled = true;
+  recordedFile.disabled = true;
+  setStatus('Loading recorded handle…', 'Checking the approved file identity.');
+  try {
+    if (!recordedDemo) recordedDemo = await loadRecordedDemo(window.fetch.bind(window), signal);
+    if (token !== selectionToken || signal.aborted) return;
+    const side = recordedComparison.value === 'before' ? 'before' : 'after';
+    const view = recordedView(recordedDemo, side);
+    const previous = recordedFile.value;
+    recordedFile.replaceChildren(...view.files.map(file => { const option = document.createElement('option'); option.value = file.id; option.textContent = file.label; return option; }));
+    if (view.files.some(file => file.id === previous)) recordedFile.value = previous;
+    recordedFile.disabled = false;
+    element<HTMLButtonElement>('recorded-download').disabled = false;
+    element('recorded-download-status').textContent = '';
+    element('recorded-summary').textContent = `${side === 'before' ? 'Curved starting handle' : 'Broader grip with a thumb rest'} · ${view.manifest.checks.filter(check => check.state === 'passed').length} checks passed in the recorded run.`;
+    element('model-title').textContent = side === 'before' ? 'Before · curved handle' : 'After · broader grip';
+    if (!viewer?.available) { setStatus('3D preview unavailable', 'You can still download the approved files.'); return; }
+    const bytes = await recordedBytes(window.fetch.bind(window), view.previewFile.href, view.previewFile.bytes, view.previewFile.sha256, signal);
+    const geometry = await parsePreviewGeometry(bytes, view.previewFile.sha256);
+    if (token !== selectionToken || signal.aborted) { geometry.dispose(); return; }
+    const dimensions = viewer.show(geometry, wireframe.checked);
+    element('mesh-dimensions').textContent = `${dimensions.map(value => Number(value.toFixed(2))).join(' × ')} mm · measured mesh bounds`;
+    setStatus('Recorded handle ready', 'Approved example, not a new generation.', true);
+  } catch (error) {
+    if (token !== selectionToken || signal.aborted) return;
+    viewer?.clear(); clearIdentity();
+    element('recorded-summary').textContent = 'Recorded example unavailable. Reload to try again.';
+    setStatus('Recorded example unavailable', error instanceof Error ? error.message : 'The approved files could not be verified.');
   }
 }
 
@@ -246,16 +287,21 @@ try {
 }
 
 reference.addEventListener('change', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
-function switchMode(next: 'saved' | 'review' | 'live') {
+function switchMode(next: 'saved' | 'review' | 'live' | 'recorded') {
   if (mode === next) return;
   live.close();
   mode = next;
+  document.body.dataset.workspaceMode = mode;
   document.querySelectorAll<HTMLElement>('[data-saved-only]').forEach(node => { node.hidden = mode !== 'saved'; });
   document.querySelectorAll<HTMLElement>('[data-review-only]').forEach(node => { node.hidden = mode !== 'review'; });
+  document.querySelectorAll<HTMLElement>('[data-recorded-only]').forEach(node => { node.hidden = mode !== 'recorded'; });
   document.querySelectorAll<HTMLElement>('[data-live-only]').forEach(node => { node.hidden = mode !== 'live'; });
   document.querySelectorAll<HTMLElement>('[data-viewer-only]').forEach(node => { node.hidden = mode === 'review'; });
   document.querySelectorAll<HTMLElement>('[data-offline-only]').forEach(node => { node.hidden = mode === 'live'; });
-  element('model-title').textContent = mode === 'live' ? 'Handle mounting reference' : 'Reference geometry';
+  element('model-title').textContent = mode === 'recorded' ? 'Approved handle' : mode === 'live' ? 'Handle mounting reference' : 'Reference geometry';
+  element('consumer-title').textContent = mode === 'recorded' ? 'Cabinet handle demo' : 'Make a cabinet handle your own';
+  element('consumer-progress').hidden = mode !== 'live';
+  if (mode === 'recorded') element('live-stage').textContent = 'Recorded example';
   element('live-mode').setAttribute('aria-pressed', String(mode === 'live'));
   element('saved-mode').setAttribute('aria-pressed', String(mode === 'saved'));
   element('review-mode').setAttribute('aria-pressed', String(mode === 'review'));
@@ -263,9 +309,29 @@ function switchMode(next: 'saved' | 'review' | 'live') {
   if (mode === 'review') review.open();
   if (mode === 'live') live.open();
 }
-element('live-mode').addEventListener('click', () => switchMode('live'), { signal: listeners.signal });
+element('live-mode').addEventListener('click', () => { window.location.href = '/workspace/?mode=live'; }, { signal: listeners.signal });
 element('saved-mode').addEventListener('click', () => switchMode('saved'), { signal: listeners.signal });
 element('review-mode').addEventListener('click', () => switchMode('review'), { signal: listeners.signal });
+recordedComparison.addEventListener('change', () => { if (mode === 'recorded') void loadSelection(); }, { signal: listeners.signal });
+element('recorded-download').addEventListener('click', () => {
+  if (mode !== 'recorded' || !recordedDemo) return;
+  const side = recordedComparison.value === 'before' ? 'before' : 'after';
+  const file = recordedView(recordedDemo, side).files.find(item => item.id === recordedFile.value);
+  if (!file) return;
+  const button = element<HTMLButtonElement>('recorded-download'); button.disabled = true;
+  element('recorded-download-status').textContent = 'Verifying the approved download…';
+  void (async () => {
+    let url: string | undefined;
+    try {
+      const bytes = await recordedBytes(window.fetch.bind(window), file.href, file.bytes, file.sha256, listeners.signal);
+      if (mode !== 'recorded' || recordedComparison.value !== side || recordedFile.value !== file.id) throw new Error('The selected version changed. Choose its file and download again.');
+      url = URL.createObjectURL(new Blob([bytes], { type: file.mediaType }));
+      const link = document.createElement('a'); link.href = url; link.download = file.fileName; document.body.append(link); link.click(); link.remove();
+      element('recorded-download-status').textContent = `Verified ${file.fileName}. Check your browser downloads.`;
+    } catch (error) { element('recorded-download-status').textContent = error instanceof Error ? error.message : 'No file was downloaded.'; }
+    finally { button.disabled = mode !== 'recorded' || !recordedDemo; if (url) { const downloadUrl = url; setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000); } }
+  })();
+}, { signal: listeners.signal });
 scenario.addEventListener('change', () => { void loadSelection(); }, { signal: listeners.signal });
 element('reload').addEventListener('click', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
 theme.addEventListener('change', applyTheme, { signal: listeners.signal });
@@ -279,13 +345,21 @@ window.addEventListener('pagehide', (event) => {
   viewer?.dispose();
 }, { signal: listeners.signal });
 const initialMode = new URLSearchParams(window.location.search).get('mode');
-let sessionAllowed = false;
-mountSession(listeners.signal, (allowed, workspaceId) => {
-  if (allowed === sessionAllowed) return;
-  if (allowed) workspaceTransport.bind(workspaceId);
-  sessionAllowed = allowed;
-  if (!allowed) { live.close(); request?.abort(); selectionToken++; viewer?.clear(); return; }
-  if (initialMode === 'saved') void loadSelection();
-  else if (mode === 'live') live.open();
-  else switchMode(initialMode === 'review' ? 'review' : 'live');
-});
+if (initialMode !== 'live') {
+  element('session-gate').hidden = true;
+  element('session-bar').hidden = true;
+  element('workspace-content').hidden = false;
+  element('recorded-entry').setAttribute('aria-current', 'page');
+  switchMode('recorded');
+} else {
+  element('create-entry').setAttribute('aria-current', 'page');
+  let sessionAllowed = false;
+  mountSession(listeners.signal, (allowed, workspaceId) => {
+    if (allowed === sessionAllowed) return;
+    if (allowed) workspaceTransport.bind(workspaceId);
+    sessionAllowed = allowed;
+    if (!allowed) { live.close(); request?.abort(); selectionToken++; viewer?.clear(); return; }
+    if (mode === 'live') live.open();
+    else switchMode('live');
+  });
+}

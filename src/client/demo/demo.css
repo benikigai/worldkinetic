@@ -16,3 +16,5 @@
 .demo-live .demo-entry { flex-shrink: 0; }
 .recorded-demo > a:last-child { display: inline-block; padding: 16px 0; }
 @media (max-width: 700px) { .demo-steps { grid-template-columns: 1fr; gap: 18px; } .demo-live { display: block; } .demo-live .demo-entry { margin-top: 12px; } .demo-story { margin-top: 36px; } }
+
+.demo-choice-links { max-width: 300px; }
