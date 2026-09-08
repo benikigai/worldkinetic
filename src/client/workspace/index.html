@@ -24,6 +24,126 @@
     </label>
   </header>
   <main id="workspace" class="wk-main">
+    <section id="workspace-guide" class="wk-guide" aria-labelledby="guide-title">
+      <div class="wk-guide-intro">
+        <div>
+          <p class="wk-guide-eyebrow">A guide to the prototype</p>
+          <h2 id="guide-title">From a useful change to a checked, editable design</h2>
+          <p>Describe a useful part change, confirm its dimensions, then inspect the revised design and its checks before accepting it.</p>
+        </div>
+        <a class="wk-guide-link" href="#viewport">Inspect the workspace</a>
+      </div>
+      <ol id="guide-steps">
+        <li><strong>Start with a reference.</strong> Bring known measurements.</li>
+        <li><strong>Confirm, then request.</strong> Explicitly confirm requirements before requesting a change.</li>
+        <li><strong>Follow actual events.</strong> Activity reports progress and failures.</li>
+        <li><strong>Inspect the revised geometry.</strong> Read checks tied to that exact revision.</li>
+        <li><strong>Review, then explicitly accept.</strong> Completion never accepts a candidate.</li>
+        <li><strong>Download exact accepted files.</strong> They stay tied to the accepted revision, even while you inspect another.</li>
+      </ol>
+      <p class="wk-guide-eyebrow">Examples / expand to explore</p>
+      <details id="guide-repair">
+        <summary><span class="wk-guide-category">Repair it</span> <span class="wk-guide-example-title">Replacement handle concept</span> <span class="wk-guide-status">Concept. In development.</span></summary>
+        <div class="wk-guide-example">
+          <div class="wk-guide-copy">
+            <h3>Sample mounting brief</h3>
+            <p>Specify a 96 mm mounting pitch, at least 25 mm of empty finger gap, and a maximum overall length of 140 mm. Mounting pads are conceptual; hardware is unspecified.</p>
+            <p>No actual initial handle exists in this story yet. There is no damaged original or measured cabinet. The gap and length are brief requirements, not measurements of drawn geometry.</p>
+          </div>
+          <figure>
+            <figcaption>Sample mounting brief / datum illustration</figcaption>
+            <svg viewBox="0 0 420 170" role="img" aria-labelledby="guide-datums-title guide-datums-desc">
+              <title id="guide-datums-title">Two mounting datum axes, 96 millimeters apart</title>
+              <desc id="guide-datums-desc">Sample only. Axes A and B share the same vertical span and are separated by 96 millimeters. No handle shape, mounting pads or hardware are drawn.</desc>
+              <g transform="translate(66 54) scale(3)">
+                <g id="guide-mount-datums" class="wk-guide-datums">
+                  <line data-datum="A" x1="0" x2="0" y1="0" y2="20" />
+                  <line data-datum="B" x1="96" x2="96" y1="0" y2="20" />
+                </g>
+              </g>
+              <g class="wk-guide-dimension">
+                <line x1="66" y1="130" x2="354" y2="130" />
+                <line x1="66" y1="125" x2="66" y2="135" />
+                <line x1="354" y1="125" x2="354" y2="135" />
+              </g>
+              <text x="66" y="36" text-anchor="middle">Datum A</text>
+              <text x="354" y="36" text-anchor="middle">Datum B</text>
+              <text x="210" y="154" text-anchor="middle">96 mm mounting pitch</text>
+            </svg>
+          </figure>
+        </div>
+      </details>
+      <details id="guide-fit">
+        <summary><span class="wk-guide-category">Make it fit</span> <span class="wk-guide-example-title">Resize a mounting plate</span> <span class="wk-guide-status">Recorded run</span></summary>
+        <div class="wk-guide-example">
+          <div class="wk-guide-copy">
+            <h3>Recorded result summary</h3>
+            <p>These retained numeric API/CAD results describe a recorded run, not a fresh run or video.</p>
+            <p>A 30 mm length yielded 2 mm of end material and was rejected against the unchanged 5 mm minimum. A separately confirmed 36 mm requirement, through explicit API confirmation, yielded 5 mm of end material; 7 checks passed.</p>
+            <p>The result satisfies the new 36 mm requirement, not the original 30 mm request. Final dimensions: length 36 mm, width 35 mm, thickness 5 mm. Two 6 mm diameter through holes retain a 20 mm center pitch.</p>
+            <p>Astra planned numeric changes; template Python generated the plate geometry. Digital checks do not establish physical fit or manufacturing readiness.</p>
+          </div>
+          <figure>
+            <figcaption>Illustration, not loaded CAD</figcaption>
+            <svg viewBox="0 0 360 425" role="img" aria-labelledby="guide-plate-title guide-plate-desc">
+              <title id="guide-plate-title">Recorded plate dimensions, top and side illustration</title>
+              <desc id="guide-plate-desc">An unrounded plate is 36 millimeters long, 35 wide and 5 thick. Two diameter 6 through holes have centers at 8 and 28 millimeters along the length, both at width 17.5. The center pitch is 20 millimeters and each hole has 5 millimeters of material to the nearest end. This drawing illustrates dimensions, not loaded CAD.</desc>
+              <text x="62" y="20">Top / mm</text>
+              <g transform="translate(62 60) scale(6)">
+                <g id="guide-plate-top" class="wk-guide-geometry">
+                  <rect x="0" y="0" width="36" height="35" />
+                  <circle cx="8" cy="17.5" r="3" />
+                  <circle cx="28" cy="17.5" r="3" />
+                </g>
+              </g>
+              <g class="wk-guide-dimension">
+                <line x1="62" y1="40" x2="278" y2="40" />
+                <line x1="62" y1="35" x2="62" y2="55" />
+                <line x1="278" y1="35" x2="278" y2="55" />
+                <line x1="42" y1="60" x2="42" y2="270" />
+                <line x1="37" y1="60" x2="57" y2="60" />
+                <line x1="37" y1="270" x2="57" y2="270" />
+                <line x1="110" y1="110" x2="230" y2="110" />
+                <line x1="110" y1="105" x2="110" y2="145" />
+                <line x1="230" y1="105" x2="230" y2="145" />
+                <line x1="62" y1="200" x2="92" y2="200" />
+                <line x1="62" y1="195" x2="62" y2="205" />
+                <line x1="92" y1="170" x2="92" y2="205" />
+                <line x1="92" y1="200" x2="113" y2="219" />
+              </g>
+              <text x="170" y="33" text-anchor="middle">36 length</text>
+              <text x="23" y="165" text-anchor="middle" transform="rotate(-90 23 165)">35 width</text>
+              <text x="170" y="99" text-anchor="middle">20 pitch</text>
+              <text x="117" y="228">5 end material</text>
+              <text x="170" y="292" text-anchor="middle">2 × diameter 6 through holes</text>
+              <text x="62" y="332">Side / mm</text>
+              <g transform="translate(62 350) scale(6)">
+                <g id="guide-plate-side" class="wk-guide-geometry">
+                  <rect x="0" y="0" width="36" height="5" />
+                </g>
+              </g>
+              <g class="wk-guide-dimension">
+                <line x1="294" y1="350" x2="294" y2="380" />
+                <line x1="283" y1="350" x2="299" y2="350" />
+                <line x1="283" y1="380" x2="299" y2="380" />
+              </g>
+              <text x="306" y="370">5</text>
+              <text x="278" y="408" text-anchor="end">5 mm thickness</text>
+            </svg>
+          </figure>
+        </div>
+      </details>
+      <details id="guide-yours">
+        <summary><span class="wk-guide-category">Make it yours</span> <span class="wk-guide-example-title">Broader grip with thumb rest</span> <span class="wk-guide-status">Concept. In development.</span></summary>
+        <div class="wk-guide-copy wk-guide-intended">
+          <h3>An intended handle refinement</h3>
+          <p>Start from a real initial handle that has been generated, checked and explicitly accepted. The intended live refinement would broaden the grip and add a localized thumb rest while preserving the mounts and empty finger gap.</p>
+          <p>Review nine checks, explicitly accept the final revision, then download the exact accepted CAD files. Completion or another prompt cannot promote a candidate to accepted.</p>
+          <p>This flow is in development, not available live. Actual runtime and rehearsals remain unverified.</p>
+        </div>
+      </details>
+      <p class="wk-guide-modes">Workspace modes below: saved reference and synthetic review are labeled examples. Live numeric workspace uses the connected API and reports unavailable states. Choose a mode using the existing controls.</p>
+    </section>
     <div class="wk-mode-switch" role="group" aria-label="Workspace mode">
       <button id="live-mode" type="button" aria-pressed="false">Live numeric workspace</button>
       <button id="saved-mode" type="button" aria-pressed="true">Saved reference viewer</button>
