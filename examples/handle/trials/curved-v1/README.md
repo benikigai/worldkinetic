@@ -1,6 +1,6 @@
 # Curved handle developer proof
 
-Actual isolated build123d geometry, independent regeneration and eight initial / nine refinement checks passed. This is fixed developer input with synthetic acceptance, not a product model run or user acceptance. STEP, STL, editable source and structured results retain their original bytes and hashes. Result paths are logical fixture references.
+Actual isolated build123d geometry, independent regeneration and eight initial / nine refinement checks passed. This is fixed developer input with synthetic acceptance, not a product model run or user acceptance. STEP, STL and editable source retain their original bytes and hashes. Structured results preserve measurements and the check-bundle hash, with artifact paths relocated to logical fixture references. Provenance records the original private result hash.
 
 Reproduce from the TOOLS worktree:
 
