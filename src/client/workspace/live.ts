@@ -44,6 +44,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
   let active = false;
   let initialized = false;
   let checkedRevision: string | null = null;
+  let makingRevision: string | null = null;
   let poll: ReturnType<typeof setTimeout> | undefined;
 
   function render() {
@@ -78,6 +79,13 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     });
     const refining = handle && (changing || requirements.setupId === 'handle_refine_v1');
     const filesReady = s.canDownload && !changing;
+    const acceptedForMaking = b?.design?.acceptedRevisionId ?? null;
+    if (acceptedForMaking !== makingRevision) {
+      for (const id of ['make-quantity', 'make-material', 'make-finish', 'make-destination', 'make-needed-by', 'make-fit-notes']) element<HTMLInputElement>(id).value = '';
+      for (const id of ['make-check-size', 'make-check-gap', 'make-check-review']) element<HTMLInputElement>(id).checked = false;
+      makingRevision = acceptedForMaking;
+    }
+    element<HTMLButtonElement>('make-package').disabled = true;
     element('live-inputs').hidden = filesReady;
     text('live-title', filesReady ? 'Your design is ready' : 'What would you like to change?');
     const status = s.error ? 'Connection problem. Your draft is safe. Try Check status.'

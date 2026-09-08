@@ -31,7 +31,7 @@ class ConsumerPageAcceptance(unittest.TestCase):
         progress = self.node('consumer-progress')
         self.assertEqual(progress.tag, 'ol')
         items = [n for n in progress.children if isinstance(n, Node)]
-        self.assertEqual([' '.join(n.text().split()).lower() for n in items], ['describe', 'confirm sizes', 'review', 'get your files'])
+        self.assertEqual([' '.join(n.text().split()).lower() for n in items], ['describe', 'confirm sizes', 'review', 'make your part'])
         text = self.page.text().lower()
         self.assertIn('what would you like to change?', text)
         self.assertIn('handle', self.node('consumer-title').text().lower())
@@ -55,6 +55,24 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertTrue(any(n.tag == 'summary' and label in n.text().lower() for n in self.nodes), label)
         for identity in ['live-request', 'live-status', 'viewport']:
             self.assertFalse(self.collapsed_ancestor(self.node(identity)), f'{identity} is core to the live flow')
+
+    def test_making_guidance_is_gated_and_supplier_links_are_manual(self):
+        files = self.node('live-files')
+        self.assertIn('hidden', files.attrs)
+        text = files.text().lower()
+        for label in ['print it myself', 'get a prototype', 'make multiple', 'no automatic upload or order', 'hardware and threads are not designed']:
+            self.assertIn(label, text)
+        links = [n for n in files.walk() if n.tag == 'a']
+        self.assertEqual(len(links), 3)
+        self.assertEqual(text.count('quote required'), 6)
+        for link in links:
+            self.assertEqual(link.attrs.get('target'), '_blank')
+            self.assertIn('noreferrer', link.attrs.get('rel', ''))
+        self.assertFalse(any(n.tag == 'form' for n in files.walk()))
+        self.assertIn('disabled', self.node('make-package').attrs)
+        for identity in ['make-quantity', 'make-material', 'make-finish', 'make-destination', 'make-needed-by']:
+            self.assertNotIn('required', self.node(identity).attrs)
+            self.assertTrue(self.collapsed_ancestor(self.node(identity)))
 
     def test_every_existing_control_identity_and_safe_entry_are_retained(self):
         expected = json.loads((ROOT/'tests/frontend/consumer-expected.json').read_text())

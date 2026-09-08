@@ -28,7 +28,7 @@
       <div><p class="wk-kicker">WorldKinetics demo</p><h1 id="consumer-title">Make a cabinet handle your own</h1></div>
       <span id="live-stage" class="wk-badge" role="status">Connecting</span>
     </div>
-    <ol id="consumer-progress" class="wk-progress" aria-label="Design steps"><li>Describe</li><li>Confirm sizes</li><li>Review</li><li>Get your files</li></ol>
+    <ol id="consumer-progress" class="wk-progress" aria-label="Design steps"><li>Describe</li><li>Confirm sizes</li><li>Review</li><li>Make your part</li></ol>
     <div class="wk-layout wk-consumer-layout">
       <aside class="wk-sidebar" aria-label="Create your design">
         <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
@@ -52,10 +52,52 @@
           <div class="wk-live-recovery"><button id="live-refresh" type="button">Check status</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Try again</button></div>
         </section>
         <section id="live-files" class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-accepted-title">
-          <h2 id="live-accepted-title">Get your files</h2>
+          <h2 id="live-accepted-title">Make your part</h2>
+          <p>Start with a prototype to check the shape and fit.</p>
+          <div class="wk-making-routes">
+            <details class="wk-details"><summary>Print it myself</summary>
+              <p>Download the STL below. Open it in your slicer in millimeters, then choose the profile for your exact printer and material.</p>
+              <p>Review orientation, supports and the layer preview before printing. This demo does not provide printer-ready G-code.</p>
+            </details>
+            <details class="wk-details"><summary>Get a prototype</summary>
+              <p>Ask a supplier for a shape-and-fit prototype. Use it to check dimensions and clearance before considering an installed handle.</p>
+            </details>
+            <details class="wk-details"><summary>Make multiple</summary>
+              <p>Ask a manufacturer to review the design, material, mounting hardware and quantity before quoting a batch.</p>
+            </details>
+          </div>
           <label for="live-artifact">Choose a file</label><select id="live-artifact"></select>
           <button id="live-download" class="wk-primary" type="button" disabled>Download file</button><p id="live-download-status" role="status" aria-live="polite"></p>
-          <p>Prototype files. Check the fit before making.</p>
+          <p>Mounting hardware and threads are not designed. Printability, strength and comfort are not certified.</p>
+          <details class="wk-details"><summary>Prepare a supplier handoff</summary>
+            <p>Optional quote details. Kept in this tab only until you explicitly download a package; nothing is sent to a supplier.</p>
+            <div class="wk-quote-fields">
+              <label for="make-quantity">Quantity <input id="make-quantity" type="number" min="1" step="1" placeholder="Not sure yet"></label>
+              <label for="make-material">Material preference <input id="make-material" type="text" maxlength="120" placeholder="Unknown, ask the supplier"></label>
+              <label for="make-finish">Finish <input id="make-finish" type="text" maxlength="120" placeholder="Unknown"></label>
+              <label for="make-destination">Delivery ZIP or location <input id="make-destination" type="text" maxlength="120" autocomplete="off" placeholder="Optional"></label>
+              <label for="make-needed-by">Needed by <input id="make-needed-by" type="date"></label>
+            </div>
+            <button id="make-package" type="button" disabled>Download handoff package</button>
+            <p id="make-package-status" role="status">Package download is not available yet. Individual verified files are available above.</p>
+            <p>The planned package includes accepted CAD, checks and your quote preferences. Hardware, material and manufacturing details still need review.</p>
+          </details>
+          <details class="wk-details"><summary>Find a supplier</summary>
+            <p>Download your files, then open a supplier site. You choose whether to upload. No automatic upload or order.</p>
+            <ul class="wk-supplier-links">
+              <li><a href="https://craftcloud3d.com/upload" target="_blank" rel="noopener noreferrer">Craftcloud ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
+              <li><a href="https://www.xometry.com/how-xometry-works/" target="_blank" rel="noopener noreferrer">Xometry ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
+              <li><a href="https://www.protolabs.com/services/3d-printing/" target="_blank" rel="noopener noreferrer">Protolabs ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
+            </ul>
+          </details>
+          <details class="wk-details"><summary>When your prototype arrives</summary>
+            <p>Check it against your real cabinet without forcing or loading it.</p>
+            <label class="wk-fit-check"><input id="make-check-size" type="checkbox"> Compare mounting positions and dimensions.</label>
+            <label class="wk-fit-check"><input id="make-check-gap" type="checkbox"> Check finger space and nearby moving parts.</label>
+            <label class="wk-fit-check"><input id="make-check-review" type="checkbox"> Review hardware and material with the maker.</label>
+            <label for="make-fit-notes">What needs to change?</label><textarea id="make-fit-notes" rows="3" maxlength="2000" placeholder="Record measurements or changes to discuss"></textarea>
+            <p>Notes and ticks stay in this tab. They do not certify the part or change your approved design.</p>
+          </details>
           <details class="wk-details"><summary>File details</summary><p id="live-accepted"></p><p id="live-export-gate"></p><p>Digital checks do not establish physical fit, strength or manufacturing readiness.</p></details>
         </section>
       </aside>
