@@ -29,7 +29,15 @@ class FaviconAcceptance(unittest.TestCase):
     def test_only_authorized_page_and_handoff_copy_changes(self):
         expected = json.loads((ROOT/'tests/frontend/favicon-expected.json').read_text())
         for name, digest in expected.items():
-            self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
+            if name == 'src/client/workspace/index.html':
+                # OUTSIDE_WRAPPER: the authorized live workspace replaces only this whole-page guard.
+                original = ROOT/'tests/frontend/preserved-pre-live/workspace-index.html'
+                self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), digest, 'Preserved accepted workspace')
+                page = (ROOT/name).read_text()
+                self.assertEqual(page.count('rel=\"icon\"'), 1)
+                self.assertIn('<link rel=\"icon\" href=\"/brand/favicon-2d-precision-v1.svg\" type=\"image/svg+xml\">', page)
+            else:
+                self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
 
     def test_kit_contains_identical_favicon_and_assets(self):
         names = {NAME,'mark-color.svg','mark-small.svg','mark-mono.svg','mark-inverse.svg','worldkinetics-wordmark.svg','worldkinetics-horizontal.svg','README.md'}
