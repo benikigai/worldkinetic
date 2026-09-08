@@ -1,0 +1,235 @@
+{
+  "registryId": "handle_sample_v1",
+  "geometry": {
+    "registryId": "handle_sample_v1",
+    "stages": [
+      "handle_initial_v1",
+      "handle_refine_v1"
+    ],
+    "units": "mm",
+    "frame": {
+      "panelPlaneZ": 0,
+      "positiveZ": "outward",
+      "x": "handle_length",
+      "origin": "midpoint_between_mount_axes",
+      "handedness": "right"
+    },
+    "sampleRequirements": {
+      "mountPitchMm": 96,
+      "panelHoleDiameterMm": 4.5,
+      "panelHoleCount": 2,
+      "minimumFingerGapMm": 25,
+      "maximumOverallLengthMm": 140
+    },
+    "mounting": {
+      "choice": "concept_pads_hardware_unspecified",
+      "userConfirmed": true,
+      "axesMm": [
+        [
+          -48,
+          0,
+          0
+        ],
+        [
+          48,
+          0,
+          0
+        ]
+      ],
+      "axisDirection": [
+        0,
+        0,
+        1
+      ],
+      "padRadiusMm": 7,
+      "padZRangeMm": [
+        0,
+        2
+      ],
+      "padDimensionSource": "PLAN_demo_assumption",
+      "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+      "referenceSolidCount": 2,
+      "referenceContainsHandle": false,
+      "referenceStepSha256": null,
+      "datumSpecSha256": null,
+      "panelHolesAreHandleBores": false
+    },
+    "assumedEnvelopeMm": {
+      "x": [
+        -70,
+        70
+      ],
+      "y": [
+        -20,
+        20
+      ],
+      "z": [
+        0,
+        50
+      ]
+    },
+    "grip": {
+      "centralXRangeMm": [
+        -30,
+        30
+      ],
+      "centralYRangeMm": [
+        -20,
+        20
+      ],
+      "centralZRangeMm": [
+        0,
+        50
+      ],
+      "clippedSolidCount": 1,
+      "requiredXSpanMm": 60,
+      "sectionStationsXmm": [
+        -24,
+        -12,
+        0,
+        12,
+        24
+      ],
+      "sectionConnectedFaceCount": 1,
+      "initialYRangeMm": [
+        -7,
+        7
+      ],
+      "initialStationWidthRangeMm": [
+        8,
+        14
+      ],
+      "strictEmptyGap": true,
+      "emptyBelowZmm": 25,
+      "gapKernelInsetMm": 1e-07,
+      "allowedIntersectingSolids": 0
+    },
+    "refinement": {
+      "baseline": "actual_accepted_initial_STEP",
+      "baselineSha256": null,
+      "preserveInitialMaterial": true,
+      "minimumWidthIncreaseEveryStationMm": 4,
+      "minimumAddedSectionAreaEveryStationMm2": 8,
+      "thumbRestBoxMm": {
+        "x": [
+          -10,
+          10
+        ],
+        "y": [
+          4,
+          18
+        ],
+        "z": [
+          25,
+          50
+        ]
+      },
+      "minimumThumbRestAddedVolumeExclusiveMm3": 25,
+      "protrusionFormula": "maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)",
+      "minimumProtrusionMm": 2,
+      "minimumProtrusionIncreaseMm": 2,
+      "outboardBoundary": "max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm",
+      "minimumOutboardAddedVolumeMm3": 5,
+      "initialAcceptanceRequiredBeforeRefinement": true
+    },
+    "tolerances": {
+      "linearMm": 0.01,
+      "differenceVolumeMm3": 0.01,
+      "sectionAreaMm2": 0.01,
+      "stepRelativeVolume": 1e-05,
+      "stlRelativeVolume": 0.001,
+      "strictMinimumGapUsesLinearSlack": false
+    },
+    "requiredInitialChecks": [
+      "geometry.valid_single_solid",
+      "handle.mount_interface",
+      "handle.envelope",
+      "handle.grip_clearance",
+      "handle.grip_sections",
+      "export.step_reopen",
+      "export.stl_reopen",
+      "export.editable_reopen"
+    ],
+    "additionalRefinementChecks": [
+      "handle.refinement_delta"
+    ],
+    "hardware": null,
+    "material": null,
+    "fabricationProcess": null,
+    "loadRating": null,
+    "physicalFit": "not_tested"
+  },
+  "checks": {
+    "geometry.valid_single_solid": {
+      "method": "Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.",
+      "units": [
+        "count",
+        "mm3"
+      ]
+    },
+    "handle.mount_interface": {
+      "method": "Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.",
+      "units": [
+        "mm",
+        "mm3",
+        "count"
+      ]
+    },
+    "handle.envelope": {
+      "method": "Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.",
+      "units": [
+        "mm"
+      ]
+    },
+    "handle.grip_clearance": {
+      "method": "Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.",
+      "units": [
+        "mm",
+        "count"
+      ]
+    },
+    "handle.grip_sections": {
+      "method": "Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.",
+      "units": [
+        "mm",
+        "mm2",
+        "count"
+      ]
+    },
+    "handle.refinement_delta": {
+      "method": "Compare against exact accepted initial STEP: preserve initial material, increase width and area at every station, measure added thumb-rest volume, protrusion and outboard added volume.",
+      "units": [
+        "mm",
+        "mm2",
+        "mm3"
+      ]
+    },
+    "export.step_reopen": {
+      "method": "Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.",
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ]
+    },
+    "export.stl_reopen": {
+      "method": "Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.",
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ]
+    },
+    "export.editable_reopen": {
+      "method": "Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.",
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ]
+    }
+  }
+}
