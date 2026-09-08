@@ -1,0 +1,166 @@
+{
+  "scope": "Fresh trusted two-pad reference from protected developer acceptance; not product registration",
+  "engine": {
+    "name": "build123d",
+    "version": "0.11.1",
+    "ocpVersion": "7.9.3.1.1",
+    "imageId": "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440",
+    "architecture": "arm64"
+  },
+  "measurement": {
+    "engine": {
+      "version": "0.11.1",
+      "ocpVersion": "7.9.3.1.1"
+    },
+    "reference": {
+      "passed": true,
+      "contacts": [
+        {
+          "radiusMm": 7,
+          "centerMm": [
+            -48,
+            0,
+            0
+          ],
+          "areaMm2": 153.93804002589985
+        },
+        {
+          "radiusMm": 7,
+          "centerMm": [
+            48,
+            0,
+            0
+          ],
+          "areaMm2": 153.93804002589985
+        }
+      ],
+      "axes": [
+        {
+          "radiusMm": 7,
+          "centerMm": [
+            -48,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "bounds": [
+            [
+              -55,
+              -7,
+              0
+            ],
+            [
+              -41,
+              7,
+              2
+            ]
+          ]
+        },
+        {
+          "radiusMm": 7,
+          "centerMm": [
+            48,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "bounds": [
+            [
+              41,
+              -7,
+              0
+            ],
+            [
+              55,
+              7,
+              2
+            ]
+          ]
+        }
+      ],
+      "mountPitchMm": 96,
+      "solidCount": 2,
+      "volumeMm3": 615.7521601035996,
+      "bounds": [
+        [
+          -55,
+          -7,
+          0
+        ],
+        [
+          55,
+          7,
+          2
+        ]
+      ]
+    },
+    "checks": [],
+    "mesh": {
+      "sha256": "3e2c284fee68df261d3aaec51cd77d0c527502d4cdb3c6c42498e71e1f3755ca",
+      "bytes": 502484,
+      "passed": true,
+      "triangles": 10048,
+      "components": 2,
+      "componentVolumesMm3": [
+        307.8747985730612,
+        307.8747985730612
+      ],
+      "volumeMm3": 615.749597146121,
+      "bounds": [
+        [
+          -54.999977111816406,
+          -6.99999475479126,
+          0
+        ],
+        [
+          55,
+          6.99999475479126,
+          2
+        ]
+      ],
+      "relativeVolumeDifference": 0.000004162319914881929,
+      "watertight": true,
+      "consistentlyOriented": true,
+      "contacts": [
+        {
+          "centerMm": [
+            -47.999999488000945,
+            7.312796907529774e-7
+          ],
+          "radiusMm": 6.999999488000981,
+          "radialResidualMm": 0.000003038922631759533
+        },
+        {
+          "centerMm": [
+            48.00000051199905,
+            7.312796907529774e-7
+          ],
+          "radiusMm": 6.999999488000974,
+          "radialResidualMm": 0.0000030389226326477115
+        }
+      ],
+      "contactLayerWithinPads": true,
+      "contactLayerVolumeMm3": 615.7495971461237,
+      "contactLayerVolumeDifferenceMm3": 0.0025629574756749207
+    }
+  },
+  "startedAt": "2026-09-08T21:55:58.411426+00:00",
+  "completedAt": "2026-09-08T21:56:03.867750+00:00",
+  "verifierSha256": {
+    "handle_geometry.py": "b187a4763c20275642958dd25dd5242d98f8308a7e317bd4386d031015205d2c",
+    "handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58",
+    "handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6"
+  },
+  "allStageContainersRemoved": true
+}

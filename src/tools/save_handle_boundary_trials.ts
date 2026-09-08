@@ -7,7 +7,9 @@ import { computeCheckBundleHash, sha256, ToolResultSchema } from '../shared/cont
 const privateRoot = process.argv[2];
 if (!privateRoot || !path.isAbsolute(privateRoot)) throw new Error('Supply an absolute protected trial directory');
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const destination = path.join(root, 'examples/handle/trials/v2');
+const version = process.argv[3] ?? 'v2';
+if (version !== 'v2' && version !== 'v3') throw new Error('Expected v2 or v3 boundary package');
+const destination = path.join(root, 'examples/handle/trials', version);
 await fs.mkdir(destination);
 const files: Record<string, { sha256: string; bytes: number }> = {};
 async function save(relative: string, bytes: Uint8Array | string) {
@@ -32,11 +34,14 @@ await save('reference/provenance.json', JSON.stringify({
   completedAt: reference.completedAt, verifierSha256: reference.verifierSha256,
   allStageContainersRemoved: reference.stages.every((stage: { removed: boolean }) => stage.removed),
 }, null, 2));
-for (const name of ['valid_initial', 'rotated_seam_initial', 'outboard_below_minimum', 'outboard_at_minimum']) {
+const cases = version === 'v3'
+  ? ['valid_initial', 'rotated_seam_initial', 'valid_refinement', 'outboard_below_minimum', 'outboard_at_minimum', 'outboard_with_material_margin']
+  : ['valid_initial', 'rotated_seam_initial', 'outboard_below_minimum', 'outboard_at_minimum'];
+for (const name of cases) {
   const original = await fs.readFile(path.join(privateRoot, `${name}.json`));
   const result = ToolResultSchema.parse(JSON.parse(original.toString('utf8')));
   const core = JSON.parse(await fs.readFile(path.join(path.dirname(result.artifacts[0]!.path), 'result.json'), 'utf8'));
-  if (result.referenceHash !== files['examples/handle/trials/v2/reference/reference.step']!.sha256) {
+  if (result.referenceHash !== files[`examples/handle/trials/${version}/reference/reference.step`]!.sha256) {
     throw new Error('Reference identity mismatch');
   }
   for (const [staged, hash] of Object.entries(core.verifierSha256)) {
@@ -47,7 +52,7 @@ for (const name of ['valid_initial', 'rotated_seam_initial', 'outboard_below_min
     const bytes = await fs.readFile(artifact.path);
     if (await sha256(bytes) !== artifact.sha256 || bytes.length !== artifact.bytes) throw new Error('Artifact changed');
     await save(`${name}/${artifact.fileName}`, bytes);
-    artifact.path = `/saved-developer-trials/handle/v2/${name}/${artifact.fileName}`;
+    artifact.path = `/saved-developer-trials/handle/${version}/${name}/${artifact.fileName}`;
   }
   if (await computeCheckBundleHash({ ...result, revisionId: result.outputRevisionId }) !== result.checkBundleHash) {
     throw new Error('Sanitization changed check bundle');
@@ -64,5 +69,7 @@ for (const name of ['valid_initial', 'rotated_seam_initial', 'outboard_below_min
   }, null, 2));
 }
 await fs.writeFile(path.join(destination, 'hash-manifest.json'), JSON.stringify({
-  scope: 'Actual protected followup boundary observations; unchanged v1 historical artifacts', verifierHashes, files,
+  scope: version === 'v3'
+    ? 'Actual direct-work strict threshold observations; OUTSIDE_WRAPPER; unchanged v1 and v2 historical artifacts'
+    : 'Actual protected followup boundary observations; unchanged v1 historical artifacts', verifierHashes, files,
 }, null, 2), { flag: 'wx' });

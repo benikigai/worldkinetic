@@ -189,7 +189,7 @@ def inspect(shape, reference, g, baseline=None, initial=True):
         increase = protrusion-base_protrusion if protrusion is not None and base_protrusion is not None else None
         boundary = max(thumb['y'][0], outer+1) if outer is not None else thumb['y'][1]
         outboard = intersect(added, box(thumb['x'], [boundary, thumb['y'][1]], thumb['z'])) if boundary < thumb['y'][1] else None
-        delta_ok = (base_ok and volume(removed) <= TOL and volume(thumb_added) > 25 and volume(outboard) >= 5-1e-7
+        delta_ok = (base_ok and volume(removed) <= TOL and volume(thumb_added) > 25 and math.isfinite(volume(outboard)) and volume(outboard) >= 5
                     and protrusion is not None and protrusion >= 2-TOL and increase is not None and increase >= 2-TOL
                     and all(row['widthIncreaseMm'] is not None and row['widthIncreaseMm'] >= 4-TOL and row['addedAreaMm2'] >= 8-TOL for row in delta_rows))
         delta = {'stations': delta_rows, 'removedVolumeMm3': volume(removed), 'thumbAddedVolumeMm3': volume(thumb_added),

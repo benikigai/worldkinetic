@@ -55,8 +55,8 @@ Unavailable or nonfinite distance/point evidence cannot pass. Curved surfaces ar
 measured independently of their seam vertices. The whole central-column Boolean
 separately requires zero positive intersecting solids below 25-1e-7 mm, and minimum
 gap must be >=25-1e-7 mm, with no 0.01 mm or volume allowance. Thumb addition must
-be strictly greater than 25 mm3; outboard addition must be >=5-1e-7 mm3. The
-4.995 mm3 control fails and 5.000 mm3 passes without a 0.01 mm3 allowance.
+be strictly greater than 25 mm3; outboard addition must be finite and >=5 mm3,
+with no epsilon allowance. A nominal boundary measured below five fails.
 The panel's 4.5 mm holes are metadata, not handle bores or threads.
 
 The fresh export verifier reopens exact STEP bytes, compares isolated regeneration
@@ -88,50 +88,35 @@ recomputed bundle. It is transport conformance data, not a live run.
 
 ```sh
 node --import tsx src/tools/check_handle_cases.ts
-# Save four focused cases from a completed protected handle acceptance run:
-node --import tsx src/tools/save_handle_boundary_trials.ts /absolute/private-trial-directory
+# Save the focused direct-run evidence into a fresh v3 directory:
+node --import tsx src/tools/save_handle_boundary_trials.ts /absolute/private-trial-directory v3
 node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts src/tools/check_handle_cases.ts src/tools/save_handle_trials.ts src/tools/save_handle_boundary_trials.ts
 ```
 
-The first worker's historical protected gate reported 8 passed and 7 failed:
-the harness read `artifactId` from private `ToolResult.artifacts`, whose strict
-schema has no artifact ID, and its typecheck also widened the datum hash literal.
-That worker finished naturally; parent run `TOOLS-HANDLE-01-3813cd3157d4` was
-INTERRUPTED at the idle CAD boundary, not passed. Its output was preserved in
-`cf18adb`. The supervisor corrected synthetic registration/typing and added three
-strict controls in `f1f6f430a6cdbe1727b387e938a91a443aba7013`. Those protected
-definitions and all historical v1/reference/plate bytes remain unchanged here.
+The first handle run `TOOLS-HANDLE-01-3813cd3157d4` remains INTERRUPTED;
+its worker output and the harness registration failure were preserved. The
+nearest-surface followup `TOOLS-HANDLE-01-VERIFY-bf021854d7a1` passed its protected
+18 handle, 7 source and 6 adapter tests, numeric regression and focused typecheck
+at `bdd3379`. Its [v2 artifacts](../../examples/handle/trials/v2/) retain the actual
+measurements and verifier hashes. That version still accepted a measured
+4.999999999999999 mm3 through an epsilon, which did not satisfy the frozen minimum.
 
-On that corrected baseline, the targeted five tests reported four passes and one
-failure. `rotated_seam_initial` reported a 25.000000000000004 mm gap but supplied a
-vertex-derived diagnostic distance of 25.153779611289004 mm. Reference and valid
-initial passed; measured outboard additions 4.995000000000011 and
-4.999999999999999 mm3 correctly failed and passed, respectively. The repair
-replaces the vertex diagnostic with actual OCP surface extrema and retains both
-strict thresholds. This followup does not rewrite the interrupted receipt.
+The final threshold correction is direct work, `OUTSIDE_WRAPPER`. Its numeric
+policy test evaluates the production decision: exact 5.0 passes, while 5-5e-8,
+the next float below five, NaN and infinity fail. This is numeric decision
+coverage, separate from real CAD evidence. The unchanged nominal-five geometry
+is judged by its actual measured volume. A separate 5.001 mm3 material-margin
+case provides the positive geometry control. Historical v1/v2 bytes and receipts
+are unchanged; [v3](../../examples/handle/trials/v3/) records the new real source,
+STEP, STL, regenerated editable source, checks and verifier hashes.
 
-The repaired protected handle gate passes all 18 tests: 14 geometry cases,
-reference reopening, descriptor-byte mismatch rejection, timeout/cancellation
-cleanup and fixture conformance. The focused [v2 boundary package](../../examples/handle/trials/v2/)
-retains the actual corrected rounded geometry and closest points, 4.995-fail and
-5.000-pass artifacts, and their synthetic accepted initial baseline. Its manifest
-covers source/editable/STEP/STL/results/provenance and exact verifier hashes. These
-are fixed developer inputs, not provider generation or product acceptance.
-
-The parent-supplied complete regression command exited 0: handle 18/18, source
-7/7, adapter 6/6, numeric plate geometry/export/invalid/deadline checks and the
-focused TOOLS/shared typecheck passed. Numeric lengths 50 and 36 passed their
-margin checks; length 30 retained its expected measured margin failure. The
-boundary saver separately passed strict TypeScript checking, and all 28 saved
-files and ten source hashes were verified against the manifest. No whole-app UI,
-provider generation or physical testing is claimed.
-
-Exact complete regression command:
+Reproduce the focused final checks:
 
 ```sh
-node --import tsx --test tests/tools/handle_acceptance.test.ts && node --import tsx --test tests/tools/source_acceptance.test.ts && node --import tsx --test tests/tools/adapter.test.ts && python3 -B tests/tools/plate_acceptance.py && node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts tests/tools/handle_acceptance.test.ts
+python3 -B tests/tools/handle_volume_threshold.py
+node --import tsx --test --test-name-pattern='^(reference has|valid_initial$|rotated_seam_initial$|valid_refinement$|outboard_below_minimum$|outboard_at_minimum$|outboard_with_material_margin$)' tests/tools/handle_acceptance.test.ts
+node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts src/tools/save_handle_boundary_trials.ts tests/tools/handle_acceptance.test.ts
 ```
-
 
 BACKEND still owns Responses generation, real acceptance/history resolution,
 registration, routes and downloads. UI integration and model repair are not

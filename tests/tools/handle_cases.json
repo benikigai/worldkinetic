@@ -15,90 +15,189 @@
       "sourceBase": "initialSource",
       "append": "",
       "expectedFailedChecks": [],
-      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [10,10,10,10,10], "stationAreasMm2": [100,100,100,100,100]}
+      "expectedMeasurements": {
+        "gapMm": 25,
+        "stationWidthsMm": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "stationAreasMm2": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      }
     },
     {
       "id": "rounded_initial",
       "sourceBase": "roundedInitialSource",
       "append": "",
       "expectedFailedChecks": [],
-      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [12,12,12,12,12]}
+      "expectedMeasurements": {
+        "gapMm": 25,
+        "stationWidthsMm": [
+          12,
+          12,
+          12,
+          12,
+          12
+        ]
+      }
     },
     {
       "id": "rotated_seam_initial",
       "source": "from build123d import *\np = import_step('__MOUNT_REFERENCE__')\nfor x in (-48,48):\n    p += Pos(x,0,2) * Cylinder(5,29,align=(Align.CENTER,Align.CENTER,Align.MIN))\np += Pos(-54,0,31) * Rot(13,0,0) * Rot(0,90,0) * Cylinder(6,108,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
       "expectedFailedChecks": [],
-      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [12,12,12,12,12], "nearestPointPairDistanceMm": 25}
+      "expectedMeasurements": {
+        "gapMm": 25,
+        "stationWidthsMm": [
+          12,
+          12,
+          12,
+          12,
+          12
+        ],
+        "nearestPointPairDistanceMm": 25
+      }
     },
     {
       "id": "shifted_mounts",
       "sourceBase": "initialSource",
       "append": "p = Pos(1,0,0) * p\n",
-      "expectedFailedChecks": ["handle.mount_interface"]
+      "expectedFailedChecks": [
+        "handle.mount_interface"
+      ]
     },
     {
       "id": "tiny_gap_intrusion",
       "sourceBase": "initialSource",
       "append": "p += Pos(-0.5,-0.5,24.9999) * Box(1,1,0.0001,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.grip_clearance"],
-      "expectedMeasurements": {"intrusionBelowDifferenceVolumeTolerance": true}
+      "expectedFailedChecks": [
+        "handle.grip_clearance"
+      ],
+      "expectedMeasurements": {
+        "intrusionBelowDifferenceVolumeTolerance": true
+      }
     },
     {
       "id": "missing_central_grip",
       "sourceBase": "initialSource",
       "append": "p -= Pos(-31,-20,20) * Box(62,40,30,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["geometry.valid_single_solid", "handle.grip_clearance", "handle.grip_sections"]
+      "expectedFailedChecks": [
+        "geometry.valid_single_solid",
+        "handle.grip_clearance",
+        "handle.grip_sections"
+      ]
     },
     {
       "id": "panel_penetration",
       "sourceBase": "initialSource",
       "append": "p += Pos(-48,0,-1) * Cylinder(2,2,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.envelope"]
+      "expectedFailedChecks": [
+        "handle.envelope"
+      ]
     }
   ],
   "refinementCases": [
     {
       "id": "outboard_below_minimum",
       "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.4995,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.refinement_delta"],
-      "expectedMeasurements": {"outboardAddedVolumeMm3": 4.995, "protrusionMm": 2}
+      "expectedFailedChecks": [
+        "handle.refinement_delta"
+      ],
+      "expectedMeasurements": {
+        "outboardAddedVolumeMm3": 4.995,
+        "protrusionMm": 2
+      }
     },
     {
       "id": "outboard_at_minimum",
       "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.5,align=(Align.MIN,Align.MIN,Align.MIN))\n",
       "expectedFailedChecks": [],
-      "expectedMeasurements": {"outboardAddedVolumeMm3": 5, "protrusionMm": 2}
+      "expectedMeasurements": {
+        "outboardAddedVolumeMm3": 5,
+        "protrusionMm": 2,
+        "decisionRule": "Only finite measured outboard volume >=5 passes; a measured deficit fails even for this nominal boundary."
+      }
+    },
+    {
+      "id": "outboard_with_material_margin",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.5001,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {
+        "outboardAddedVolumeMm3": 5.001,
+        "protrusionMm": 2
+      }
     },
     {
       "id": "valid_refinement",
       "sourceBase": "refinementSource",
       "append": "",
       "expectedFailedChecks": [],
-      "expectedMeasurements": {"stationWidthsMm": [14,14,19,14,14], "minimumWidthIncreaseMm": 4, "protrusionMm": 5, "thumbAddedVolumeMm3": 880, "outboardAddedVolumeMm3": 384}
+      "expectedMeasurements": {
+        "stationWidthsMm": [
+          14,
+          14,
+          19,
+          14,
+          14
+        ],
+        "minimumWidthIncreaseMm": 4,
+        "protrusionMm": 5,
+        "thumbAddedVolumeMm3": 880,
+        "outboardAddedVolumeMm3": 384
+      }
     },
     {
       "id": "local_only_widening",
       "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-10,-7,25) * Box(20,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-6,7,27) * Box(12,5,5,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.refinement_delta"],
-      "expectedMeasurements": {"unchangedStationXmm": [-24,-12,12,24]}
+      "expectedFailedChecks": [
+        "handle.refinement_delta"
+      ],
+      "expectedMeasurements": {
+        "unchangedStationXmm": [
+          -24,
+          -12,
+          12,
+          24
+        ]
+      }
     },
     {
       "id": "uniform_widening",
       "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.refinement_delta"],
-      "expectedMeasurements": {"minimumWidthIncreaseMm": 4, "protrusionMm": 0, "outboardAddedVolumeMm3": 0}
+      "expectedFailedChecks": [
+        "handle.refinement_delta"
+      ],
+      "expectedMeasurements": {
+        "minimumWidthIncreaseMm": 4,
+        "protrusionMm": 0,
+        "outboardAddedVolumeMm3": 0
+      }
     },
     {
       "id": "tiny_rest_spike",
       "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.0001,align=(Align.MIN,Align.MIN,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.refinement_delta"],
-      "expectedMeasurements": {"protrusionMm": 2, "outboardAddedVolumeMm3LessThan": 5}
+      "expectedFailedChecks": [
+        "handle.refinement_delta"
+      ],
+      "expectedMeasurements": {
+        "protrusionMm": 2,
+        "outboardAddedVolumeMm3LessThan": 5
+      }
     },
     {
       "id": "removed_initial_material",
       "sourceBase": "refinementSource",
       "append": "p -= Pos(40,0,20) * Cylinder(1,20,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
-      "expectedFailedChecks": ["handle.refinement_delta"]
+      "expectedFailedChecks": [
+        "handle.refinement_delta"
+      ]
     }
   ]
 }
