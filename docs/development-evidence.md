@@ -1,5 +1,14 @@
 # Astra development workflow
 
+## Current sprint override, September 8, 2026
+
+The user approved direct coding for the remaining hackathon sprint. This supersedes the mandatory wrapper workflow below. Work directly in the assigned role worktree; do not launch another wrapper or child builder for new work. Let already active workers finish safely without concurrent edits or changes to their protected acceptance inputs.
+
+Keep the wrapper and all existing receipts and ledger entries. Record subsequent direct work as `OUTSIDE_WRAPPER`, with exact commits, focused actual checks and remaining gaps. Earlier wrapper attribution applies only to its recorded snapshot. Preserve file ownership, the shared CAD lock, frozen handle requirements and BACKEND as sole integrator. Do not change models, service tiers or dependencies for this workflow override.
+
+Prioritize actual cabinet-handle generation, explicit initial acceptance, grip and thumb-rest refinement, current checks, explicit final acceptance and matching downloads. The product still uses real Astra calls. The wrapper instructions below are historical unless the user explicitly requests another wrapper run.
+
+
 Each role window supervises bounded `astra.py` runs. The wrapper launches a separate Codex worker with the requested model, runs a protected acceptance command and records the outcome. It does not capture an existing desktop conversation. Reading this policy does not change the model selected in that window.
 
 This policy governs new deliverables. Earlier work and the initial public baseline have no retroactive wrapper attribution. Work completed directly in a chat must be identified as outside the wrapper.
@@ -87,3 +96,15 @@ The ledger includes role, task, requested model/effort, provider-reported fields
 Keep sensitive text out of task IDs and public verifier commands. Private research ledgers stay private too. A demo summary may reference sanitized run IDs, outcomes and source commits after inspection; preserve the original private evidence. Do not rewrite or fabricate an original record to sanitize it.
 
 Requested model and provider-reported model are different fields. Null reported values remain unknown. These are local execution records, not provider-signed authorship certificates, hidden reasoning transcripts or proof of a judge score.
+
+## Faster bounded runs
+
+For user-authorized workflow changes, batch related same-owner, low-risk copy or cosmetics in one bounded worker with one final handoff. Do not launch a fresh worker per sentence. The existing worker may make related corrections within the assigned task. Review changed and affected files without repeatedly reviewing unchanged files. Inherited workers complete the task directly without nesting.
+
+Use `--effort low` for simple copy. The default is medium for documents and high for code. Explicitly select high for CAD, security and shared contracts, including technical documents. An explicit `--effort` wins over defaults. Owner scope, protected checks, semantic review and BACKEND sole integration remain unchanged. Inseparable critical work still requires isolation; batching provides no bypass.
+
+The new canonical wrapper emits a metadata heartbeat every 10 seconds by default; `--quiet-progress` suppresses it. Progress must not display raw text.
+
+`--service-tier inherit` is the default and leaves CLI configuration unchanged. An explicit paid tier requires prior authority. Keep requested and reported service tiers separate; the actual tier remains unknown unless a completion event provides it.
+
+Preserve old receipts unchanged and do not interrupt active workers. The parent wrapper owns verification and the ledger; workers do not rewrite evidence.
