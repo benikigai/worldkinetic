@@ -70,6 +70,9 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertIn('noreferrer', link.attrs.get('rel', ''))
         self.assertFalse(any(n.tag == 'form' for n in files.walk()))
         self.assertIn('disabled', self.node('make-package').attrs)
+        self.assertFalse(self.collapsed_ancestor(self.node('make-package')))
+        self.assertTrue(self.collapsed_ancestor(self.node('live-artifact')))
+        self.assertTrue(self.collapsed_ancestor(self.node('live-download')))
         for identity in ['make-quantity', 'make-material', 'make-finish', 'make-destination', 'make-needed-by']:
             self.assertNotIn('required', self.node(identity).attrs)
             self.assertTrue(self.collapsed_ancestor(self.node(identity)))
