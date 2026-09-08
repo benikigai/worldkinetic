@@ -285,7 +285,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     const ui=mountLive(s.controller,abort.signal,update=>{previewKey=update.previewKey;}); ui.open(); await settled();
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
-    node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false);
+    node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true);
     node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0);
     node('live-run').click(); await settled(); assert.equal(s.state.runs.length,1); await s.complete(); await s.controller.refresh();
     assert.equal(node('live-accept').hidden,true,'Completion cannot accept an unseen design');
@@ -293,8 +293,11 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     node('live-accept').click(); await settled(); assert.equal(s.history.acceptances.length,1);
     assert.equal(s.controller.snapshot().canAccept,false,'An accepted selection does not offer duplicate acceptance');
     assert.equal(node('live-download').hidden,false); assert.equal(node('live-files').hidden,false);
+    assert.equal(node('live-inputs').hidden,true,'Completed prompt is removed from the primary flow');
+    assert.equal(node('live-size-review').hidden,true,'Completed size brief does not dominate the download stage');
+    assert.equal(node('live-title').textContent,'Your design is ready');
     const initialId=s.state.design.acceptedRevisionId;
-    node('live-change').click(); assert.equal(s.history.acceptances.length,1); assert.equal(s.state.requirements.setupId,'handle_initial_v1');
+    node('live-change').click(); assert.equal(node('live-inputs').hidden,false,'Explicit new change restores the request'); assert.equal(s.history.acceptances.length,1); assert.equal(s.state.requirements.setupId,'handle_initial_v1');
     node('live-sample').click(); assert.match(node('live-request').value,/thumb rest/);
     node('live-review-sizes').click(); node('live-confirm').click(); await settled();
     assert.equal(s.state.requirements.setupId,'handle_refine_v1'); assert.equal(s.state.requirements.setup.acceptedInitial.revisionId,initialId);
@@ -318,6 +321,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     }
     assert.equal(s.history.acceptances.length,2); assert.notEqual(s.state.design.acceptedRevisionId,initialId);
     assert.equal(node('live-files').hidden,false); assert.equal(node('live-download').disabled,false);
+    assert.equal(node('live-inputs').hidden,true,'Verified final recovery keeps the completed prompt out of the download flow');
+    assert.equal(node('live-check-details').open,false,'Passed checks are summarized and can be expanded');
     assert.equal(node('live-change').hidden,true,'Only the accepted initial supports this refinement stage');
     s.controller.selectRevision(initialId); assert.equal(node('live-download').disabled,false,'History inspection cannot change accepted file eligibility');
   } finally {abort.abort();if(previous)Object.defineProperty(globalThis,'document',previous);else Reflect.deleteProperty(globalThis,'document');}

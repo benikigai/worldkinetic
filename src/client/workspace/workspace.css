@@ -273,3 +273,38 @@
   .wk-model-actions { gap: 4px; }
   .wk-model-actions button, .wk-model-actions select { font-size: 11px; padding: 7px; }
 }
+
+/* Readable primary flow; supporting evidence stays available on demand. */
+.wk-workspace { font-size: 16px; }
+.wk-workspace button, .wk-workspace select, .wk-workspace textarea { min-height: 44px; font-size: 16px; }
+.wk-consumer-layout { grid-template-columns: 360px minmax(0, 1fr); }
+.wk-consumer-heading h1 { font-size: clamp(28px, 3vw, 36px); }
+.wk-consumer-layout .wk-request h2 { font-size: 24px; }
+.wk-consumer-layout .wk-request p, .wk-consumer-layout .wk-request label, .wk-consumer-layout .wk-request textarea { font-size: 16px; line-height: 1.55; }
+.wk-consumer-layout .wk-request textarea { min-height: 145px; }
+.wk-consumer-layout .wk-request .wk-primary { font-size: 16px; min-height: 48px; }
+.wk-model-heading h2 { font-size: 20px; }
+.wk-progress li, .wk-badge, .wk-kicker, .wk-navigation, .wk-model-footer { font-size: 14px; }
+.wk-size-review summary { font-size: 16px; padding: 4px 0; }
+.wk-size-review h3 { margin-top: 16px; font-size: 16px; }
+.wk-mount-brief figcaption, .wk-details, .wk-disclosure > summary, .wk-review-note { font-size: 14px; }
+.wk-change-summary h3 { font-size: 16px; }
+.wk-change-summary p { font-size: 15px; line-height: 1.55; }
+.wk-result-checks { border-top: 1px solid var(--line); }
+.wk-result-checks > summary { padding: 18px 16px; font-size: 16px; }
+.wk-result-checks > summary span { float: right; font-size: 15px; }
+.wk-check-table, .wk-check-table thead th, .wk-check-state { font-size: 14px; }
+.wk-check-table th:last-child, .wk-check-table td:last-child { width: 100px; }
+.wk-check-detail, #live-checks pre, .wk-measured { font-size: 13px; }
+.wk-preview-message strong { font-size: 20px; }
+.wk-preview-message p { font-size: 16px; }
+.wk-axis-labels { display: none; }
+@media (max-width: 900px) {
+  .wk-consumer-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 440px) {
+  .wk-consumer-heading h1 { font-size: 28px; }
+  .wk-progress li { font-size: 13px; }
+  .wk-model-actions button, .wk-model-actions select { font-size: 14px; }
+  .wk-result-checks > summary span { font-size: 14px; }
+}

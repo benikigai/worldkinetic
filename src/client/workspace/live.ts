@@ -43,6 +43,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
   let previewFailed = false;
   let active = false;
   let initialized = false;
+  let checkedRevision: string | null = null;
   let poll: ReturnType<typeof setTimeout> | undefined;
 
   function render() {
@@ -76,22 +77,24 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       if (index === step) item.setAttribute('aria-current', 'step'); else item.removeAttribute('aria-current');
     });
     const refining = handle && (changing || requirements.setupId === 'handle_refine_v1');
-    const status = s.error ? 'We could not verify this design. Your draft is kept. Check status before continuing.'
-      : s.loading ? 'Checking the latest design and files…'
-        : s.busy ? 'Sending your action…'
-          : !s.trusted ? 'The handle workspace is unavailable. Check status to try again.'
-            : !handle ? 'The handle demo is unavailable on this connection. Recorded plate evidence is in the examples.'
-              : b?.executionMode === 'fixture' ? 'Test data only. No live handle execution is available.'
-                : b?.design?.activeRunId ? progress || 'Creating and checking your design.'
-                  : failedRun ? `The handle run ${currentRun!.status}. ${currentRun?.error?.message ?? 'Check status and review before trying again.'}`
-                  : s.canDownload ? 'Your accepted design is ready. You can get its files below.'
-                    : candidate?.status === 'rejected' ? 'This design did not meet the requirements. Review the failed checks before trying again.'
-                      : s.canAccept ? 'Review your design and its checks, then choose whether to use it.'
-                        : b?.executionMode !== 'live' ? 'New handle generation is unavailable. Existing verified designs remain inspectable.'
-                          : 'Live handle workspace. Start with the sample sizes and describe your change.';
+    const filesReady = s.canDownload && !changing;
+    element('live-inputs').hidden = filesReady;
+    text('live-title', filesReady ? 'Your design is ready' : 'What would you like to change?');
+    const status = s.error ? 'Connection problem. Your draft is safe. Try Check status.'
+      : s.loading ? 'Checking your design…'
+        : s.busy ? 'Saving…'
+          : !s.trusted || !handle ? 'The handle demo is unavailable. Try Check status.'
+            : b?.executionMode === 'fixture' ? 'Test data only. Live design is unavailable.'
+              : b?.design?.activeRunId ? progress || 'Creating your design…'
+                : failedRun ? 'The design could not be completed. See Technical details.'
+                  : filesReady ? 'Approved and ready to download.'
+                    : candidate?.status === 'rejected' ? 'Some checks failed. Review them below.'
+                      : s.canAccept ? 'Compare the shape and checks, then use this design.'
+                        : b?.executionMode !== 'live' ? 'New designs are unavailable. You can view saved results.'
+                          : 'Describe your idea or try a sample.';
     text('live-status', status);
     text('live-error-detail', s.error ?? (currentRun?.error ? pretty(currentRun.error) : b?.unavailableReason) ?? 'No connection error.');
-    text('live-stage', handle ? (refining ? 'Refine your accepted starting design' : 'Create a starting handle') : 'Handle connection unavailable');
+    text('live-stage', filesReady ? 'Approved' : !handle ? 'Unavailable' : b?.design?.activeRunId ? 'Creating' : s.canAccept ? 'Review' : refining ? 'Refine' : 'Start');
     element('live-status').dataset.error = String(Boolean(s.error || failedRun || candidate?.status === 'rejected' || candidate?.status === 'failed'));
     for (const [id, name] of [['live-review-sizes', 'review'], ['live-confirm', 'confirm'], ['live-run', 'run'],
       ['live-accept', 'accept'], ['live-download', 'download']] as const) {
@@ -104,27 +107,24 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-change').hidden = !s.canRefine || changing || !s.canDownload;
     element<HTMLButtonElement>('live-change').disabled = !s.canRefine || s.busy || s.loading || Boolean(s.error);
     element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || Boolean(s.pendingAction);
-    element('live-size-review').hidden = !sizesReviewed && !s.canRun && !b?.design?.acceptedRevisionId;
+    element('live-size-review').hidden = filesReady || (!sizesReviewed && !s.canRun);
+    if (b?.design?.activeRunId || s.canAccept || filesReady) element<HTMLDetailsElement>('live-size-review').open = false;
     element('live-files').hidden = !s.canDownload || changing;
     for (const [id, enabled] of [['live-retry', Boolean(s.pendingAction) && !s.busy && !s.loading],
       ['live-refresh', !s.busy && !s.loading], ['live-reconnect', !s.busy && !s.loading]] as const) element<HTMLButtonElement>(id).disabled = !enabled;
     element('live-retry').hidden = !s.pendingAction;
+    element('live-refresh').hidden = filesReady && !s.error;
     element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
-    text('live-confirm', refining ? 'Confirm refinement sizes' : 'Confirm starting sizes');
+    text('live-confirm', 'Confirm sizes');
     text('live-run', refining ? 'Create updated design' : 'Create design');
-    text('live-run-gate', s.pendingAction ? 'The last request may have arrived. Check status, then retry that same request explicitly.'
-      : b?.design?.activeRunId ? progress || 'Checking the current run…'
-        : s.canRun ? 'Sizes are confirmed. Creating the design is a separate action.'
-          : refining ? 'Keep the mounting pads and finger gap. Broaden the grip and add a thumb rest.'
-            : 'The two pads define the mounting positions. They are not an existing handle.');
-    text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for the 3D preview to load before using it.'
-      : display.canAccept ? 'Use this design only after reviewing its shape and checks.' : 'A completed run does not accept a design.');
+    text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.' : '');
+    text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for it to load.' : '');
     text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
       : 'Files become available after you explicitly use a checked design with the current sizes.');
     if (handle) {
       const brief = requirements.setup.geometry.sampleRequirements;
-      text('live-requirements', 'Sample handle sizes');
-      text('live-fixed', `Mounting pitch ${brief.mountPitchMm} mm · finger gap at least ${brief.minimumFingerGapMm} mm · length at most ${brief.maximumOverallLengthMm} mm. Concept pads; hardware unspecified.`);
+      text('live-requirements', 'Sample brief');
+      text('live-fixed', `Mount spacing: ${brief.mountPitchMm} mm. Finger gap: at least ${brief.minimumFingerGapMm} mm. Maximum length: ${brief.maximumOverallLengthMm} mm.`);
     } else {
       text('live-requirements', 'Handle sizes unavailable');
       text('live-fixed', 'Connect a handle-capable workspace. Unknown sizes have not been filled in.');
@@ -133,8 +133,8 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     text('live-change-summary', verifiedCandidate?.changeSummary ?? 'No verified design changes yet.');
     const protectedChecks = verifiedCandidate?.checks.filter(item => ['handle.mount_interface', 'handle.grip_clearance'].includes(item.checkId));
     text('live-preserved', protectedChecks?.length === 2 && protectedChecks.every(item => item.state === 'passed')
-      ? 'The mounting interface and empty finger gap passed their checks for this design.'
-      : 'Mounting and finger-gap preservation have not both passed for this design.');
+      ? 'Mounts and finger space passed their checks.'
+      : 'Mounts and finger space are not yet verified.');
     text('live-selection', b?.design ? `Selected: ${b.design.selectedCandidateRevisionId ?? 'none'} · state v${b.design.stateVersion}` : 'No current design');
     const run = b?.runs.find(item => item.runId === (b.design?.activeRunId ?? candidate?.runId)) ?? currentRun;
     text('live-run-status', run ? `${run.status}${run.error ? ` · ${run.error.message}` : ''}` : 'No active run');
@@ -143,7 +143,11 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     if (s.viewedRevisionId) revision.value = s.viewedRevisionId;
     if (!candidate) revision.prepend(option('', 'No candidate selected'));
     revision.disabled = s.loading || !b?.candidates.length;
-    text('live-candidate-status', candidate ? `${candidate.revisionId === b?.design?.selectedCandidateRevisionId ? 'Current design' : 'Earlier design'} checks · ${candidate.status}${comparison.value === 'baseline' ? ' · Before is shown for comparison' : ''}${candidate.error ? ` · ${candidate.error.message}` : ''}` : 'No checked design yet. The mounting reference has not been generated or checked as a handle.');
+    text('live-candidate-status', candidate ? `${candidate.revisionId === b?.design?.acceptedRevisionId ? 'Approved design' : candidate.status === 'reviewable' ? 'Ready to review' : candidate.status === 'rejected' ? 'Needs changes' : candidate.status}${candidate.revisionId !== b?.design?.selectedCandidateRevisionId ? ' · earlier design' : ''}${comparison.value === 'baseline' ? ' · comparing with Before' : ''}` : 'No design to review yet.');
+    if (s.trusted && !s.loading && candidate && checkedRevision !== candidate.revisionId) {
+      element<HTMLDetailsElement>('live-check-details').open = candidate.status === 'rejected' || candidate.status === 'failed';
+      checkedRevision = candidate.revisionId;
+    }
     const r = s.trusted && !s.error ? candidate?.requirements : undefined;
     if (display.evidenceAction === 'replace') {
       text('live-check-count', r ? `${candidate!.checks.filter(check => check.state === 'passed').length}/${r.requiredChecks.length} passed` : 'No verified checks');
@@ -169,7 +173,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
         }
         if (r.registryId === 'handle_sample_v1') {
           const measured = document.createElement('p'); measured.className = 'wk-measured';
-          measured.textContent = measuredSummary(check?.measured); cell.append(measured);
+          measured.textContent = measuredSummary(check?.measured); details.append(measured);
         }
         row.append(heading, cell); return row;
       }) ?? []));
@@ -232,7 +236,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       ? 'Broaden the grip and add a localized thumb rest while preserving the accepted starting design, mounting pads and empty finger gap.'
       : 'Create a cabinet handle joining the two mounting pads, with a comfortable grip and the confirmed sample sizes.' });
   }, { signal });
-  element('live-review-sizes').addEventListener('click', () => { sizesReviewed = true; render(); }, { signal });
+  element('live-review-sizes').addEventListener('click', () => { sizesReviewed = true; element<HTMLDetailsElement>('live-size-review').open = true; render(); }, { signal });
   element('live-change').addEventListener('click', () => {
     if (!controller.snapshot().canRefine) return;
     changing = true; sizesReviewed = false; controller.setDraft({ instruction: '' });
