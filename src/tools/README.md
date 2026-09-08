@@ -1,3 +1,110 @@
+# TOOLS-HANDLE-01 handle source pipeline
+
+The adapter supports the released `handle_sample_v1` registry with
+`handle-validator-v1`: eight initial checks and nine refinement checks. Handle
+requests require arbitrary `python_source`; numeric proposals are rejected before
+CAD. The preserved plate numeric and source paths remain available.
+
+```ts
+import { createHandleReference } from './src/tools/handle_reference.js';
+
+const { referenceArtifact, previewArtifact } = await createHandleReference({
+  outputDir: '/absolute/existing-parent/new-reference',
+  remainingBudgetMs: 60000,
+  signal: abortController.signal,
+});
+```
+
+The fresh output contains `reference.step`, `preview.stl`, `datums.json` and a
+private creation report. The reference is only two radius-7 pads at X=-48/+48,
+Y=0, Z=0..2 mm. An isolated fixed constructor creates them; separate trusted
+containers reopen the STEP and inspect analytic pads and the actual two-component
+watertight, oriented STL. The helper returns private creation descriptors matching
+`DispatchReferenceArtifactSchema`. It does not register artifacts, record
+acceptance or make files downloadable. BACKEND can register the exact STEP, STL
+and canonical JSON bytes in [the saved reference](../../examples/handle/reference/).
+The datum is the shared `HANDLE_DATUM_CANONICAL_JSON` verbatim UTF-8 without a
+newline, with hash `6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83`.
+
+Generators and independent regenerators receive only `/input/source.py`,
+`/input/reference.step`, `/input/datums.json`, and, for refinement only,
+`/input/baseline.step`. The reference always retains `handle_mount_reference_v1`;
+the baseline is the exact explicitly accepted initial STEP. BACKEND must resolve
+its acceptance descriptor from immutable history. TOOLS checks the separate
+identities, rereads every regular nonlinked input and verifies actual hashes
+before staging, then independently checks baseline geometry against initial
+requirements. A descriptor alone is not evidence of product acceptance.
+Generated source writes only `/out/candidate.step`; delivered `source.py` and
+`editable.py` retain its exact bytes. Trusted verifiers never execute source.
+
+All CAD, including reference creation, uses the existing pinned image and shared
+host flock. Lock wait consumes the same request budget. The adapter caps a request
+at 180 seconds; generators retain 60-second caps and trusted stages 30 seconds.
+Known-container removal must complete before sealing or delivery. Cancellation,
+64 KiB source, 25 MiB package and 100,000-triangle limits retain the existing
+fail-closed behavior. No dependency, image or rendering stack was added.
+
+Measurements come from reopened OCP geometry: actual planar circular contacts and
+cylinder axes, whole contact-layer symmetric difference, envelope, central-column
+Boolean intrusion, connected central grip and five actual planar sections.
+Refinement measures all initial material removal, per-station width and added
+area, added thumb-box/outboard volume and actual protrusion. Initial width limits
+do not constrain refinement. The gap uses only the 1e-7 mm kernel inset, with no
+0.01 mm or volume allowance. Thumb addition must be strictly greater than 25 mm3.
+The panel's 4.5 mm holes are metadata, not handle bores or threads.
+
+The fresh export verifier reopens exact STEP bytes, compares isolated regeneration
+by symmetric difference, bounds and applicable checks, and reads binary STL
+independently. Mesh checks cover finite vertices, edge pairing, winding,
+components, positive signed volumes, bounds, pad rims, contact-layer volume by the
+divergence theorem, clipped central-column gap and oriented planar section areas.
+STL tessellation uses linear tolerance 0.00001 mm and angular tolerance 0.01.
+It does not reuse the plate bore assumptions. Unsupported or unestablished
+geometry cannot produce a passing export. Missing section contours and
+geometric conflicts retain failed records; malformed files or failed execution
+produce infrastructure errors with no artifacts or passing checks.
+
+Actual fixed developer observations are saved in
+[trials/v1](../../examples/handle/trials/v1/) with exact source/editable/STEP/STL
+bytes, sanitized strict results and a hash manifest. Each provenance file records
+the verifier bytes actually staged, observation start/end times, original private
+result SHA-256 and sanitized result SHA-256. Sanitized artifact paths are logical
+`/saved-developer-trials/...` references, not registered downloads. The unchanged
+check-bundle hash is reverified after path sanitization. Raw runtime results and
+stderr remain private. Saved checks describe those exact files and verifier
+snapshots, not later edits or integrated runtime behavior.
+
+The developer driver supplies a synthetic registered initial STEP ID and synthetic
+acceptance descriptor. Its fixed source is never product model-generation evidence.
+The [nine-check fixture](../../fixtures/tools/handle-v2-result.fixture.json) uses
+fixture provenance at result/check/artifact levels, a fixture engine and a
+recomputed bundle. It is transport conformance data, not a live run.
+
+```sh
+node --import tsx src/tools/check_handle_cases.ts
+# Copy one completed private run into fresh saved-example directories:
+node --import tsx src/tools/save_handle_trials.ts /absolute/private-trial-directory
+node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts src/tools/check_handle_cases.ts src/tools/save_handle_trials.ts
+```
+
+The protected handle acceptance currently reports 8 passed and 7 failed. Its
+reference probe and all six initial cases pass, as does fixture validation. The
+seven failures occur before refinement CAD: protected lines 64 and 125 read
+`artifactId` from private `ToolResult.artifacts`, whose strict released schema has
+no artifact ID. The protected typecheck reports those two accesses and the widened
+`datumSpecSha256` at line 54. The parent must supply a synthetic registered ID in
+its harness and retain the datum literal type; these protected files were not
+changed. The supplemental developer driver exercises the real refinement and
+negative paths with that explicit synthetic registration step. It is not a
+replacement or passing receipt for the protected gate.
+
+BACKEND still owns Responses generation, real acceptance/history resolution,
+registration, routes and downloads. UI integration and model repair are not
+established by these trials. Strength, physical fit, comfort, fabrication and
+manufacturing readiness are not checked or claimed.
+
+---
+
 # TOOLS-03 source candidates and frozen feature verification
 
 `adapter.ts` exports `cadToolAdapter: ToolAdapter` from the released
@@ -26,8 +133,9 @@ pairs in `diagnostics.pointPairs`. The proposal and full bundle use shared hash
 helpers. A completed result with a failed margin remains `completed`, allowing
 BACKEND to record a rejected candidate. This adapter never accepts a revision.
 
-Exactly one reference descriptor must match the requirements reference hash and
-input revision. The adapter checks regular, non-symlink source bytes before CAD
+An explicit `referenceArtifact` supplies the fixed original plate reference independently
+of the current input revision. Without it, only the released `baseline_50` and
+`fixture_baseline_50` legacy bindings are accepted. The adapter checks regular, non-symlink source bytes before CAD
 and stages a read-only copy. It also stages validated requirements and the exact
 registry/setup canonical strings. Python hashes those strings directly as UTF-8
 and verifies their fixed registry identity, resolved setup, length and reference
@@ -90,10 +198,10 @@ model repair, user acceptance or physical testing. Additional edge cases run via
 `node --import tsx --test src/tools/check_source_cases.ts` using the same adapter
 and shared flock. Historical fixture/trial snapshots remain unchanged.
 
-The released reference-in-`inputArtifacts` contract is baseline-only: the
-reference descriptor must belong to the input revision. A future explicit
-reference-artifact contract, model loop, artifact serving and application
-integration remain BACKEND work. No native sketch/history reconstruction or
+Legacy reference-in-`inputArtifacts` dispatch remains baseline-only. Explicit
+plate `referenceArtifact` dispatch is now supported; it preserves the original
+`baseline_50` identity while current input artifacts retain their own revision.
+The model loop, artifact serving and application integration remain BACKEND work. No native sketch/history reconstruction or
 consumer fit is claimed.
 
 The output directory must not exist. Its parent must exist, and paths cannot

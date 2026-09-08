@@ -1,0 +1,104 @@
+{
+  "scope": "Protected independent reference probe against the saved exact STEP/STL, under shared host flock",
+  "measurement": {
+    "scope": "independent trusted two-pad reference acceptance",
+    "solidCount": 2,
+    "volumeMm3": 615.7521601035996,
+    "mountPitchMm": 96.0,
+    "pads": [
+      {
+        "volumeMm3": 307.8760800517998,
+        "cylinders": [
+          {
+            "center": [
+              -48.0,
+              0.0,
+              0.0
+            ],
+            "radius": 7.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "contacts": [
+          {
+            "center": [
+              -48.0,
+              0.0,
+              2.0
+            ],
+            "radius": 7.0,
+            "area": 153.93804002589985
+          },
+          {
+            "center": [
+              -48.0,
+              0.0,
+              0.0
+            ],
+            "radius": 7.0,
+            "area": 153.93804002589985
+          }
+        ]
+      },
+      {
+        "volumeMm3": 307.8760800517998,
+        "cylinders": [
+          {
+            "center": [
+              48.0,
+              0.0,
+              0.0
+            ],
+            "radius": 7.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "contacts": [
+          {
+            "center": [
+              48.0,
+              0.0,
+              2.0
+            ],
+            "radius": 7.0,
+            "area": 153.93804002589985
+          },
+          {
+            "center": [
+              48.0,
+              0.0,
+              0.0
+            ],
+            "radius": 7.0,
+            "area": 153.93804002589985
+          }
+        ]
+      }
+    ],
+    "containsHandle": false,
+    "mesh": {
+      "components": 2,
+      "triangles": 10048,
+      "componentVolumesMm3": [
+        307.8747985730612,
+        307.8747985730612
+      ],
+      "watertight": true,
+      "consistentlyOriented": true
+    }
+  },
+  "probeSha256": "47018abab8413c57f4a00df3d992285c12535b2f2474bb024f0b3aea4e0bc932",
+  "inputSha256": {
+    "reference.step": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+    "preview.stl": "3e2c284fee68df261d3aaec51cd77d0c527502d4cdb3c6c42498e71e1f3755ca"
+  },
+  "measurementSha256": "845df29dcc298985fa3dd677c46e82d1f4d392e98ae2ecc011c1bb770e4a38c5"
+}
