@@ -91,7 +91,7 @@ Canonical integration baseline: `examples/plate/revised/plate-50x35x5.FCStd` and
 
 For the first conflict test explicitly establish minimum hole-to-edge material of 5 mm. Request length 30 mm while preserving hole diameter, centering and spacing. Measured end material must be 2 mm, so the candidate fails. The minimum compliant length is 36 mm. This threshold is a design requirement for the demonstration, not a structural strength criterion. The proposed correction must be generated and rechecked; no canned failure badge or cached success.
 
-After integration, prefer the Codex Micro tactile keycap if a measured attachment, complete neighboring geometry and travel envelope are available. Use a 20-minute initial reference gate. If missing, decide with the user on the existing measured-stand fallback; do not invent either geometry or silently switch the product. The plate can continue unblocking integration during that decision.
+After integration, prefer the Codex Micro tactile keycap if a measured attachment, complete neighboring geometry and travel envelope are available. Use a 20-minute initial reference gate. If missing, a stand fallback requires an actual measured reference and the user's choice; no measured stand package was found in the project files inspected during fleet planning. Do not invent either geometry or silently switch the product. The plate can continue unblocking integration during that decision.
 
 | Check | Computation and evidence | Acceptance meaning |
 | --- | --- | --- |

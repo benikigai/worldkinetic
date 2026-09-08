@@ -6,7 +6,7 @@ Draft for review, September 8, 2026. Product direction is committed; runtime, co
 
 A user describes an adaptation, Astra generates real editable geometry, independent checks find a conflict, Astra repairs it, and the user accepts and downloads the exact checked revision. The screen shows a visible change, actual measurements and honest status. A mid-work requirement change demonstrates steering and correct treatment of older results if that API experiment succeeds.
 
-The plate is the first integration reference. The primary consumer story is a tactile controller key, conditional on measured attachment/neighbor/travel geometry. The measured stand is the existing fallback requiring a recorded user decision. Do not spend the entire day solving unknown mechanics or replace the consumer story with a plate without saying so.
+The plate is the first integration reference. The primary consumer story is a tactile controller key, conditional on measured attachment/neighbor/travel geometry. A stand fallback requires an actual measured reference and a recorded user decision; no measured stand package was found in the project files inspected during fleet planning. Do not spend the entire day solving unknown mechanics or replace the consumer story with a plate without saying so.
 
 ## Critical path and timeboxes
 
@@ -30,7 +30,7 @@ Use the existing tasks. BUILD BACKEND is the sole code integrator; a separate in
 
 | Role | Owned paths | First bounded deliverable |
 | --- | --- | --- |
-| PLAN | `docs/architecture.md`, `docs/build-plan.md`, `docs/provenance.md`; private planning/review artifacts outside this repository | Resolve named checks, reference identity, worker boundary and semantic migration |
+| PLAN | `docs/architecture.md`, `docs/build-plan.md`, `docs/provenance.md`, `docs/development-evidence.md`; private planning/review artifacts outside this repository | Resolve named checks, reference identity, worker boundary and semantic migration |
 | BUILD FRONTEND | `src/client/**`, `tests/frontend/**` | Separate workspace, real mesh viewer, before/after, current checks and candidate acceptance controls |
 | BUILD BACKEND / integrator | `src/server/**`, `src/shared/**`, root manifests/config, `scripts/**`, `fixtures/api/**`, `tests/backend/**`, `README.md`, CI/deployment config | Publish `wk-prototype-0.2` schemas/fixtures, acceptance state and one connected tool operation |
 | TOOLS | `src/tools/**`, `fixtures/tools/**`, `tests/tools/**`, CAD example source | Isolated engine smoke test and independent geometry/clearance/export verification |
@@ -40,6 +40,8 @@ Use the existing tasks. BUILD BACKEND is the sole code integrator; a separate in
 The initial repository publication may add the planning docs and CAD example package. After that baseline, routine changes return to the owners above. Root README/config edits go through BACKEND. Every file has one owner; any transfer is explicit. No agent performs whole-repository formatting or edits another role's feature to make an integration test pass.
 
 Keep integration on BACKEND's controlled checkout. Once a committed baseline exists, use separate branches/worktrees for independent implementation and integrate small slices. Shared runtime state is not isolated by a branch: use port/runtime pairs 4310 + `.runtime/backend-4310`, 4311 + `.runtime/frontend-4311`, and 4313 + `.runtime/demo-4313`. TOOLS needs no listening port; allocate a private job directory per candidate. Only the assigned tool operator controls the existing FreeCAD session.
+
+All six roles follow the [Astra development workflow](development-evidence.md). Each window supervises bounded wrapper runs, retains its own handoff evidence and respects separate worktrees. BACKEND reviews branch evidence before integration and records checks on the combined revision separately. This is a development process, not proof that the product runtime works or that previous chats were captured.
 
 ## Dependency-aware tasks
 

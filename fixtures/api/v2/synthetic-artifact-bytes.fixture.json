@@ -1,0 +1,14 @@
+{
+  "executionMode": "fixture",
+  "description": "Synthetic UTF-8 content used only to reproduce descriptor hashes. These are not CAD files or available downloads.",
+  "artifacts": {
+    "fixture_36_source": "# SYNTHETIC fixture 36: no CAD execution or accepted geometry.\n",
+    "fixture_36_editable": "# SYNTHETIC fixture 36: no CAD execution or accepted geometry.\n",
+    "fixture_36_step": "SYNTHETIC fixture STEP descriptor 36. Not a CAD file.\n",
+    "fixture_36_stl": "SYNTHETIC fixture STL descriptor 36. Not a mesh.\n",
+    "fixture_30_source": "# SYNTHETIC fixture 30: no CAD execution or accepted geometry.\n",
+    "fixture_30_editable": "# SYNTHETIC fixture 30: no CAD execution or accepted geometry.\n",
+    "fixture_30_step": "SYNTHETIC fixture STEP descriptor 30. Not a CAD file.\n",
+    "fixture_30_stl": "SYNTHETIC fixture STL descriptor 30. Not a mesh.\n"
+  }
+}

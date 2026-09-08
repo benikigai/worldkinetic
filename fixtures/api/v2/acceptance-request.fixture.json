@@ -1,0 +1,14 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "requestId": "fixture_accept_request",
+  "designId": "fixture_plate",
+  "candidateRevisionId": "fixture_36_revision",
+  "requirementsVersion": 2,
+  "expectedStateVersion": 11,
+  "expectedAcceptedRevisionId": null,
+  "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+  "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+  "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+  "checkBundleHash": "7190d7cef5f281139a93c8d05714931e1548c9e1c822fcd4602c4f28bbc44fa2",
+  "userActionId": "fixture_explicit_accept_action"
+}
