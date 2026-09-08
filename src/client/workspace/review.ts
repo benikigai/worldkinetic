@@ -20,7 +20,10 @@ export function mountReview(fixtures: { history: unknown; feature: unknown; even
     const { candidate, rows } = projection;
     const requirements = candidate?.requirements ?? bootstrap?.requirements;
     element('review-status').textContent = loading ? 'Verifying fixture schema and SHA-256 evidence...'
-      : error ?? (bootstrap ? 'Synthetic evidence loaded. Requirements and check-bundle hashes verified; geometry and physical fit are unverified.' : 'Review data unavailable.');
+      : error ?? (bootstrap?.requirements ? `Synthetic evidence loaded. ${bootstrap.candidates.some(item => item.checkBundleHash !== null)
+        ? 'Requirements and supplied check-bundle hashes verified'
+        : bootstrap.candidates.length ? 'Requirements hash verified; no check bundle supplied'
+          : 'Requirements hash verified; no candidate or check bundle supplied'}; geometry and physical fit are unverified.` : 'Review data unavailable.');
     element('review-status').dataset.error = String(Boolean(error));
     element('review-content').hidden = !bootstrap || loading || Boolean(error);
     element('review-blockers').replaceChildren(...projection.blockingReasons.map(reason => {
