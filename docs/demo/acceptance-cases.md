@@ -1,5 +1,7 @@
 # v0.2 contract acceptance case map
 
+The original case map below is preserved for its cited releases. Its references to a v0.1 server and pending state migration are historical. The additive [DEMO-02-STATE software evidence](#demo-02-state-software-evidence) section covers the adopted state/HTTP release separately; it does not upgrade any earlier full integrated case to passed.
+
 This map covers the additive shared-contract release `23a8360` and protected test-quality bootstrap `2832e59`. The executable suite is [contracts-v2.acceptance.test.mjs](../../tests/e2e/contracts-v2.acceptance.test.mjs). It imports the released TypeScript helpers and uses public synthetic fixtures. It makes no HTTP, provider or CAD calls, executes no proposal Python, starts no services or containers and adds no dependencies.
 
 The current server remains v0.1. v0.2 HTTP, state serialization, acceptance, artifact registration and authenticated actions are not established by these tests. A structurally reviewable fixture is still fixture evidence and is ineligible for live acceptance. The fixtures start with no accepted revision. A completed tool/run can contain rejected checks; completion is not acceptance.
@@ -68,3 +70,49 @@ Every case below is **NOT_RUN** against an integrated v0.2 runtime. These are re
 | Optional native steering/image flow | If supported, steer while pending and return actual rendered views to model | Record acknowledgement/application/disconnect separately, bind late output to original request, use real matching images and feedback; disclose unsupported capability | NOT_RUN |
 
 Physical performance cannot be inferred from any software case above. No print, fabrication, supplier upload or physical test was performed for this deliverable.
+
+## DEMO-02-STATE software evidence
+
+This bounded suite targets the adopted BACKEND release `9411ae57776fd45d3824a25d015b69e7f75adc7c` through actual `RunStore`, artifact registration and `createApp` behavior. [state-http.acceptance.test.mjs](../../tests/e2e/state-http.acceptance.test.mjs) uses temporary runtimes and ephemeral loopback HTTP servers. Preparation through the store injects generation: sealed artifact bytes, engine metadata and all measured fields are synthetic/no CAD. The required `live` enum exercises software eligibility only. No provider, CAD, Docker, browser, shell generation or generated source is executed.
+
+| Evidence tier | What it establishes | Boundary |
+| --- | --- | --- |
+| Earlier contract helpers | Shared schemas, canonical bytes and hash binding using synthetic fixtures | No HTTP/state or geometry execution |
+| DEMO-02-STATE HTTP/state tests | Actual software responses, persisted transitions, exact registered synthetic downloads and conflict behavior | Generation and measurements injected through the store; no HTTP-to-CAD run |
+| Owner-reported CAD checks | Separate capability observations recorded in the existing [provenance snapshot](../provenance.md#evidence-snapshot) | Not rerun or independently revalidated by this worker; not integrated acceptance |
+| Full live provider/CAD/browser, usable CAD download, physical and rehearsal cases | Still **NOT_RUN** by this suite | Live product acceptance and integrated recording remain **NOT_ESTABLISHED** |
+
+Each ID below is a named top-level `node:test` case. Results belong to the actual TAP output and protected runner report for the tested revision; this table specifies coverage without replacing those receipts.
+
+| ID | Software observation |
+| --- | --- |
+| `HTTP_FLOW` | Explicit acceptance binds the exact request, requirements, checks, hashes and manifest; all six synthetic artifacts download with exact bytes, SHA-256, length, MIME, disposition, no-store, nosniff, revision, mode and applicability headers |
+| `NO_AUTO_ACCEPT` | Completed reviewable work selects a candidate but does not create acceptance; later completion preserves the earlier accepted revision |
+| `ACCEPT_SELECTION` | An older reviewable candidate fails with 409 `STATE_CONFLICT` despite a fresh state version; selected candidate succeeds |
+| `ACCEPT_STATE_CAS` | Stale state and wrong prior accepted revision conflict; simultaneous distinct acceptance actions produce one success and one 409 |
+| `REQUIREMENTS_CAS` | Both expected versions enforced; conflicting confirmed updates cannot both commit; both ordered store acceptance/update races and simultaneous HTTP actions preserve the winning state and history |
+| `IDEMPOTENT_PAYLOAD` | Reordered canonical payloads reuse run/acceptance/requirements/export identities; changed payloads and cross-operation ID reuse return 409 `IDENTITY_CONFLICT`; retries after later state and restart do not roll it back |
+| `HISTORY_RELOAD` | Multiple acceptance records and matching manifests remain newest-first through HTTP and store getters after restart, with individual historical records readable |
+| `HISTORY_CLONE` | Mutating nested list/get results cannot change stored history or subsequent HTTP responses, including after restart |
+| `EVENT_CURSOR` | Strictly increasing event IDs, exclusive cursors, empty repeated polling, run filtering and restart allow deduplicated replay; malformed cursors return 400 |
+| `EXPORT_RETRY_RECHECK` | Fresh and same-ID export retries fail 409 after requirement changes, including after restart; accepted history and historical downloads remain readable; newer acceptance exports successfully |
+| `DOWNLOAD_INTEGRITY` | Positive download/export controls precede same-length byte tampering; corrupt download returns 500 `EXECUTION_FAILED`; acceptance and fresh/retried export return 409 `EVIDENCE_CONFLICT`; restored bytes succeed |
+| `HTTP_BODY_LIMIT` | Exact 8192 UTF-8 bytes reach normal request handling; 8193 bytes fail 413 `INVALID_REQUEST` even below 8192 JavaScript characters; valid padded requirements update succeeds |
+| `HTTP_DUPLICATE_JSON` | Top-level, nested and escaped-equivalent duplicate keys fail 400 `INVALID_REQUEST` at the actual HTTP boundary without changing state; unambiguous control succeeds |
+| `LATE_RESULT` | Late complete evidence remains stored under its old requirements as superseded; current selection and accepted history survive completion and restart |
+| `RESTART_INTERRUPT` | Queued, planning and running work fail once on restart with safe `EXECUTION_FAILED`, cleared active run, two failure events and stable repeated restart/retry |
+| `UNAVAILABLE_VISIBLE` | Health/bootstrap disclose absent adapters; a real HTTP run request returns 503 `TOOL_UNAVAILABLE` without a run, candidate, event or silent fixture result |
+| `FAILED_EVIDENCE` | Every one of seven required checks independently blocks acceptance when failed or not_evaluated; rejected evidence is inspectable and prior acceptance stays intact |
+| `RESET_REPEAT` | Two independent clean sessions perform synthetic acceptance/export/download and restart; identities, artifact bytes and histories stay separate, and foreign downloads fail |
+
+Reproduce from the repository root with installed dependencies:
+
+```sh
+node tests/e2e/verify-state-http-tests.mjs
+```
+
+The protected checker runs `node --import tsx --test --test-reporter=tap tests/e2e/state-http.acceptance.test.mjs` on baseline and 14 altered disposable copies, with separate healthy controls. It requires all 18 cases, no skips/todos/cancellations, a passing baseline and designated failures in every altered copy. The report and per-copy TAP/control logs are retained under `.runtime/demo-state-http-quality/run-*`, including the suite SHA-256. The independent checker was acceptance setup; the parent owns wrapper run evidence and commits. No receipt is fabricated or backdated here.
+
+Observed worker check on September 8, 2026: **PASS**, 18/18 baseline cases, all 14 targeted alterations detected, and all 15 independent healthy controls passed. No skips, todos or cancellations occurred. The report identifies Node v22.23.1 on darwin/arm64 and suite SHA-256 `dbdaefc1c05a58cc2e3d35537d9f083d1dca8b5aad3a930653f571cb837ad9cb`. This is the worker's protected-check result, not a parent wrapper receipt or integrated product acceptance.
+
+Software sensitivity to those 14 faults does not prove complete correctness, authentication, genuine engineering measurements, isolation enforcement, reopened usable CAD or physical performance. The original integrated case matrix remains **NOT_RUN** for full live execution. This task creates no recording and establishes no live product acceptance.

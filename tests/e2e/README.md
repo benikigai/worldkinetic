@@ -1,5 +1,25 @@
 # DEMO acceptance tests
 
+## DEMO-02-STATE software HTTP/state coverage
+
+This additive section covers the adopted BACKEND state/HTTP release `9411ae57776fd45d3824a25d015b69e7f75adc7c`. The earlier shared-contract and legacy sections below retain their original evidence and IDs. Their statements about an unmigrated server describe that earlier release, not this state/HTTP baseline.
+
+[state-http.acceptance.test.mjs](state-http.acceptance.test.mjs) exercises the actual `RunStore`, artifact registration and `createApp` with isolated temporary directories and ephemeral `127.0.0.1` ports. Candidate preparation is an injected generation boundary through the store. All source/STEP/STL bytes and measured fields are explicitly synthetic/no CAD. The contract's `live` enum and `build123d` engine name exercise software eligibility with a labeled test-double version; they do not attest to CAD execution, a real image or a provider call. No generated source executes. Only test-owned servers and directories are closed or removed, and no dependencies are added.
+
+Reproduce the protected check from the repository root:
+
+```sh
+node tests/e2e/verify-state-http-tests.mjs
+```
+
+The independent runner invokes `node --import tsx --test --test-reporter=tap tests/e2e/state-http.acceptance.test.mjs` in disposable copies. It requires all 18 named cases to pass on baseline without skips, todos or cancellations, and each of 14 deliberately altered copies to fail its designated case while independent healthy controls pass. It writes a fingerprint, `report.json`, `control.log` and `suite.tap` under `.runtime/demo-state-http-quality/run-*`. The runner is protected acceptance setup; the parent wrapper owns execution receipts, verification and commits. A result applies to the exact suite fingerprint and source copy tested.
+
+Coverage includes explicit software acceptance, manifest joins, exact synthetic download bytes and headers, selection/CAS races, canonical retries, persistent history/events, tampering, HTTP body parsing, superseded completion, interrupted restart and two clean sessions. Requirement changes block current export, including a same-ID export retry; historical acceptance and downloads remain readable with historical applicability. Current HTTP parsing errors expose safe `INVALID_REQUEST` bodies with status 400 or 413, and corrupt downloads expose status 500 with `EXECUTION_FAILED`.
+
+These are real software HTTP/state tests with injected synthetic generation. The contract helper tests below remain a separate evidence tier. Owner-reported CAD checks in [provenance](../../docs/provenance.md#evidence-snapshot) remain separate and were not rerun here. Full provider-to-CAD-to-browser acceptance, usable CAD downloads, rehearsal, recording and physical tests remain **NOT_RUN** for this task. See the additive case map in [acceptance-cases.md](../../docs/demo/acceptance-cases.md#demo-02-state-software-evidence).
+
+## Earlier shared-contract evidence
+
 The v0.2 suite tests additive shared-contract helpers using synthetic fixtures. It uses Node built-ins, `node:test`, strict assertions and the existing `tsx` loader. It makes no provider/CAD/HTTP calls, executes no proposal Python, starts no service/container and adds no dependencies. Run from the repository root with installed dependencies:
 
 ```sh
