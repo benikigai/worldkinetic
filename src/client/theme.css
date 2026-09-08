@@ -186,3 +186,20 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
   .how-it-works { padding: 40px 0; }
   .section-intro { margin-bottom: 24px; }
 }
+
+.example-visual { margin: 0 0 18px; }
+.example-diagram { display: block; width: 100%; height: auto; color: var(--text); background: var(--bg); border-radius: 8px; }
+.example-diagram text { fill: var(--muted); font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.example-visual figcaption { margin-top: 8px; font-size: 10px; line-height: 1.5; color: var(--fine); }
+.diagram-context { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+.diagram-mounts { fill: var(--bg); stroke: var(--text); stroke-width: 1.5; }
+.diagram-ghost { fill: none; stroke: var(--muted); stroke-width: 6; stroke-dasharray: 4 5; opacity: .45; }
+.diagram-handle { fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round; }
+.diagram-original-handle { fill: none; stroke: var(--muted); stroke-width: 9; stroke-linecap: round; }
+.diagram-arrow, .diagram-guide { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.diagram-plate { fill: var(--panel-strong); stroke: var(--muted); stroke-width: .6; }
+.diagram-plate circle { fill: var(--bg); }
+.diagram-revised { stroke: var(--accent); }
+.diagram-grip { fill: var(--accent); }
+.diagram-highlight { fill: var(--bg); opacity: .45; stroke: var(--accent); stroke-width: 1; }
+.example-card details { margin-top: 16px; }

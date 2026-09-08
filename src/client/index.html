@@ -79,22 +79,37 @@
         <section class="overview" id="overview" aria-labelledby="overview-heading">
           <div><span class="eyebrow">EVERYDAY CHANGES</span><h2 id="overview-heading">More than a model. A design you can check.</h2></div>
           <div class="overview-copy">
-            <p>Astra proposes the design. WorldKinetics helps you define what matters, check the result, and approve the exact version you want to make.</p>
+            <p>Describe the change. Compare the design. Check it before you build.</p>
           </div>
         </section>
 
         <section class="use-cases" id="possibilities" aria-labelledby="possibilities-heading">
-          <div class="section-intro"><span class="eyebrow">THE POSSIBILITIES</span><h2 id="possibilities-heading">Small changes. More useful things.</h2><p>Two concepts in development and one recorded design run.</p></div>
+          <div class="section-intro"><span class="eyebrow">THE POSSIBILITIES</span><h2 id="possibilities-heading">Small changes. More useful things.</h2><p>Repair, resize, or personalize. See what changes.</p></div>
           <div class="example-grid">
             <article class="example-card" id="repair-example" aria-labelledby="repair-heading">
               <span class="example-status">Concept</span>
               <h3 id="repair-heading">Repair it.</h3>
               <p class="example-title">A replacement handle</p>
-              <p>Explore a handle that leaves room for your fingers and keeps the mounting points in place. This concept starts with a sample mounting brief.</p>
+              <figure class="example-visual">
+                <svg class="example-diagram" viewBox="0 0 360 184" role="img" aria-labelledby="repair-visual-title repair-visual-desc">
+                  <title id="repair-visual-title">A cabinet drawer with a missing handle, then a replacement handle</title>
+                  <desc id="repair-visual-desc">Illustrative use case. Two existing mounting points on a drawer are retained when a new handle is added. This is not a measured cabinet or generated CAD.</desc>
+                  <text x="80" y="19" text-anchor="middle">Missing handle</text><text x="280" y="19" text-anchor="middle">Replacement</text>
+                  <g class="diagram-context"><rect x="8" y="38" width="144" height="103" rx="4"/><rect x="208" y="38" width="144" height="103" rx="4"/><path d="M8 122h144M208 122h144"/></g>
+                  <g class="diagram-mounts"><circle cx="42" cy="88" r="4"/><circle cx="118" cy="88" r="4"/><circle cx="242" cy="88" r="4"/><circle cx="318" cy="88" r="4"/></g>
+                  <path class="diagram-ghost" d="M42 88V75Q42 68 49 68H111Q118 68 118 75V88"/>
+                  <path class="diagram-handle" d="M242 88V75Q242 68 249 68H311Q318 68 318 75V88"/>
+                  <path class="diagram-arrow" d="M164 88h30m-7-6 7 6-7 6"/>
+                  <path class="diagram-guide" d="M242 100v53M318 100v53M242 149h76"/>
+                  <text x="280" y="173" text-anchor="middle">Same mounting points</text>
+                </svg>
+                <figcaption>Illustration · sample mounting brief</figcaption>
+              </figure>
+              <p>Create a replacement handle around the mounting points you need to keep.</p>
               <details>
                 <summary>About the handle concept</summary>
                 <p>The brief specifies 96 mm mounting spacing, at least 25 mm of empty finger gap and a maximum length of 140 mm. The mounting pads are concepts; hardware is unspecified.</p>
-                <p>This starts from a sample brief, not a damaged original or a measured cabinet. The concept is in development; an actual initial handle has not yet been generated.</p>
+                <p>Sample brief, not a measured cabinet. The illustration shows the intended use; it is not generated CAD.</p>
               </details>
             </article>
 
@@ -102,7 +117,20 @@
               <span class="example-status">Recorded run</span>
               <h3 id="fit-heading">Make it fit.</h3>
               <p class="example-title">Resize a mounting plate</p>
-              <p>A shorter plate needs enough material around its holes. In a retained design run, a 30 mm request was rejected. A separately confirmed 36 mm requirement passed the numeric checks.</p>
+              <figure class="example-visual">
+                <svg class="example-diagram" viewBox="0 0 360 184" role="img" aria-labelledby="fit-visual-title fit-visual-desc">
+                  <title id="fit-visual-title">A mounting plate shortened from 50 to 36 millimeters</title>
+                  <desc id="fit-visual-desc">Top-view illustration using recorded dimensions. Both plates are 35 millimeters wide with two 6 millimeter diameter holes 20 millimeters apart. The 36 millimeter result retains 5 millimeters of end material. This drawing is not loaded CAD.</desc>
+                  <text x="80" y="19" text-anchor="middle">Original</text><text x="280" y="19" text-anchor="middle">Shorter plate</text>
+                  <g transform="translate(17.5 46) scale(2.5)" class="diagram-plate"><rect width="50" height="35"/><circle cx="15" cy="17.5" r="3"/><circle cx="35" cy="17.5" r="3"/></g>
+                  <g transform="translate(235 46) scale(2.5)" class="diagram-plate diagram-revised"><rect width="36" height="35"/><circle cx="8" cy="17.5" r="3"/><circle cx="28" cy="17.5" r="3"/></g>
+                  <path class="diagram-arrow" d="M164 88h30m-7-6 7 6-7 6"/>
+                  <path class="diagram-guide" d="M17.5 144h125M17.5 139v10M142.5 139v10M235 144h90M235 139v10M325 139v10"/>
+                  <text x="80" y="164" text-anchor="middle">50 mm</text><text x="280" y="164" text-anchor="middle">36 mm</text>
+                </svg>
+                <figcaption>Recorded dimensions · illustration</figcaption>
+              </figure>
+              <p>Shorten a plate while keeping its holes and enough material around them.</p>
               <details>
                 <summary>What the dimension checks found</summary>
                 <p>At 30 mm long, the plate left only 2 mm of end material against a 5 mm minimum. A separately confirmed requirement of 36 mm left 5 mm. The original 30 mm request did not pass.</p>
@@ -115,11 +143,26 @@
               <span class="example-status">Concept</span>
               <h3 id="yours-heading">Make it yours.</h3>
               <p class="example-title">A broader grip with a thumb rest</p>
-              <p>Shape a handle around how you hold it, while preserving its mounting points and finger gap. This intended refinement would start from an actual initial handle you have explicitly accepted.</p>
+              <figure class="example-visual">
+                <svg class="example-diagram" viewBox="0 0 360 184" role="img" aria-labelledby="yours-visual-title yours-visual-desc">
+                  <title id="yours-visual-title">A simple handle becomes a broader grip with a thumb rest</title>
+                  <desc id="yours-visual-desc">Illustrative personalization concept. The two mounting locations stay fixed while the grip is broadened and a localized thumb rest is added. This is not generated or checked CAD.</desc>
+                  <text x="80" y="19" text-anchor="middle">Starting grip</text><text x="280" y="19" text-anchor="middle">Your grip</text>
+                  <g class="diagram-context"><rect x="8" y="38" width="144" height="103" rx="4"/><rect x="208" y="38" width="144" height="103" rx="4"/></g>
+                  <path class="diagram-original-handle" d="M42 111V86Q42 75 54 75H106Q118 75 118 86V111"/>
+                  <path class="diagram-grip" d="M237 111V84Q237 65 254 65H285Q289 48 301 49Q313 50 313 66Q323 71 323 84V111H313V87Q313 84 307 84H253Q247 84 247 88V111Z"/>
+                  <ellipse class="diagram-highlight" cx="299" cy="64" rx="11" ry="15"/>
+                  <g class="diagram-mounts"><circle cx="42" cy="111" r="4"/><circle cx="118" cy="111" r="4"/><circle cx="242" cy="111" r="4"/><circle cx="318" cy="111" r="4"/></g>
+                  <path class="diagram-arrow" d="M164 88h30m-7-6 7 6-7 6"/>
+                  <text x="280" y="165" text-anchor="middle">Broader grip + thumb rest</text>
+                </svg>
+                <figcaption>Illustration · intended refinement</figcaption>
+              </figure>
+              <p>Broaden the grip and add a thumb rest. Keep the mounts and finger gap.</p>
               <details>
                 <summary>What would change and stay fixed</summary>
                 <p>The grip would become broader and gain a thumb rest. The accepted handle's mounting points and empty finger gap would stay fixed as the shape is refined.</p>
-                <p>The initial handle workflow is still in development. This personalization concept is not available live.</p>
+                <p>Starts from an explicitly accepted initial handle. This illustration shows the intended refinement; it is not generated CAD.</p>
               </details>
             </article>
           </div>
@@ -128,9 +171,9 @@
         <section class="how-it-works" id="how-it-works" aria-labelledby="workflow-heading">
           <div class="section-intro"><span class="eyebrow">HOW IT WORKS</span><h2 id="workflow-heading">Create a design you can review and build.</h2><p>Describe your idea, check the design, and download editable CAD files for prototyping.</p></div>
           <ol class="workflow-steps">
-            <li><h3>Keep what fits</h3><p>Start with a reference and confirmed measurements. Define what must stay fixed, such as mounting points or clearances.</p></li>
-            <li><h3>See what changed</h3><p>Describe the change you want, then compare the revised design with the original. Confirm any changes to your requirements.</p></li>
-            <li><h3>Check before you make</h3><p>Review the design and its dimension checks. Explicitly approve the exact version, then download editable CAD files for prototyping.</p></li>
+            <li><h3>Keep what fits</h3><p>Start with a reference. Confirm what must stay fixed.</p></li>
+            <li><h3>See what changed</h3><p>Compare your revised design with the original.</p></li>
+            <li><h3>Check before you make</h3><p>Review the checks, approve a version, and download files for prototyping.</p></li>
           </ol>
         </section>
       </main>

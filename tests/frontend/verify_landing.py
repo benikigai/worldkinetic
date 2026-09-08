@@ -50,8 +50,8 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertIn('Customize everyday products without learning CAD.', page.root.text())
         overview = page.identified('overview').text().lower()
         self.assertIn('More than a model. A design you can check.', page.identified('overview').text())
-        self.assertIn('Astra proposes the design. WorldKinetics helps you define what matters, check the result, and approve the exact version you want to make.', page.identified('overview').text())
-        self.assertIn('worldkinetics', overview)
+        self.assertIn('Describe the change. Compare the design. Check it before you build.', page.identified('overview').text())
+        self.assertIn('check', overview)
         for identity, label, status, words in [
             ('repair-example', 'Repair it', 'Concept', ['handle', 'sample', 'mounting']),
             ('fit-example', 'Make it fit', 'Recorded run', ['plate', '30 mm', '2 mm', '36 mm', '5 mm', 'confirmed']),
@@ -75,7 +75,7 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertEqual(hashlib.sha256(original).hexdigest(), EXPECTED['prior_homepage_sha256'])
         old = original.decode()
         # The former directions-section freeze is replaced by compact-control acceptance.
-        self.assertEqual(re.findall(r'<svg\b.*?</svg>', self.content, re.S), re.findall(r'<svg\b.*?</svg>', old, re.S))
+        self.assertEqual(re.findall(r'<svg\b.*?</svg>', re.sub(r'<svg class="example-diagram".*?</svg>', '', self.content, flags=re.S), re.S), re.findall(r'<svg\b.*?</svg>', old, re.S))
         page = self.page; prior = Page(old)
         for tag, attrs in [('script', 'src'), ('link', 'href')]:
             self.assertEqual([n.attrs.get(attrs) for n in page.nodes if n.tag == tag], [n.attrs.get(attrs) for n in prior.nodes if n.tag == tag])
@@ -103,18 +103,31 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertFalse(any(n.attrs.get('id') == 'directions' for n in self.page.nodes))
         self.assertNotRegex(self.content, r'(?i)explore (?:the )?design direction|FORM STUDY|WK\s*/?\s*001|ABSTRACT MATERIAL|material-chip|material-title|material-detail|theme-description')
 
-    def test_case_evidence_and_statuses_remain_exact(self):
-        for identity, expected in POLISH['case_html_sha256'].items():
-            card = re.search(r'<article\b[^>]*\bid="' + identity + r'".*?</article>', self.content, re.S)
-            self.assertIsNotNone(card)
-            self.assertEqual(hashlib.sha256(card.group().encode()).hexdigest(), expected, identity)
+    def test_each_case_has_a_visible_labeled_before_after_illustration(self):
+        for identity in ['repair-example', 'fit-example', 'yours-example']:
+            card = self.page.identified(identity)
+            figures = [n for n in card.children if isinstance(n, Node) and n.tag == 'figure']
+            self.assertEqual(len(figures), 1, 'Each diagram is visible outside collapsed details')
+            svg = next(n for n in figures[0].all() if n.tag == 'svg')
+            self.assertEqual(svg.attrs.get('role'), 'img')
+            self.assertEqual(svg.attrs.get('viewbox'), '0 0 360 184')
+            for target in svg.attrs['aria-labelledby'].split():
+                self.assertTrue(self.page.identified(target).text())
+            self.assertIn('illustration', figures[0].text().lower())
+        fit = self.page.identified('fit-example')
+        plates = [n for n in fit.all() if n.tag == 'rect']
+        self.assertEqual([(n.attrs['width'], n.attrs['height']) for n in plates], [('50', '35'), ('36', '35')])
+        holes = [n.attrs for n in fit.all() if n.tag == 'circle']
+        self.assertEqual([(n['cx'], n['cy'], n['r']) for n in holes], [('15','17.5','3'),('35','17.5','3'),('8','17.5','3'),('28','17.5','3')])
+        self.assertIn('not generated CAD', self.page.identified('repair-example').text())
+        self.assertIn('not generated CAD', self.page.identified('yours-example').text())
 
     def test_recorded_run_attributes_confirmation_to_actual_api_evidence(self):
         # OUTSIDE_WRAPPER correction: retained evidence was an explicit supervisor API action.
         recorded = self.page.identified('fit-example').text().lower()
         self.assertNotIn('user-confirmed', recorded)
         self.assertNotIn('the user confirmed', recorded)
-        self.assertIn('separately confirmed 36 mm requirement', recorded)
+        self.assertIn('separately confirmed requirement of 36 mm', recorded)
         self.assertIn('explicit api confirmation', recorded)
 
     def test_demo_links_internal_targets_and_accessible_sections(self):
