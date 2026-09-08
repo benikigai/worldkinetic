@@ -9,7 +9,7 @@ import { createPublicDemo, type PublicDemoOptions } from '../../src/server/publi
 import * as c from '../../src/shared/contracts.js';
 import { requirementIdentity } from '../../src/server/store.js';
 import { verifyAcceptanceResponse } from '../../src/shared/transport-v2.js';
-import { createSessionClient } from '../../src/client/workspace/session.js';
+import { createSessionClient, createWorkspaceTransport } from '../../src/client/workspace/session.js';
 
 const origin = 'https://worldkinetics.app';
 const upstream = 'synthetic-upstream-key-not-a-secret-123';
@@ -244,21 +244,21 @@ test('combined edge, frontend session client and backend preserve a custom reque
     const local = new URL(app.base); local.pathname = url.pathname; local.search = url.search;
     return directFetch(local, { ...init, duplex: 'half' } as RequestInit);
   });
-  let jar = '', workspaceId = '';
+  let jar = '';
   const browserFetch: typeof fetch = async (route, init) => {
     const headers = new Headers(init?.headers); headers.set('Cookie', jar); headers.set('CF-Connecting-IP', '192.0.2.15');
     if (init?.method && init.method !== 'GET') headers.set('Origin', origin);
-    if (workspaceId) headers.set(c.PUBLIC_WORKSPACE_HEADER, workspaceId);
     const response = await worker.fetch(new Request(new URL(String(route), origin), { ...init, headers }), env) as Response;
     if (response.headers.has('set-cookie')) jar = response.headers.get('set-cookie')!.split(';')[0]!;
     return response;
   };
-  const browserPost = (route: string, body: unknown) => browserFetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const transport = createWorkspaceTransport(browserFetch);
+  const browserPost = (route: string, body: unknown) => transport.fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   try {
     const client = createSessionClient(browserFetch, 'worldkinetics.app');
     assert.equal((await client.status())?.authenticated, false);
     const session = await client.login(invite); assert(session?.authenticated);
-    workspaceId = session.workspaceId;
+    transport.bind(session.workspaceId);
     const request = { ...input('edge_custom'), instruction: 'Create a smooth arch with a narrow grip for this cabinet.' };
     assert.equal((await browserPost('/api/runs', request)).status, 202);
     for (let i = 0; i < 200; i++) { const status = await client.status(); if (status?.authenticated && !status.busy) break; await delay(10); }
