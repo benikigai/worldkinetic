@@ -48,6 +48,9 @@ class ConsumerPageAcceptance(unittest.TestCase):
         for identity in ['live-selection','live-cursor','live-activity','live-evidence','wireframe','scenario','review-scenario']:
             self.assertTrue(self.collapsed_ancestor(self.node(identity)), f'{identity} must not dominate the initial consumer page')
         self.assertTrue(self.collapsed_ancestor(self.node('workspace-guide')))
+        self.assertTrue(self.collapsed_ancestor(self.node('live-checks')))
+        self.assertEqual(self.node('live-size-review').tag, 'details')
+        self.assertTrue(any(n.attrs.get('id') == 'live-request' for n in self.node('live-inputs').walk()))
         for label in ['technical details', 'test data', 'earlier designs']:
             self.assertTrue(any(n.tag == 'summary' and label in n.text().lower() for n in self.nodes), label)
         for identity in ['live-request', 'live-status', 'viewport']:
