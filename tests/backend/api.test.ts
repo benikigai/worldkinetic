@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import type { Server } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -79,7 +79,8 @@ function selected(tool: ToolAdapter = syntheticTool): SelectedOperation {
       propose: async () => ({ kind: 'numeric_operation', operation: structuredClone(operation) }),
     },
     baselineArtifacts: [{ artifactId: 'baseline_test', revisionId: design.baselineRevisionId, kind: 'reference', units: 'mm', path: baselinePath, sha256: testHash }],
-    tool,
+    // Synthetic adapters own their output directory, as the actual CAD adapter does.
+    tool: async input => { await mkdir(input.outputDir, { recursive: true }); return tool(input); },
   };
 }
 
