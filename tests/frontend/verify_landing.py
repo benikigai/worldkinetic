@@ -54,7 +54,7 @@ class OverviewAcceptance(unittest.TestCase):
             card = page.identified(identity)
             visible = ' '.join(n.text() for n in card.children if isinstance(n, Node) and n.tag == 'p')
             self.assertIn(problem, visible)
-        self.assertIn('WorldKinetics', page.identified('repair-example').text())
+        self.assertIn('beloved old cabinet', page.identified('possibilities').text())
         for identity, label, status, words in [
             ('repair-example', 'Repair it', 'Concept', ['handle', 'sample', 'mounting']),
             ('fit-example', 'Make it fit', 'Recorded run', ['plate', '30 mm', '2 mm', '36 mm', '5 mm', 'confirmed']),
