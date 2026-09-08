@@ -1,9 +1,9 @@
 import {
   AcceptanceRequestSchema, BootstrapSchema, CONTRACT_VERSION, ExportRequestSchema,
-  LengthMmSchema, RequirementsUpdateRequestSchema, RunRequestSchema, canonicalize,
+  LengthMmSchema, RequirementsUpdateRequestSchema, RunRequestSchema, canonicalize, HANDLE_DATUM_CANONICAL_JSON,
   parseStrictJson, sha256, verifyCandidateEvidence, verifyRequirements,
   type AcceptanceRequest, type Artifact, type Bootstrap, type Candidate, type Event,
-  type ExportRequest, type RequirementsUpdateRequest, type RunRequest,
+  type ExportRequest, type RequirementsUpdateRequest, type RunRequest, type Requirements,
 } from '../../shared/contracts-v2.js';
 import {
   ApiErrorResponseSchema, EventsResponseSchema, RequirementsMutationResponseSchema,
@@ -49,6 +49,7 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
   let generation = 0;
   let selection = 0;
   let pending: Pending | null = null;
+  let confirmedRequirementsId: string | null = null;
   const subscribers = new Set<() => void>();
   const emit = () => { for (const subscriber of subscribers) subscriber(); };
 
@@ -104,7 +105,7 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
     return value;
   }
 
-  async function artifactBytes(artifact: Artifact | ReferenceArtifact, currentExport = false): Promise<ArrayBuffer> {
+  async function artifactBytes(artifact: Artifact | ReferenceArtifact, currentExport = false, registeredReference = reference): Promise<ArrayBuffer> {
     const response = await request(artifact.href);
     if (!response.ok || response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !== artifact.mediaType.toLowerCase()) {
       await response.body?.cancel();
@@ -117,7 +118,8 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
         && response.headers.get('x-worldkinetics-revision') === artifact.revisionId
         && response.headers.get('x-worldkinetics-execution') === artifact.executionMode
         && (applicability === 'current' || (!currentExport && applicability === 'historical'))
-      : response.headers.get('x-worldkinetics-revision') === 'baseline_50' && applicability === 'saved_reference';
+      : registeredReference !== null && response.headers.get('x-worldkinetics-revision') === registeredReference.revisionId
+        && applicability === registeredReference.provenance;
     if (!identityMatches) {
       await response.body?.cancel();
       throw new LiveError('Artifact revision, execution or applicability does not match the registered request. No file was loaded. Refresh and retry.');
@@ -153,21 +155,54 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
   }
 
   function selectedCandidate() { return bootstrap?.candidates.find(item => item.revisionId === bootstrap?.design?.selectedCandidateRevisionId); }
+  function initialAcceptance(requirements: Requirements, records = history) {
+    if (requirements.registryId !== 'handle_sample_v1' || !requirements.setup.acceptedInitial) return null;
+    const bound = requirements.setup.acceptedInitial;
+    const accepted = records?.acceptances.find(item => item.acceptanceId === bound.acceptanceId);
+    const candidate = accepted?.candidate;
+    if (!accepted || !candidate || !liveEvidence(candidate) || candidate.requirements.registryId !== 'handle_sample_v1'
+      || candidate.requirements.setupId !== 'handle_initial_v1' || candidate.designId !== requirements.designId
+      || !same(candidate.requirements.setup.reference, requirements.setup.reference)
+      || candidate.inputRevisionId !== requirements.setup.reference.revisionId || candidate.checks.length !== 8
+      || candidate.checks.some(check => check.state !== 'passed')) return null;
+    const step = candidate.artifacts.find(item => item.kind === 'export' && item.mediaType === 'model/step');
+    if (!step || !same(bound, { acceptanceId: accepted.acceptanceId, revisionId: candidate.revisionId,
+      artifactId: step.artifactId, sha256: step.sha256, requirementsId: candidate.requirementsId,
+      requirementsVersion: candidate.requirementsVersion, setupHash: candidate.setupHash,
+      sourceSha256: candidate.sourceSha256, checkBundleHash: candidate.checkBundleHash })) return null;
+    return accepted;
+  }
+  function currentInitial() {
+    const latest = history && [...history.acceptances].sort((a,b) => b.stateVersion-a.stateVersion)[0];
+    const r = bootstrap?.requirements, candidate = latest?.candidate;
+    return r?.registryId === 'handle_sample_v1' && candidate?.requirements.registryId === 'handle_sample_v1'
+      && candidate.requirements.setupId === 'handle_initial_v1' && liveEvidence(candidate)
+      && candidate.revisionId === bootstrap?.design?.acceptedRevisionId && candidate.designId === r.designId
+      && candidate.inputRevisionId === r.setup.reference.revisionId && same(candidate.requirements.setup.reference, r.setup.reference)
+      ? latest : null;
+  }
   function gates() {
     const ready = trusted && !loading && !busy && !pending && !!bootstrap?.design && !!bootstrap.requirements;
-    const numeric = bootstrap?.requirements?.setupId === 'resize_centered_v1';
+    const requirements = bootstrap?.requirements;
+    const numeric = requirements?.registryId === 'plate_requirements_v1' && requirements.setupId === 'resize_centered_v1';
+    const handle = requirements?.registryId === 'handle_sample_v1';
     const length = draft.lengthMm.trim() === '' ? NaN : Number(draft.lengthMm);
     const validLength = LengthMmSchema.safeParse(length).success;
-    const canConfirm = Boolean(ready && numeric && validLength);
+    const canRefine = Boolean(ready && handle && currentInitial() && !bootstrap?.design?.activeRunId);
+    const canConfirm = Boolean(ready && !bootstrap?.design?.activeRunId && (numeric && validLength || handle && (requirements.setupId === 'handle_initial_v1'
+      ? !bootstrap?.design?.acceptedRevisionId : canRefine)));
     const candidate = selectedCandidate();
-    const canAccept = Boolean(ready && numeric && candidate && candidate.revisionId === viewedRevisionId
-      && candidate.status === 'reviewable' && liveEvidence(candidate)
+    const canAccept = Boolean(ready && (numeric || handle) && candidate && candidate.revisionId === viewedRevisionId
+      && candidate.status === 'reviewable' && candidate.revisionId !== bootstrap?.design?.acceptedRevisionId && liveEvidence(candidate)
       && same(candidate.requirements, bootstrap!.requirements));
     return {
-      canConfirm,
-      canRun: Boolean(ready && numeric && validLength && length === bootstrap!.requirements!.setup.dimensions.lengthMm
+      canConfirm, canRefine,
+      canRun: Boolean(ready && requirements && confirmedRequirementsId === requirements.requirementsId
+        && (numeric && validLength && length === requirements.setup.dimensions.lengthMm && !bootstrap!.design!.acceptedRevisionId
+          || handle && (requirements.setupId === 'handle_initial_v1' ? !bootstrap!.design!.acceptedRevisionId
+            : currentInitial()?.acceptanceId === requirements.setup.acceptedInitial?.acceptanceId && initialAcceptance(requirements)))
         && draft.instruction.trim().length > 0 && draft.instruction.trim().length <= 2000
-        && bootstrap!.executionMode === 'live' && !bootstrap!.design!.acceptedRevisionId && !bootstrap!.design!.activeRunId),
+        && bootstrap!.executionMode === 'live' && !bootstrap!.design!.activeRunId),
       canAccept,
       canDownload: Boolean(ready && latestPair()),
     };
@@ -183,7 +218,11 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       let nextBytes = baselineBytes;
       if (readReference || !nextReference || !nextBytes) {
         nextReference = ReferenceResponseSchema.parse(await json('/api/reference')).reference;
-        nextBytes = await artifactBytes(nextReference.artifacts.find(item => item.mediaType === 'model/stl')!);
+        nextBytes = await artifactBytes(nextReference.artifacts.find(item => item.mediaType === 'model/stl')!, false, nextReference);
+        if (nextReference.referenceId === 'handle_mount_v1') {
+          const datum = await artifactBytes(nextReference.artifacts.find(item => item.mediaType === 'application/json')!, false, nextReference);
+          if (new TextDecoder().decode(datum) !== HANDLE_DATUM_CANONICAL_JSON) throw new LiveError('The mounting reference could not be verified. Refresh before continuing.');
+        }
       }
       const feed = EventsResponseSchema.parse(await json(`/api/events?after=${globalCursor}`));
       for (const event of feed.events) if (event.candidate) await verifyCandidateEvidence(event.candidate);
@@ -214,6 +253,8 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       }
       if (!nextBootstrap || !nextHistory || !nextReference || !nextBytes) throw new LiveError('Workspace evidence is incomplete. Reconnect to retry.');
       const { design, requirements } = nextBootstrap;
+      if (requirements?.registryId === 'handle_sample_v1' && requirements.setupId === 'handle_refine_v1'
+        && !initialAcceptance(requirements, nextHistory)) throw new LiveError('The starting design does not match its acceptance record. Refresh before refining.');
       if (design && requirements && (design.baselineRevisionId !== nextReference.revisionId
         || requirements.referenceId !== nextReference.referenceId
         || requirements.referenceHash !== nextReference.artifacts.find(item => item.mediaType === 'model/step')?.sha256)) {
@@ -225,7 +266,7 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
         viewedRevisionId = design?.selectedCandidateRevisionId ?? null;
       }
       bootstrap = nextBootstrap; history = nextHistory; reference = nextReference; baselineBytes = nextBytes;
-      if (!draftEdited && !draft.lengthMm && requirements) draft = { ...draft, lengthMm: String(requirements.setup.dimensions.lengthMm) };
+      if (!draftEdited && !draft.lengthMm && requirements?.registryId === 'plate_requirements_v1') draft = { ...draft, lengthMm: String(requirements.setup.dimensions.lengthMm) };
       trusted = true;
       return true;
     } catch (failure) {
@@ -243,8 +284,9 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       if (requirements.designId !== bootstrap?.design?.designId
         || requirements.requirementsVersion !== action.body.expectedRequirementsVersion + 1
         || requirements.setupId !== action.body.setupId
-        || action.body.setupId !== 'resize_centered_v1'
-        || requirements.setup.dimensions.lengthMm !== action.body.confirmedIntent.lengthMm
+        || (action.body.setupId === 'resize_centered_v1' && (requirements.registryId !== 'plate_requirements_v1'
+          || requirements.setup.dimensions.lengthMm !== action.body.confirmedIntent.lengthMm))
+        || (requirements.registryId === 'handle_sample_v1' && requirements.setupId === 'handle_refine_v1' && !initialAcceptance(requirements))
         || response.design.stateVersion !== action.body.expectedStateVersion + 1
         || response.design.activeRequirementsVersion !== requirements.requirementsVersion
         || response.design.designId !== requirements.designId || response.design.setupHash !== requirements.setupHash
@@ -252,6 +294,7 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
         || response.design.referenceHash !== requirements.referenceHash || response.design.units !== requirements.units) {
         throw new LiveError('Requirements confirmation response does not match the original action. Reconcile before retrying.', 0, true);
       }
+      confirmedRequirementsId = requirements.requirementsId;
     } else if (action.kind === 'run') {
       const { run } = RunMutationResponseSchema.parse(raw);
       for (const key of Object.keys(action.body) as (keyof RunRequest)[]) {
@@ -324,17 +367,19 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       viewedRevisionId = bootstrap?.candidates.some(item => item.revisionId === revisionId) ? revisionId : null;
       emit();
     },
-    async confirmRequirements() {
-      if (!gates().canConfirm) return;
+    async confirmRequirements(setupId: RequirementsUpdateRequest['setupId'] = bootstrap?.requirements?.setupId ?? 'resize_centered_v1') {
+      const r = bootstrap?.requirements, gate = gates();
+      if (!r || (setupId === 'handle_refine_v1' ? !gate.canRefine : !gate.canConfirm || setupId !== r.setupId)) return;
       const body = RequirementsUpdateRequestSchema.parse({ contractVersion: CONTRACT_VERSION, requestId: newId(), userActionId: newId(),
         expectedStateVersion: bootstrap!.design!.stateVersion, expectedRequirementsVersion: bootstrap!.requirements!.requirementsVersion,
-        setupId: 'resize_centered_v1', confirmedIntent: { lengthMm: Number(draft.lengthMm) } });
+        setupId, confirmedIntent: setupId === 'resize_centered_v1' ? { lengthMm: Number(draft.lengthMm) } : {} });
       await mutate({ kind: 'requirements', path: `/api/designs/${bootstrap!.design!.designId}/requirements`, body });
     },
     async requestRun() {
       if (!gates().canRun) return;
+      const r = bootstrap!.requirements!;
       const body = RunRequestSchema.parse({ contractVersion: CONTRACT_VERSION, requestId: newId(), designId: bootstrap!.design!.designId,
-        inputRevisionId: bootstrap!.design!.baselineRevisionId, requirementsVersion: bootstrap!.requirements!.requirementsVersion,
+        inputRevisionId: r.registryId === 'handle_sample_v1' ? r.setup.acceptedInitial?.revisionId ?? r.setup.reference.revisionId : bootstrap!.design!.baselineRevisionId, requirementsVersion: r.requirementsVersion,
         setupId: bootstrap!.requirements!.setupId, units: bootstrap!.requirements!.units, instruction: draft.instruction.trim() });
       await mutate({ kind: 'run', path: '/api/runs', body });
     },
@@ -373,7 +418,10 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
           const artifact = reference?.artifacts.find(item => item.mediaType === 'model/stl');
           return artifact && baselineBytes ? { artifact, bytes: baselineBytes.slice(0) } : null;
         }
-        const candidate = bootstrap?.candidates.find(item => item.revisionId === revisionId);
+        const r = bootstrap?.requirements;
+        // Refinement comparison uses the immutable acceptance, even if historical bootstrap records change.
+        const candidate = r?.registryId === 'handle_sample_v1' && r.setup.acceptedInitial?.revisionId === revisionId
+          ? initialAcceptance(r)?.candidate : bootstrap?.candidates.find(item => item.revisionId === revisionId);
         const artifact = candidate?.artifacts.find(item => item.mediaType === 'model/stl');
         if (!candidate || !artifact || !liveEvidence(candidate)) throw new LiveError('This candidate has no registered live STL preview.');
         const bytes = await artifactBytes(artifact);

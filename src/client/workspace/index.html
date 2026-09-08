@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f3f5f5">
-  <title>Workspace | WorldKinetics</title>
+  <title>Cabinet handle | WorldKinetics</title>
   <link rel="icon" href="/brand/favicon-2d-precision-v1.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/theme.css">
   <link rel="stylesheet" href="/workspace/workspace.css">
@@ -18,12 +18,68 @@
       <img class="wk-mark-dark" src="/brand/mark-inverse.svg" alt="" width="34" height="34">
       <span>WorldKinetics</span>
     </a>
-    <span class="wk-header-label">Workspace / revision study</span>
+    <span class="wk-header-label">Cabinet handle</span>
     <label class="wk-theme-label">Theme
       <select id="theme" aria-label="Workspace theme"><option value="frost">Frost</option><option value="graphite">Graphite</option><option value="canvas">Canvas</option></select>
     </label>
   </header>
   <main id="workspace" class="wk-main">
+    <div class="wk-consumer-heading">
+      <div><p class="wk-kicker">WorldKinetics demo</p><h1 id="consumer-title">Make a cabinet handle your own</h1></div>
+      <span id="live-stage" class="wk-badge" role="status">Connecting</span>
+    </div>
+    <ol id="consumer-progress" class="wk-progress" aria-label="Design steps"><li>Describe</li><li>Confirm sizes</li><li>Review</li><li>Get your files</li></ol>
+    <div class="wk-layout wk-consumer-layout">
+      <aside class="wk-sidebar" aria-label="Create your design">
+        <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
+          <h2 id="live-title">What would you like to change?</h2>
+          <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
+          <label for="live-request">Your idea</label><textarea id="live-request" rows="4" maxlength="2000" placeholder="Describe how you would like your handle to look and feel"></textarea>
+          <button id="live-sample" class="wk-sample" type="button">Try a sample</button>
+          <div id="live-length-field" hidden><label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note"><p id="live-length-note">Confirm the exact length before creating a design.</p></div>
+          <button id="live-review-sizes" class="wk-primary" type="button" disabled>Review sizes</button>
+          <div id="live-size-review" class="wk-size-review" hidden>
+            <h3 id="live-requirements">Sizes to keep</h3><p id="live-fixed"></p>
+            <figure class="wk-mount-brief"><figcaption>Sample mounting brief</figcaption><svg viewBox="0 0 280 95" role="img" aria-label="Two mounting axes, 96 millimeters apart. Sample brief, not measured generated geometry."><g fill="none" stroke="currentColor"><path d="M32 10v48M248 10v48" stroke-dasharray="4 3"/><path d="M32 67h216M32 61v12M248 61v12"/></g><text x="140" y="89" text-anchor="middle">96 mm between mounts</text></svg></figure>
+          </div>
+          <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm sizes</button>
+          <button id="live-run" class="wk-primary" type="button" disabled>Create design</button>
+          <p id="live-run-gate"></p>
+          <button id="live-accept" class="wk-primary" type="button" disabled>Use this design</button><p id="live-accept-gate"></p>
+          <button id="live-change" type="button" hidden>Make another change</button>
+          <div class="wk-live-recovery"><button id="live-refresh" type="button">Check status</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Try again</button></div>
+        </section>
+        <section id="live-files" class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-accepted-title">
+          <h2 id="live-accepted-title">Get your files</h2>
+          <label for="live-artifact">Choose a file</label><select id="live-artifact"></select>
+          <button id="live-download" class="wk-primary" type="button" disabled>Download file</button><p id="live-download-status" role="status" aria-live="polite"></p>
+          <p id="live-export-gate"></p>
+          <details class="wk-details"><summary>File details</summary><p id="live-accepted"></p></details>
+          <p>Digital checks do not establish physical fit, strength or manufacturing readiness.</p>
+        </section>
+      </aside>
+      <section class="wk-model" aria-labelledby="model-title" data-viewer-only>
+        <div class="wk-model-heading"><h2 id="model-title">Your handle</h2><div class="wk-model-actions"><label class="wk-sr-only" for="live-comparison">Compare designs</label><select id="live-comparison" data-live-only hidden><option value="baseline">Before</option><option value="candidate">Your design</option></select><button type="button" data-view="fit" disabled>Reset view</button></div></div>
+        <div id="viewport" class="wk-viewport" aria-label="Interactive 3D preview" aria-describedby="navigation-help">
+          <div id="preview-message" class="wk-preview-message" role="status" aria-live="polite"><strong id="preview-status">Preparing viewer</strong><p id="preview-detail">Your reference will appear here when the service connects.</p></div>
+          <div class="wk-axis-labels" aria-hidden="true"><span data-axis="x">X 50</span><span data-axis="y">Y 50</span><span data-axis="origin">0, 0, 0</span></div>
+        </div>
+        <div class="wk-model-footer"><span id="mesh-dimensions">No model loaded</span><span>All sizes in millimeters</span></div>
+        <p id="navigation-help" class="wk-navigation">Drag to rotate. Scroll to zoom. Right-drag to pan. On touch, use two fingers to pan or zoom. Focus the model and use arrow keys to pan.</p>
+        <div data-live-only hidden>
+          <div class="wk-change-summary"><div><h3>What changed</h3><p id="live-change-summary">Your design will appear after a completed run.</p></div><div><h3>What stayed the same</h3><p id="live-preserved">Confirm the sizes before creating your design.</p></div></div>
+          <div class="wk-check-heading"><h2>Design checks</h2><span id="live-check-count"></span></div><p id="live-candidate-status" class="wk-review-note"></p>
+          <table class="wk-check-table"><caption class="wk-sr-only">Checks for the displayed design</caption><thead><tr><th scope="col">Requirement</th><th scope="col">Result</th></tr></thead><tbody id="live-checks"></tbody></table>
+        </div>
+      </section>
+    </div>
+    <div class="wk-secondary">
+      <details class="wk-disclosure" data-live-only hidden><summary>Earlier designs</summary><div class="wk-disclosure-body"><label for="live-revision">View an earlier design</label><select id="live-revision"></select><ol id="live-history"></ol></div></details>
+      <details class="wk-disclosure"><summary>Technical details</summary><div class="wk-disclosure-body">
+        <div class="wk-toolbar" role="group" aria-label="Detailed model view"><button type="button" data-view="isometric" disabled>Isometric</button><button type="button" data-view="top" disabled>Top</button><button type="button" data-view="front" disabled>Front</button><label class="wk-wireframe"><input id="wireframe" type="checkbox" disabled> Wireframe</label></div>
+        <div data-live-only hidden><p id="live-selection" class="wk-mono"></p><p id="live-run-status"></p><p id="live-mesh-identity" class="wk-review-status"></p><p id="live-error-detail"></p><pre id="live-evidence"></pre><div class="wk-review-activity"><h2>Observed activity</h2><label for="live-event-run">Show observations</label><select id="live-event-run"><option value="">All runs and design events</option></select><p id="live-cursor"></p><ol id="live-activity"></ol></div></div>
+      </div></details>
+      <details class="wk-disclosure"><summary>How this demo works</summary><div class="wk-disclosure-body">
     <section id="workspace-guide" class="wk-guide" aria-labelledby="guide-title">
       <div class="wk-guide-intro">
         <div>
@@ -43,12 +99,12 @@
       </ol>
       <p class="wk-guide-eyebrow">Examples / expand to explore</p>
       <details id="guide-repair">
-        <summary><span class="wk-guide-category">Repair it</span> <span class="wk-guide-example-title">Replacement handle concept</span> <span class="wk-guide-status">Concept. In development.</span></summary>
+        <summary><span class="wk-guide-category">Repair it</span> <span class="wk-guide-example-title">Replacement handle concept</span> <span class="wk-guide-status">Sample brief.</span></summary>
         <div class="wk-guide-example">
           <div class="wk-guide-copy">
             <h3>Sample mounting brief</h3>
             <p>Specify a 96 mm mounting pitch, at least 25 mm of empty finger gap, and a maximum overall length of 140 mm. Mounting pads are conceptual; hardware is unspecified.</p>
-            <p>No actual initial handle exists in this story yet. There is no damaged original or measured cabinet. The gap and length are brief requirements, not measurements of drawn geometry.</p>
+            <p>This is a sample mounting reference, not a damaged original or measured cabinet. The gap and length are brief requirements, not measurements of drawn geometry.</p>
           </div>
           <figure>
             <figcaption>Sample mounting brief / datum illustration</figcaption>
@@ -134,69 +190,22 @@
         </div>
       </details>
       <details id="guide-yours">
-        <summary><span class="wk-guide-category">Make it yours</span> <span class="wk-guide-example-title">Broader grip with thumb rest</span> <span class="wk-guide-status">Concept. In development.</span></summary>
+        <summary><span class="wk-guide-category">Make it yours</span> <span class="wk-guide-example-title">Broader grip with thumb rest</span> <span class="wk-guide-status">Sample brief.</span></summary>
         <div class="wk-guide-copy wk-guide-intended">
-          <h3>An intended handle refinement</h3>
-          <p>Start from a real initial handle that has been generated, checked and explicitly accepted. The intended live refinement would broaden the grip and add a localized thumb rest while preserving the mounts and empty finger gap.</p>
+          <h3>After accepting a starting design</h3>
+          <p>Start from a real initial handle that has been generated, checked and explicitly accepted. A refinement can broaden the grip and add a localized thumb rest while preserving the mounts and empty finger gap.</p>
           <p>Review nine checks, explicitly accept the final revision, then download the exact accepted CAD files. Completion or another prompt cannot promote a candidate to accepted.</p>
-          <p>This flow is in development, not available live. Actual runtime and rehearsals remain unverified.</p>
+          <p>The workspace reports the connected service and actual run state. A failed or unavailable run never becomes a sample success.</p>
         </div>
       </details>
-      <p class="wk-guide-modes">Workspace modes below: saved reference and synthetic review are labeled examples. Live numeric workspace uses the connected API and reports unavailable states. Choose a mode using the existing controls.</p>
+      <p class="wk-guide-modes">Workspace modes below: saved reference and synthetic review are labeled examples. Live demo uses the connected API and reports unavailable states. Test data stays separate from live results.</p>
     </section>
-    <div class="wk-mode-switch" role="group" aria-label="Workspace mode">
-      <button id="live-mode" type="button" aria-pressed="false">Live numeric workspace</button>
-      <button id="saved-mode" type="button" aria-pressed="true">Saved reference viewer</button>
-      <button id="review-mode" type="button" aria-pressed="false">Revision review</button>
-    </div>
-    <div class="wk-notice" data-saved-only>
-      <strong>Fixture preview</strong>
-      <p>Two saved CAD reference examples. No current run, check or acceptance evidence.</p>
-    </div>
-    <div class="wk-layout">
-      <section class="wk-model" aria-labelledby="model-title" data-viewer-only>
-        <div class="wk-model-heading">
-          <h1 id="model-title">Reference geometry</h1>
-          <label class="wk-reference-label" data-saved-only>Saved reference
-            <select id="reference">
-              <option value="revised">Saved revised baseline</option>
-              <option value="original">Saved original reference</option>
-            </select>
-          </label>
-        </div>
-        <div class="wk-review-controls" data-live-only hidden>
-          <label for="live-comparison">Show geometry</label><select id="live-comparison"><option value="baseline">Registered baseline</option><option value="candidate">Inspected candidate</option></select>
-          <label for="live-revision">Inspect revision locally</label><select id="live-revision"></select>
-        </div>
-        <p id="live-mesh-identity" class="wk-review-status" data-live-only hidden></p>
-        <div class="wk-toolbar" role="group" aria-label="Model view">
-          <button type="button" data-view="fit" disabled>Fit view</button>
-          <button type="button" data-view="isometric" disabled>Isometric</button>
-          <button type="button" data-view="top" disabled>Top</button>
-          <button type="button" data-view="front" disabled>Front</button>
-          <label class="wk-wireframe"><input id="wireframe" type="checkbox" disabled> Wireframe</label>
-        </div>
-        <div id="viewport" class="wk-viewport" aria-label="Interactive STL preview" aria-describedby="navigation-help">
-          <div id="preview-message" class="wk-preview-message" role="status" aria-live="polite">
-            <strong id="preview-status">Preparing viewer</strong>
-            <p id="preview-detail">The saved reference will load when the workspace starts.</p>
-          </div>
-          <div class="wk-axis-labels" aria-hidden="true"><span data-axis="x">X 50</span><span data-axis="y">Y 50</span><span data-axis="origin">0, 0, 0</span></div>
-        </div>
-        <div class="wk-model-footer">
-          <span id="mesh-dimensions">No mesh loaded</span>
-          <span>mm · Z up · XY grid 5 mm</span>
-        </div>
-        <p id="navigation-help" class="wk-navigation">Drag to rotate · Right-drag to pan · Scroll to zoom. Touch: one finger rotates, two pan / zoom. Focus the canvas and use arrow keys to pan.</p>
-        <div data-live-only hidden>
-          <div class="wk-review-summary"><div><p class="wk-kicker">Confirmed requirements</p><h2 id="live-requirements"></h2><p id="live-fixed"></p></div><div><p class="wk-kicker">Authoritative state</p><p id="live-selection" class="wk-mono"></p><p id="live-run-status"></p></div></div>
-          <div class="wk-check-heading"><h2>Inspected revision checks</h2><span id="live-check-count"></span></div>
-          <p id="live-candidate-status" class="wk-review-note"></p>
-          <table class="wk-check-table"><caption class="wk-sr-only">Checks bound to the inspected revision requirements</caption><thead><tr><th scope="col">Check / measured evidence</th><th scope="col">State</th></tr></thead><tbody id="live-checks"></tbody></table>
-          <details class="wk-review-evidence"><summary>Inspected evidence identity</summary><pre id="live-evidence"></pre></details>
-          <div class="wk-review-activity"><h2>Observed activity</h2><p>Events never select or accept a revision. Completion still requires explicit acceptance.</p><label for="live-event-run">Show observations</label><select id="live-event-run"><option value="">All runs and design events</option></select><p id="live-cursor"></p><ol id="live-activity"></ol></div>
-        </div>
-      </section>
+      </div></details>
+      <details class="wk-disclosure"><summary>Test data</summary><div class="wk-disclosure-body">
+        <p class="wk-test-note">Saved and synthetic examples are separate from the live demo.</p>
+        <div class="wk-mode-switch" role="group" aria-label="Workspace mode"><button id="live-mode" type="button" aria-pressed="true">Live demo</button><button id="saved-mode" type="button" aria-pressed="false">Saved reference viewer</button><button id="review-mode" type="button" aria-pressed="false">Revision review</button></div>
+        <div class="wk-notice" data-saved-only hidden><strong>Fixture preview</strong><p>Two saved CAD reference examples. No current run, check or acceptance evidence.</p></div>
+        <label class="wk-reference-label" data-saved-only hidden>Saved reference<select id="reference"><option value="revised">Saved revised baseline</option><option value="original">Saved original reference</option></select></label>
       <section id="revision-review" class="wk-model wk-review" aria-labelledby="review-title" data-review-only hidden>
         <div class="wk-model-heading">
           <div><p class="wk-kicker">wk-prototype-0.2 / public conformance fixtures</p><h1 id="review-title">Synthetic revision review</h1></div>
@@ -226,28 +235,6 @@
         </div>
         <div class="wk-review-blockers"><h2>Actions unavailable</h2><ul id="review-blockers"></ul></div>
       </section>
-      <aside class="wk-sidebar" aria-label="Reference identity and request">
-        <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
-          <p class="wk-kicker">Numeric plate / millimeters</p><h2 id="live-title">Live workspace</h2>
-          <p id="live-status" role="status" aria-live="polite">Connecting to the local API...</p>
-          <div class="wk-live-recovery"><button id="live-refresh" type="button">Refresh</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Retry pending action</button></div>
-          <label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note">
-          <p id="live-length-note">Confirm the exact length before requesting a run. A 30 mm request stays 30 mm; a correction requires a new confirmation.</p>
-          <label for="live-request">Run instruction</label><textarea id="live-request" rows="3" maxlength="2000" placeholder="Describe the numeric plate change"></textarea>
-          <p>Your draft stays local until you explicitly confirm or request a run.</p>
-          <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm requirements</button>
-          <button id="live-run" class="wk-primary" type="button" disabled>Request numeric run</button>
-          <p id="live-run-gate"></p>
-          <button id="live-accept" class="wk-primary" type="button" disabled>Accept selected revision</button><p id="live-accept-gate"></p>
-        </section>
-        <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-accepted-title">
-          <h2 id="live-accepted-title">Accepted download</h2><p id="live-accepted"></p>
-          <label for="live-artifact">File from accepted manifest</label><select id="live-artifact"></select>
-          <button id="live-download" class="wk-primary" type="button" disabled>Download verified file</button><p id="live-download-status" role="status" aria-live="polite"></p>
-          <p id="live-export-gate"></p>
-          <details class="wk-details"><summary>Acceptance history</summary><ol id="live-history"></ol></details>
-          <p>Verified file integrity and recorded checks do not establish physical fit, strength or manufacturing readiness.</p>
-        </section>
         <section class="wk-panel" aria-labelledby="identity-title" data-saved-only>
           <p class="wk-kicker">Selected reference</p>
           <h2 id="identity-title">Saved revised baseline</h2>
@@ -272,7 +259,7 @@
           <p id="draft-note">Local draft only. Text is not sent or saved to the server.</p>
           <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Confirm requirements</button>
           <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Request revision</button>
-          <p id="api-gap">Open Live numeric workspace to confirm requirements and request a run. Saved reference and synthetic review modes do not submit requests, accept revisions or export live artifacts.</p>
+          <p id="api-gap">Open Live demo to confirm requirements and request a run. Saved reference and synthetic review modes do not submit requests, accept revisions or export live artifacts.</p>
           <div class="wk-future-actions"><button type="button" disabled aria-describedby="api-gap">Accept revision</button><button type="button" disabled aria-describedby="api-gap">Download</button></div>
         </section>
         <section class="wk-panel wk-review-guide" data-review-only hidden>
@@ -288,9 +275,9 @@
           <p>Unavailable requests a missing fixture. Return to a saved reference to recover.</p>
           <button id="reload" type="button">Reload saved reference</button>
         </section>
-      </aside>
+      </div></details>
     </div>
-    <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect STL examples.</p></noscript>
+    <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect 3D designs.</p></noscript>
   </main>
 </body>
 </html>

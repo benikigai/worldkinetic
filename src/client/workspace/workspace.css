@@ -209,3 +209,67 @@
   .wk-guide .wk-guide-status { display: block; margin: 4px 0 0 16px; }
   .wk-guide .wk-guide-example { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 }
+
+/* Keep the task and model together; inspection tools stay in disclosures. */
+.wk-consumer-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 8px 0 24px; }
+.wk-consumer-heading h1 { font-size: clamp(23px, 2.5vw, 32px); font-weight: 500; letter-spacing: -.8px; }
+.wk-main { max-width: 1450px; padding-top: 24px; }
+.wk-progress { display: flex; list-style: none; counter-reset: design-step; padding: 0; margin: 0 0 24px; gap: 24px; color: var(--muted); }
+.wk-progress li { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.wk-progress li::before { counter-increment: design-step; content: counter(design-step); display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; }
+.wk-progress li[aria-current="step"] { color: var(--wk-accent); }
+.wk-progress li[aria-current="step"]::before { background: var(--wk-accent); border-color: transparent; color: var(--bg); }
+.wk-consumer-layout { grid-template-columns: 330px minmax(0, 1fr); gap: 24px; }
+.wk-consumer-layout .wk-sidebar { display: block; }
+.wk-consumer-layout .wk-panel { padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.wk-consumer-layout .wk-request h2 { font-size: 20px; line-height: 1.3; }
+.wk-consumer-layout .wk-request label { font-size: 13px; margin-top: 20px; }
+.wk-consumer-layout .wk-request textarea { min-height: 125px; font-size: 14px; line-height: 1.55; padding: 12px; resize: vertical; }
+.wk-consumer-layout .wk-request button { min-height: 42px; }
+.wk-consumer-layout .wk-request .wk-primary { font-size: 14px; min-height: 46px; margin-top: 16px; }
+.wk-consumer-layout .wk-request .wk-sample { margin-top: 8px; background: transparent; color: var(--wk-accent); border-color: transparent; padding-left: 0; }
+.wk-consumer-layout .wk-request p:empty { display: none; }
+.wk-consumer-layout .wk-viewport { height: clamp(360px, 53dvh, 560px); }
+.wk-model-actions { display: flex; align-items: center; gap: 8px; }
+.wk-model-heading h2 { font-size: 16px; }
+.wk-model-footer { font: inherit; font-size: 11px; }
+.wk-live-recovery { border-top: 1px solid var(--line); padding-top: 12px; }
+.wk-live-recovery:has(button:not([hidden])) { margin-top: 18px; }
+.wk-live-recovery:not(:has(button:not([hidden]))) { display: none; }
+.wk-live-recovery button { flex: 1; }
+.wk-size-review { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+.wk-size-review h3, .wk-change-summary h3 { margin: 0 0 7px; font-size: 13px; font-weight: 500; }
+.wk-mount-brief { margin: 16px 0 0; color: var(--muted); font-size: 11px; }
+.wk-mount-brief svg { display: block; width: 100%; height: auto; margin-top: 8px; color: var(--wk-accent); }
+.wk-mount-brief text { fill: var(--text); font: 12px Helvetica, Arial, sans-serif; }
+.wk-change-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 18px 16px; border-block: 1px solid var(--line); }
+.wk-change-summary p { font-size: 12px; color: var(--muted); }
+.wk-secondary { margin-top: 28px; border-top: 1px solid var(--line); }
+.wk-disclosure { border-bottom: 1px solid var(--line); min-width: 0; }
+.wk-disclosure > summary { padding: 15px 4px; color: var(--muted); font-size: 12px; }
+.wk-disclosure-body { padding: 8px 4px 20px; overflow-wrap: anywhere; }
+.wk-disclosure-body > select { margin-left: 12px; }
+.wk-disclosure-body pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.wk-disclosure-body .wk-guide { margin: 0; }
+.wk-test-note { margin-bottom: 12px !important; color: var(--muted); }
+@media (max-width: 800px) {
+  .wk-consumer-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .wk-consumer-layout .wk-panel { margin-bottom: 0; }
+  .wk-consumer-layout .wk-panel + .wk-panel { margin-top: 16px; }
+  .wk-consumer-layout .wk-request textarea { min-height: 100px; }
+  .wk-progress { gap: 12px; justify-content: space-between; }
+  .wk-progress li { font-size: 11px; gap: 5px; }
+  .wk-consumer-heading { margin-bottom: 20px; }
+  .wk-consumer-layout .wk-viewport { height: 380px; }
+}
+@media (max-width: 440px) {
+  .wk-consumer-heading { align-items: start; flex-direction: column; gap: 8px; }
+  .wk-consumer-heading h1 { font-size: 26px; }
+  .wk-progress li { flex-direction: column; gap: 5px; text-align: center; }
+  .wk-progress { gap: 8px; }
+  .wk-consumer-layout .wk-panel { padding: 16px; }
+  .wk-change-summary { grid-template-columns: 1fr; gap: 16px; }
+  .wk-consumer-layout .wk-viewport { height: 340px; }
+  .wk-model-actions { gap: 4px; }
+  .wk-model-actions button, .wk-model-actions select { font-size: 11px; padding: 7px; }
+}

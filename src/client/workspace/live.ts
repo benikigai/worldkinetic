@@ -1,3 +1,4 @@
+import { consumerAction, consumerStep } from './consumer-state.js';
 import { expectedForCheck } from '../../shared/contracts-v2.js';
 import type { LiveWorkspaceController } from './live-state.js';
 import { createLivePresentation, endMaterialMeasurement, type LivePresentationUpdate } from './live-presentation.js';
@@ -7,6 +8,27 @@ const text = (id: string, value: string) => { element(id).textContent = value; }
 const option = (value: string, label: string) => { const node = document.createElement('option'); node.value = value; node.textContent = label; return node; };
 const pretty = (value: unknown) => JSON.stringify(value, null, 2);
 
+const friendlyChecks: Record<string, string> = {
+  'geometry.valid_single_solid': 'One connected, valid shape',
+  'handle.mount_interface': 'Mounting pads stay in place',
+  'handle.envelope': 'Fits within the allowed size',
+  'handle.grip_clearance': 'Empty space for your fingers',
+  'handle.grip_sections': 'Grip stays connected',
+  'handle.refinement_delta': 'Broader grip and thumb rest',
+  'export.step_reopen': 'STEP file opens correctly',
+  'export.stl_reopen': 'STL file opens correctly',
+  'export.editable_reopen': 'Editable source recreates the design',
+};
+export function measuredSummary(value: unknown): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return 'Measurement unavailable';
+  const record = value as Record<string, unknown>;
+  const measurements = record.measurement ?? record.values ?? record;
+  if (!measurements || typeof measurements !== 'object' || Array.isArray(measurements)) return 'Measurement unavailable';
+  const lines = Object.entries(measurements).filter((entry): entry is [string, number] => typeof entry[1] === 'number' && Number.isFinite(entry[1]))
+    .slice(0, 5).map(([key, number]) => `${key.replace(/Mm3$/, ' mm³').replace(/Mm2$/, ' mm²').replace(/Mm$/, ' mm').replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()}: ${Number(number.toFixed(4))}`);
+  return lines.length ? lines.join(' · ') : 'See measured evidence in the check details';
+}
+
 export function mountLive(controller: LiveWorkspaceController, signal: AbortSignal, updatePreview: (update: LivePresentationUpdate) => void) {
   const length = element<HTMLInputElement>('live-length');
   const instruction = element<HTMLTextAreaElement>('live-request');
@@ -15,6 +37,8 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
   const artifact = element<HTMLSelectElement>('live-artifact');
   const eventRun = element<HTMLSelectElement>('live-event-run');
   const presentation = createLivePresentation();
+  let sizesReviewed = false;
+  let changing = false;
   let serverSelection: string | null = null;
   let previewFailed = false;
   let active = false;
@@ -25,44 +49,97 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     const s = controller.snapshot(), b = s.bootstrap;
     if (s.trusted && !s.loading) {
       const selected = b?.design?.selectedCandidateRevisionId ?? null;
-      if (selected && selected !== serverSelection) comparison.value = 'candidate';
+      if (selected !== serverSelection) comparison.value = selected ? 'candidate' : 'baseline';
       serverSelection = selected;
     }
     const display = presentation.update(s, comparison.value === 'baseline' ? 'baseline' : 'candidate', active);
     const candidate = b?.candidates.find(item => item.revisionId === s.viewedRevisionId);
     const requirements = b?.requirements;
+    const currentRun = b?.runs.find(item => item.runId === b.design?.activeRunId)
+      ?? b?.runs.filter(item => item.requirementsVersion === requirements?.requirementsVersion).sort((a, z) => a.createdAt.localeCompare(z.createdAt)).at(-1);
+    const progress = currentRun?.status === 'queued' ? 'Your request is queued.'
+      : currentRun?.status === 'planning' ? 'Astra is planning the handle change.'
+        : currentRun?.status === 'running' ? 'Generating geometry and checking the result.' : '';
+    const failedRun = currentRun?.status === 'failed' || currentRun?.status === 'cancelled';
     const latest = s.history && [...s.history.acceptances].sort((a, z) => z.stateVersion - a.stateVersion)[0];
     const manifest = latest && s.history?.manifests.find(item => item.acceptanceId === latest.acceptanceId);
     if (length.value !== s.draft.lengthMm) length.value = s.draft.lengthMm;
     if (instruction.value !== s.draft.instruction) instruction.value = s.draft.instruction;
-    text('live-status', s.error ? `${s.error}${s.bootstrap ? ' Summary records are from the last verified snapshot; preview and acceptance are blocked.' : ''}` : (s.loading ? 'Verifying refreshed records. Any retained mesh and checks are from the last verified snapshot; actions are blocked.'
-      : s.busy ? 'Sending explicit action and reconciling state...'
-        : s.trusted ? 'API records verified. Inspect the revision and its checks before accepting.' : 'Live workspace unavailable. Reconnect to retry.'));
-    element('live-status').dataset.error = String(Boolean(s.error));
-    for (const [id, enabled] of [['live-confirm', s.canConfirm], ['live-run', s.canRun], ['live-accept', display.canAccept], ['live-download', s.canDownload],
-      ['live-retry', Boolean(s.pendingAction) && !s.busy && !s.loading], ['live-refresh', !s.busy && !s.loading], ['live-reconnect', !s.busy && !s.loading]] as const) {
-      element<HTMLButtonElement>(id).disabled = !enabled;
+    const handle = requirements?.registryId === 'handle_sample_v1';
+    const action = consumerAction(s, { sizesReviewed, changing, canAccept: display.canAccept });
+    const step = consumerStep(s, { sizesReviewed, changing });
+    Array.from(element('consumer-progress').children).forEach((item, index) => {
+      if (index === step) item.setAttribute('aria-current', 'step'); else item.removeAttribute('aria-current');
+    });
+    const refining = handle && (changing || requirements.setupId === 'handle_refine_v1');
+    const status = s.error ? 'We could not verify this design. Your draft is kept. Check status before continuing.'
+      : s.loading ? 'Checking the latest design and files…'
+        : s.busy ? 'Sending your action…'
+          : !s.trusted ? 'The handle workspace is unavailable. Check status to try again.'
+            : !handle ? 'The handle demo is unavailable on this connection. Recorded plate evidence is in the examples.'
+              : b?.executionMode === 'fixture' ? 'Test data only. No live handle execution is available.'
+                : b?.design?.activeRunId ? progress || 'Creating and checking your design.'
+                  : failedRun ? `The handle run ${currentRun!.status}. ${currentRun?.error?.message ?? 'Check status and review before trying again.'}`
+                  : s.canDownload ? 'Your accepted design is ready. You can get its files below.'
+                    : candidate?.status === 'rejected' ? 'This design did not meet the requirements. Review the failed checks before trying again.'
+                      : s.canAccept ? 'Review your design and its checks, then choose whether to use it.'
+                        : b?.executionMode !== 'live' ? 'New handle generation is unavailable. Existing verified designs remain inspectable.'
+                          : 'Live handle workspace. Start with the sample sizes and describe your change.';
+    text('live-status', status);
+    text('live-error-detail', s.error ?? (currentRun?.error ? pretty(currentRun.error) : b?.unavailableReason) ?? 'No connection error.');
+    text('live-stage', handle ? (refining ? 'Refine your accepted starting design' : 'Create a starting handle') : 'Handle connection unavailable');
+    element('live-status').dataset.error = String(Boolean(s.error || failedRun || candidate?.status === 'rejected' || candidate?.status === 'failed'));
+    for (const [id, name] of [['live-review-sizes', 'review'], ['live-confirm', 'confirm'], ['live-run', 'run'],
+      ['live-accept', 'accept'], ['live-download', 'download']] as const) {
+      element<HTMLButtonElement>(id).disabled = action !== name;
+      element(id).hidden = action !== name;
     }
-    text('live-run-gate', s.busy ? 'Sending the explicit action and refreshing current state.' : s.pendingAction ? `Uncertain ${s.pendingAction} action. Reconnect and explicitly retry the same request.`
-      : b?.design?.acceptedRevisionId ? 'This release runs numeric changes only from the baseline before acceptance.'
-        : b?.executionMode !== 'live' ? b?.unavailableReason ?? 'New execution is unavailable.'
-          : b.design?.activeRunId ? 'A run is active. Wait for its observed result.'
-            : 'Confirm a finite length from 26 to 200 mm, then request a separate run using that confirmed length.');
-    text('live-accept-gate', display.canAccept ? `Accept ${b?.design?.selectedCandidateRevisionId} with its verified current checks.`
-      : 'Acceptance requires the server-selected live revision to render successfully in candidate comparison with verified current checks.');
-    text('live-export-gate', s.canDownload ? 'Download uses the latest acceptance and registered manifest, independent of the inspected revision.'
-      : 'Export requires a reconciled live acceptance matching the full current requirements. Refresh if state and history disagree.');
-    text('live-requirements', requirements ? `${requirements.setup.dimensions.lengthMm} mm length · requirements v${requirements.requirementsVersion}` : 'Unavailable');
-    text('live-fixed', requirements ? `Width ${requirements.setup.dimensions.widthMm} · thickness ${requirements.setup.dimensions.baseThicknessMm} · bore diameter ${requirements.setup.holes.diameterMm} · pitch ${requirements.setup.holes.spacingMm} · minimum end material ${requirements.setup.minimumEndMaterialMm} mm` : 'No verified requirements');
+    element('live-download').hidden = !s.canDownload;
+    element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
+    element('live-download').className = action === 'download' ? 'wk-primary' : '';
+    element('live-change').hidden = !s.canRefine || changing || !s.canDownload;
+    element<HTMLButtonElement>('live-change').disabled = !s.canRefine || s.busy || s.loading || Boolean(s.error);
+    element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || Boolean(s.pendingAction);
+    element('live-size-review').hidden = !sizesReviewed && !s.canRun && !b?.design?.acceptedRevisionId;
+    element('live-files').hidden = !s.canDownload || changing;
+    for (const [id, enabled] of [['live-retry', Boolean(s.pendingAction) && !s.busy && !s.loading],
+      ['live-refresh', !s.busy && !s.loading], ['live-reconnect', !s.busy && !s.loading]] as const) element<HTMLButtonElement>(id).disabled = !enabled;
+    element('live-retry').hidden = !s.pendingAction;
+    element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
+    text('live-confirm', refining ? 'Confirm refinement sizes' : 'Confirm starting sizes');
+    text('live-run', refining ? 'Create updated design' : 'Create design');
+    text('live-run-gate', s.pendingAction ? 'The last request may have arrived. Check status, then retry that same request explicitly.'
+      : b?.design?.activeRunId ? progress || 'Checking the current run…'
+        : s.canRun ? 'Sizes are confirmed. Creating the design is a separate action.'
+          : refining ? 'Keep the mounting pads and finger gap. Broaden the grip and add a thumb rest.'
+            : 'The two pads define the mounting positions. They are not an existing handle.');
+    text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for the 3D preview to load before using it.'
+      : display.canAccept ? 'Use this design only after reviewing its shape and checks.' : 'A completed run does not accept a design.');
+    text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
+      : 'Files become available after you explicitly use a checked design with the current sizes.');
+    if (handle) {
+      const brief = requirements.setup.geometry.sampleRequirements;
+      text('live-requirements', 'Sample handle sizes');
+      text('live-fixed', `Mounting pitch ${brief.mountPitchMm} mm · finger gap at least ${brief.minimumFingerGapMm} mm · length at most ${brief.maximumOverallLengthMm} mm. Concept pads; hardware unspecified.`);
+    } else {
+      text('live-requirements', 'Handle sizes unavailable');
+      text('live-fixed', 'Connect a handle-capable workspace. Unknown sizes have not been filled in.');
+    }
+    const verifiedCandidate = s.trusted && !s.error && candidate?.executionMode === 'live' ? candidate : null;
+    text('live-change-summary', verifiedCandidate?.changeSummary ?? 'No verified design changes yet.');
+    const protectedChecks = verifiedCandidate?.checks.filter(item => ['handle.mount_interface', 'handle.grip_clearance'].includes(item.checkId));
+    text('live-preserved', protectedChecks?.length === 2 && protectedChecks.every(item => item.state === 'passed')
+      ? 'The mounting interface and empty finger gap passed their checks for this design.'
+      : 'Mounting and finger-gap preservation have not both passed for this design.');
     text('live-selection', b?.design ? `Selected: ${b.design.selectedCandidateRevisionId ?? 'none'} · state v${b.design.stateVersion}` : 'No current design');
-    const run = b?.runs.find(item => item.runId === (b.design?.activeRunId ?? candidate?.runId));
-    text('live-run-status', run ? `${run.runId}: ${run.status}${run.error ? ` · ${run.error.message}` : ''}` : 'No active run');
+    const run = b?.runs.find(item => item.runId === (b.design?.activeRunId ?? candidate?.runId)) ?? currentRun;
+    text('live-run-status', run ? `${run.status}${run.error ? ` · ${run.error.message}` : ''}` : 'No active run');
     revision.replaceChildren(...(b?.candidates.map(item => option(item.revisionId,
-      `${item.revisionId} · ${item.requirements.setup.dimensions.lengthMm} mm · v${item.requirementsVersion} · ${item.status}${item.revisionId === b.design?.selectedCandidateRevisionId ? ' · selected' : ' · history'}`)) ?? []));
+      `${item.requirements.registryId === 'handle_sample_v1' ? (item.requirements.setupId === 'handle_initial_v1' ? 'Starting handle' : 'Refined handle') : 'Recorded plate'} · ${item.status} · version ${item.requirementsVersion}${item.revisionId === b.design?.selectedCandidateRevisionId ? ' · current' : ' · earlier'}`)) ?? []));
     if (s.viewedRevisionId) revision.value = s.viewedRevisionId;
     if (!candidate) revision.prepend(option('', 'No candidate selected'));
     revision.disabled = s.loading || !b?.candidates.length;
-    text('live-candidate-status', candidate ? `${candidate.revisionId === b?.design?.selectedCandidateRevisionId ? 'Server-selected candidate' : 'Local historical inspection'} · ${candidate.revisionId} · ${candidate.status} · ${candidate.executionMode} · requirements v${candidate.requirementsVersion}${candidate.error ? ` · ${candidate.error.message}` : ''}` : 'No candidate evidence. Baseline geometry is not candidate evidence.');
+    text('live-candidate-status', candidate ? `${candidate.revisionId === b?.design?.selectedCandidateRevisionId ? 'Current design' : 'Earlier design'} checks · ${candidate.status}${comparison.value === 'baseline' ? ' · Before is shown for comparison' : ''}${candidate.error ? ` · ${candidate.error.message}` : ''}` : 'No checked design yet. The mounting reference has not been generated or checked as a handle.');
     const r = s.trusted && !s.error ? candidate?.requirements : undefined;
     if (display.evidenceAction === 'replace') {
       text('live-check-count', r ? `${candidate!.checks.filter(check => check.state === 'passed').length}/${r.requiredChecks.length} passed` : 'No verified checks');
@@ -74,27 +151,32 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
         const details = document.createElement('details'), summary = document.createElement('summary'), evidence = document.createElement('pre');
         details.dataset.checkId = id;
         details.open = expandedChecks.has(id);
-        summary.textContent = check?.label ?? id;
+        summary.textContent = friendlyChecks[id] ?? check?.label ?? id;
         evidence.textContent = pretty({ checkId: id, measured: check?.measured ?? null, expected: expectedForCheck(r, id), units: check?.units,
           method: check?.method, details: check?.details, diagnostics: check?.diagnostics });
         details.append(summary, evidence); heading.append(details);
         const state = document.createElement('span'); state.className = 'wk-check-state'; state.dataset.state = check?.state ?? 'not_evaluated'; state.textContent = state.dataset.state;
         cell.append(state);
-        if (id === 'margin.end_material') {
+        if (id === 'margin.end_material' && r.registryId === 'plate_requirements_v1') {
           const margin = document.createElement('p'); margin.className = 'wk-margin-evidence';
           const measured = endMaterialMeasurement(check?.measured);
           margin.textContent = measured === null ? 'Measurement unavailable'
             : `${measured} mm measured / ${r.setup.minimumEndMaterialMm} mm minimum`; cell.append(margin);
+        }
+        if (r.registryId === 'handle_sample_v1') {
+          const measured = document.createElement('p'); measured.className = 'wk-measured';
+          measured.textContent = measuredSummary(check?.measured); cell.append(measured);
         }
         row.append(heading, cell); return row;
       }) ?? []));
     }
     text('live-evidence', candidate ? pretty({ revisionId: candidate.revisionId, runId: candidate.runId, requirementsId: candidate.requirementsId,
       requirementsVersion: candidate.requirementsVersion, geometryHash: candidate.geometryHash, checkBundleHash: candidate.checkBundleHash,
-      engine: candidate.engine, artifacts: candidate.artifacts }) : 'No candidate evidence');
-    text('live-accepted', latest ? `${latest.candidate.revisionId} · ${latest.acceptanceId} · accepted at state v${latest.stateVersion} · ${b?.design?.acceptedRequirementsMatch ? 'current requirements' : 'historical requirements'}` : 'No accepted revision.');
+      engine: candidate.engine, artifacts: candidate.artifacts, reference: s.reference,
+      acceptedInitial: requirements?.registryId === 'handle_sample_v1' ? requirements.setup.acceptedInitial : null }) : 'No candidate evidence');
+    text('live-accepted', latest ? `Accepted ${latest.requirements.setupId === 'handle_refine_v1' ? 'updated' : 'starting'} design · ${b?.design?.acceptedRequirementsMatch ? 'current sizes' : 'earlier sizes, confirm and review the new design before downloading'}` : 'No accepted design yet.');
     const previousArtifact = artifact.value;
-    artifact.replaceChildren(...(manifest?.artifacts.map(item => option(item.artifactId, `${item.fileName} · ${item.bytes} bytes`)) ?? []));
+    artifact.replaceChildren(...(manifest?.artifacts.map(item => option(item.artifactId, `${item.mediaType === 'model/step' ? 'STEP · editable CAD' : item.mediaType === 'model/stl' ? 'STL · 3D mesh' : item.mediaType.includes('python') || item.fileName.endsWith('.py') ? 'Python · editable source' : item.fileName}`)) ?? []));
     if (manifest?.artifacts.some(item => item.artifactId === previousArtifact)) artifact.value = previousArtifact;
     artifact.disabled = !s.canDownload;
     element('live-history').replaceChildren(...(s.history?.acceptances.map(item => {
@@ -137,11 +219,29 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     }, 5000);
   }
   length.addEventListener('input', () => controller.setDraft({ lengthMm: length.value }), { signal });
-  instruction.addEventListener('input', () => controller.setDraft({ instruction: instruction.value }), { signal });
+  instruction.addEventListener('input', () => { sizesReviewed = false; controller.setDraft({ instruction: instruction.value }); }, { signal });
+  element('live-sample').addEventListener('click', () => {
+    const s = controller.snapshot();
+    if (!s.trusted || s.bootstrap?.requirements?.registryId !== 'handle_sample_v1' || s.busy || s.pendingAction) return;
+    sizesReviewed = false;
+    controller.setDraft({ instruction: changing || s.bootstrap.requirements.setupId === 'handle_refine_v1'
+      ? 'Broaden the grip and add a localized thumb rest while preserving the accepted starting design, mounting pads and empty finger gap.'
+      : 'Create a cabinet handle joining the two mounting pads, with a comfortable grip and the confirmed sample sizes.' });
+  }, { signal });
+  element('live-review-sizes').addEventListener('click', () => { sizesReviewed = true; render(); }, { signal });
+  element('live-change').addEventListener('click', () => {
+    if (!controller.snapshot().canRefine) return;
+    changing = true; sizesReviewed = false; controller.setDraft({ instruction: '' });
+  }, { signal });
+  element('live-confirm').addEventListener('click', () => {
+    const s = controller.snapshot();
+    if (consumerAction(s, { sizesReviewed, changing, canAccept: false }) !== 'confirm') return;
+    void controller.confirmRequirements(changing ? 'handle_refine_v1' : undefined);
+  }, { signal });
   revision.addEventListener('change', () => { comparison.value = 'candidate'; controller.selectRevision(revision.value); }, { signal });
   comparison.addEventListener('change', render, { signal });
   eventRun.addEventListener('change', render, { signal });
-  for (const [id, action] of [['live-confirm', controller.confirmRequirements], ['live-run', controller.requestRun],
+  for (const [id, action] of [['live-run', controller.requestRun],
     ['live-refresh', controller.refresh], ['live-reconnect', controller.reconnect]] as const) {
     element(id).addEventListener('click', () => {
       if (previewFailed && (id === 'live-refresh' || id === 'live-reconnect')) presentation.invalidate();
@@ -149,7 +249,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     }, { signal });
   }
   element('live-accept').addEventListener('click', () => {
-    if (render().canAccept) void controller.acceptRevision();
+    if (render().canAccept) void controller.acceptRevision().then(() => { if (controller.snapshot().canDownload) { changing = false; sizesReviewed = false; render(); } });
   }, { signal });
   element('live-download').addEventListener('click', () => { void controller.exportArtifact(artifact.value).then(save); }, { signal });
   element('live-retry').addEventListener('click', () => {

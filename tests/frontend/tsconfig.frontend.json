@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["../../src/client/**/*.ts", "../../src/shared/**/*.ts", "./**/*.ts"],
+  "exclude": ["./preserved-pre-consumer/**"]
+}

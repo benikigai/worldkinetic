@@ -1,0 +1,18 @@
+{
+  "evidence": "OUTSIDE_WRAPPER: protected source preservation at 629be8c1400cebb8fba3501f0531354000fe230f",
+  "workspace_tree_sha256": "01e293caf7d8e8fdd74fde16bb537d3f75ebd6c4314a477e3bf4ab077a6eec53",
+  "css_bytes": 13452,
+  "css_sha256": "829ff3036440466937484af9ef19b8470c45fb6fbe618b8e5df5478620f547c7",
+  "immutable_files": {
+    "src/client/workspace/fixtures/saved-references/mcp-test-plate.stl": "e078a52ece47d126ca7a22d19070e73d170b709f14847359e94252379f0ed76c",
+    "src/client/workspace/fixtures/saved-references/plate-50x35x5.stl": "be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a",
+    "src/client/workspace/live-presentation.ts": "25e384e302a0ddc2f751ca60c5d710075b235b9785563dc78c0dd8938d82c9a8",
+    "src/client/workspace/live-state.ts": "a6beb467973717e600191290d269d5b8b20269813f1ef5e2e104a0d7506a4be7",
+    "src/client/workspace/live.ts": "2c2851070a734d5aef719420871720b6244add784733d0e9890f7555ae50e64c",
+    "src/client/workspace/main.ts": "fb065121445179b6201b3f56d189cfaae4dbb4538d49a9a27d87e79f7cea5102",
+    "src/client/workspace/preview.ts": "8432b8e48460cdaf0ed4ed629547af217e8fad29cc5a136ce380c3ead35fe431",
+    "src/client/workspace/review-state.ts": "55c0c86119ccb86affcabd585a0a98b78c6396e30e76af4652af8ae1fa140fbd",
+    "src/client/workspace/review.ts": "82171546d6f92d86f92dbdf07498e21534cbd2b62c3d25b4920effa00bd1b131",
+    "src/client/workspace/viewer.ts": "74a06694a8749c7f7cb38e9f1eacdbef5895969f926f496ec36a26a7ed58dbd8"
+  }
+}
