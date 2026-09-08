@@ -13,9 +13,9 @@ export async function parsePreviewGeometry(bytes: ArrayBuffer, expectedSha256: s
   if (!globalThis.crypto?.subtle) throw new Error('STL integrity verification requires HTTPS or localhost.');
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   const actual = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-  if (actual !== expectedSha256.toLowerCase()) throw new Error('STL hash does not match the registered saved reference.');
+  if (actual !== expectedSha256.toLowerCase()) throw new Error('STL hash does not match the registered artifact.');
 
-  // This fixture source registers binary STL only. Validate its complete layout before STLLoader allocates.
+  // Registered previews use binary STL. Validate its complete layout before STLLoader allocates.
   const data = new DataView(bytes);
   const triangles = data.getUint32(80, true);
   if (!triangles) throw new Error('STL preview contains no triangles.');

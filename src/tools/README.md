@@ -1,10 +1,11 @@
-# TOOLS-02 v2 adapter and numeric plate core
+# TOOLS-03 source candidates and frozen feature verification
 
 `adapter.ts` exports `cadToolAdapter: ToolAdapter` from the released
-`src/shared/contracts-v2.ts` interface. It supports only `numeric_operation` /
-`resize_plate` with the exact confirmed length and `plate-validator-v1`.
-`python_source` remains unavailable until TOOLS-03. An unknown validator also
-returns `TOOL_UNAVAILABLE` with no checks or artifacts.
+`src/shared/contracts-v2.ts` interface. It supports `numeric_operation` / `resize_plate` with the exact confirmed length,
+and `python_source` for `resize_centered_v1` and `tactile_feature_v1`, using
+`plate-validator-v1`. Unknown validators return `TOOL_UNAVAILABLE` with no checks
+or artifacts. Installed-runtime source failures return explicit infrastructure
+errors, never an unavailable-source fallback.
 
 ```ts
 import { cadToolAdapter } from './src/tools/adapter.js';
@@ -31,11 +32,11 @@ and stages a read-only copy. It also stages validated requirements and the exact
 registry/setup canonical strings. Python hashes those strings directly as UTF-8
 and verifies their fixed registry identity, resolved setup, length and reference
 agreement. Only trusted verifier stages receive these bindings; generators
-receive source only. `--requirements-json` exposes this optional internal CLI
+receive exactly the source and immutable reference STEP. `--requirements-json` exposes this optional internal CLI
 envelope (`requirements`, `registryCanonicalJson`, `setupCanonicalJson`). It is
 not a provider argument or public route.
 
-`cad_runner.py` remains an internal numeric CLI. The host requires Python 3.9+
+`cad_runner.py` is an internal numeric/source CLI. The host requires Python 3.9+
 and Docker; only containers import CAD libraries. No dependencies were added.
 
 ```sh
@@ -45,6 +46,55 @@ python3 -B src/tools/cad_runner.py --length-mm 36 \
   --reference-sha256 9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3 \
   --deadline-seconds 60
 ```
+
+For source input, additionally pass `--source-file /absolute/candidate.py` and the
+validated `--requirements-json` envelope when using the frozen feature setup.
+The adapter supplies both automatically. Source is raw UTF-8, at most 65,536
+bytes, with no normalization. Delivered `source.py` and `editable.py` are byte
+identical and their hash must match the proposal. Each of two independent
+candidate containers runs `/input/source.py` with read-only
+`/input/reference.step`; it may use the installed build123d API to construct any
+shape and must export only `/out/candidate.step`. No verifier, config or
+requirements files enter either candidate container. Syntax/runtime errors,
+partial execution, forged reports, symlinks and excess output deliver no checks
+or artifacts. A completed geometric conflict retains its measured checks.
+
+For `tactile_feature_v1`, all nine frozen registry checks apply. The trusted
+baseline is 50 x 35 x 5 mm, with fixed diameter-6 bores at (15,17.5) and (35,17.5).
+Base-layer intersection at z=0..5 is compared geometrically against that baseline;
+base thickness remains 5 mm and total bounds are [0,50] x [0,35] x [0,7]. The
+candidate must be one valid connected solid. Whole-baseline removal and each
+radius-4 protected-cylinder symmetric difference must be <=0.01 mm3. Added
+material is computed as candidate minus exact reference: volume strictly >1 mm3,
+X/Y/Z spans in [8,10]/[3,5]/[2,2] mm within 0.01 mm, and volume outside
+[20,30] x [25,30] x [5,7] <=0.01 mm3. These are geometric requirements, not a
+hardcoded feature operation.
+
+Bore identification uses axis, center, radius and base depth, allowing unrelated
+cylindrical feature faces. Boolean probes require zero obstructing solids through
+the entire candidate height, even for a cap smaller than the volume tolerance.
+The independent STL reader measures circular rims at z=0 and z=5, checks actual
+raised-feature bounds, and tests every triangle for bore-interior obstruction.
+It retains topology, winding, connectedness, volume, bounds and mesh tolerance
+checks. Added features may contain other tunnels; their topology is not mistaken
+for the two required base bores. Non-extruded bore walls that this reader cannot establish remain
+`not_evaluated`, blocking acceptance. Feature/protected failures include actual
+Boolean volumes, defect bounds and measured point pairs when available.
+
+The [source feature fixture](../../fixtures/tools/source-feature-v2.fixture.json)
+is labeled `fixture` at the result, engine, check and artifact levels and has a
+recomputed bundle. The [source trial](../../examples/plate/trials/source-feature-v1/README.md)
+contains actual isolated fixed-source execution outputs, full v2 result and
+hashes. These are synthetic developer inputs, not product Responses generation,
+model repair, user acceptance or physical testing. Additional edge cases run via
+`node --import tsx --test src/tools/check_source_cases.ts` using the same adapter
+and shared flock. Historical fixture/trial snapshots remain unchanged.
+
+The released reference-in-`inputArtifacts` contract is baseline-only: the
+reference descriptor must belong to the input revision. A future explicit
+reference-artifact contract, model loop, artifact serving and application
+integration remain BACKEND work. No native sketch/history reconstruction or
+consumer fit is claimed.
 
 The output directory must not exist. Its parent must exist, and paths cannot
 contain symlinks. JSON stdout is the internal result; successful computation
@@ -89,15 +139,15 @@ export verifier each have a 30-second cap, all bounded by the global deadline:
 4. `export_verifier` independently imports the exact sealed export and
    regenerated STEP, compares both Boolean differences, bounds, holes and
    volumes, and reopens the binary STL. Mesh checks cover exact edge topology,
-   orientation, connectedness, volume, bounds, fitted circular rims, full-height
-   bore walls and triangle projections into bore interiors. Unsupported bore
+   orientation, connectedness, volume, bounds, fitted circular rims, base-depth
+   bore walls with full-candidate-height obstruction testing and triangle projections into bore interiors. Unsupported bore
    wall geometry returns not_evaluated rather than a guessed pass.
 
 Each stage uses the selected image ID below with a nonroot UID, read-only root,
 no network, no capabilities, no-new-privileges, 2 GiB memory/swap, 2 CPUs,
 64 PIDs, a 25 MiB file-size limit and 128 MiB bounded tmpfs. Only its private
 immutable input and private output directories are mounted. Candidate stages
-receive source only. Trusted stages receive no candidate Python. Unique named
+receive source and reference only. Trusted stages receive no candidate Python. Unique named
 containers are created before startup, stopped/removed before sealing, and
 absence is checked through Docker. Active cancellation sends SIGTERM to Python
 and waits for its completion and known-container cleanup before returning
@@ -131,17 +181,17 @@ Apt package versions are not locked, so it does not promise identical rebuilds.
 Protected acceptance (owned by the parent):
 
 ```sh
-node --import tsx --test tests/tools/adapter.test.ts && python3 -B tests/tools/plate_acceptance.py && python3 -B tests/tools/stage_deadline.py && npm run typecheck
+node --import tsx --test tests/tools/source_acceptance.test.ts && node --import tsx --test tests/tools/adapter.test.ts && python3 -B tests/tools/plate_acceptance.py && npm run typecheck
 node --import tsx src/tools/check_adapter_cancel.ts
 ```
 
-Run CAD checks serially. `stage_deadline.py` actually waits for the 30-second
+Run CAD checks serially. `tests/tools/stage_deadline.py` actually waits for the 30-second
 verifier cap and checks removal; `check_adapter_cancel.ts` observes a running
 generator, aborts through the adapter and checks absence before delivery.
 The root typecheck does not include `src/tools/**`; check it directly with:
 
 ```sh
-node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/check_adapter_cancel.ts
+node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/check_adapter_cancel.ts src/tools/check_source_cases.ts
 ```
 
 The numeric core was previously verified at `2bd015d`; the shared v2 release
@@ -149,8 +199,8 @@ was merged from `23a8360`. These are earlier evidence boundaries, not this
 worker's receipt. The parent owns execution evidence, review and commits under
 `docs/development-evidence.md`. The [numeric trial fixture](../../fixtures/tools/numeric-core-trial.json) records
 actual CLI fixture executions, not user acceptance or application integration.
-Additional fixed negative probes run with `python3 -B src/tools/check_numeric_core.py`;
-they exercise a thin bore cap, misplaced holes, extra solids, mesh failures,
+Historical `check_numeric_core.py` probes require an externally held shared CAD
+flock before invocation because they call internal stages directly. They exercise a thin bore cap, misplaced holes, extra solids, mesh failures,
 symlinks, unexpected outputs and truncated STL.
 The new [v2 shape fixture](../../fixtures/tools/plate-v2-result.fixture.json) is
 synthetic, explicitly labeled `fixture` throughout and uses fake private paths.

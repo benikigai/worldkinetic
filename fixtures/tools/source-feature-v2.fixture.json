@@ -1,0 +1,1557 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "runId": "fixture_source_run",
+  "requestId": "fixture_source_request",
+  "designId": "fixture_source_plate",
+  "inputRevisionId": "fixture_baseline_50",
+  "outputRevisionId": "fixture_source_candidate",
+  "attemptId": "fixture_source_attempt",
+  "units": "mm",
+  "requirementsVersion": 1,
+  "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+  "registryId": "plate_requirements_v1",
+  "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+  "setupId": "tactile_feature_v1",
+  "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+  "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+  "validatorVersion": "fixture_validator_v1",
+  "requirements": {
+    "contractVersion": "wk-prototype-0.2",
+    "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+    "designId": "fixture_source_plate",
+    "requirementsVersion": 1,
+    "units": "mm",
+    "registryId": "plate_requirements_v1",
+    "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+    "registryFileSha256": "d9de0bbe0c6a03f101d5f9562360ac10d0a4216401533eb9be0b4148c8a9aa33",
+    "setupId": "tactile_feature_v1",
+    "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+    "referenceId": "plate_revised_50x35x5",
+    "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+    "validatorVersion": "fixture_validator_v1",
+    "requiredChecks": [
+      "export.editable_reopen",
+      "export.step_reopen",
+      "export.stl_reopen",
+      "feature.requested_change",
+      "geometry.requested_dimensions",
+      "geometry.valid_single_solid",
+      "holes.layout",
+      "interface.protected_region",
+      "margin.end_material"
+    ],
+    "setup": {
+      "setupId": "tactile_feature_v1",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "units": "mm",
+      "frame": {
+        "handedness": "right",
+        "z": "up",
+        "x": "length",
+        "y": "width",
+        "origin": "min_plate_corner"
+      },
+      "referenceId": "plate_revised_50x35x5",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "referenceHashes": {
+        "originalNative": "ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc",
+        "revisedNative": "c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89",
+        "revisedStep": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3"
+      },
+      "referenceTransform": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "dimensions": {
+        "lengthMm": 50,
+        "widthMm": 35,
+        "baseThicknessMm": 5
+      },
+      "holes": {
+        "centersMode": "fixed",
+        "centersMm": [
+          [
+            15,
+            17.5
+          ],
+          [
+            35,
+            17.5
+          ]
+        ],
+        "diameterMm": 6,
+        "spacingMm": 20
+      },
+      "minimumEndMaterialMm": 5,
+      "tolerances": {
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "stepRelativeVolume": 0.00001,
+        "stlRelativeVolume": 0.001
+      },
+      "protectedRegions": {
+        "kind": "z_cylinders",
+        "centersMm": [
+          [
+            15,
+            17.5
+          ],
+          [
+            35,
+            17.5
+          ]
+        ],
+        "radiusMm": 4,
+        "zRangeMm": [
+          0,
+          5
+        ]
+      },
+      "keepOutRegions": null,
+      "profileId": null,
+      "feature": {
+        "allowedBoxMm": [
+          [
+            20,
+            30
+          ],
+          [
+            25,
+            30
+          ],
+          [
+            5,
+            7
+          ]
+        ],
+        "addedSpanRangesMm": [
+          [
+            8,
+            10
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "minimumAddedVolumeExclusiveMm3": 1,
+        "preserveAllBaselineMaterial": true,
+        "unobstructedBores": "full_candidate_extent"
+      },
+      "requiredChecks": [
+        "export.editable_reopen",
+        "export.step_reopen",
+        "export.stl_reopen",
+        "feature.requested_change",
+        "geometry.requested_dimensions",
+        "geometry.valid_single_solid",
+        "holes.layout",
+        "interface.protected_region",
+        "margin.end_material"
+      ]
+    },
+    "registryCanonicalJson": "{\"checks\":{\"export.editable_reopen\":{\"method\":\"For FreeCAD, independently reopen/recompute the trusted-exported native document in isolation and compare its solid, dimensions, holes, bounds within linearMm (0.01 mm), relative volume within stepRelativeVolume (0.00001), and geometric symmetric difference <= differenceVolumeMm3 (0.01 mm3) against checked STEP. Deliver source and describe actual native history. For build123d, regenerate from delivered editable source in a separate isolated generator without verifier authority, stop that generator and seal its STEP, then compare in a fresh trusted verifier using the same measurements. Any Python regeneration for either engine follows this separation; the verifier never executes candidate Python. If the required reopen/regeneration cannot run, return not_evaluated and block acceptance.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.step_reopen\":{\"method\":\"Reopen the actual registered STEP export bytes in a fresh trusted verifier and compare with the sealed checked candidate: valid single solid, frame/bounds, required dimensions and holes. Require absolute volume difference divided by positive checked-candidate volume <= stepRelativeVolume (0.00001); use geometric symmetric-difference volume <= differenceVolumeMm3 (0.01 mm3) to detect equal-volume substitutions. Export STEP byte identity must match the sealed geometry hash; if an exporter changes bytes, reseal and revalidate as new evidence before acceptance. Record export hash and independent measurements; verify downloaded-byte identity at delivery.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.stl_reopen\":{\"method\":\"Reopen the actual trusted-exported STL bytes independently, with manifest units explicitly mm. Require finite vertices, a closed consistently oriented watertight connected mesh, positive enclosed volume and agreement with checked candidate bounds/dimensions and hole layout within linearMm (0.01 mm). Compare absolute enclosed-volume difference divided by checked-candidate volume <= stlRelativeVolume (0.001). Inspect full-height bore openings and feature bounds on the mesh, not the generator report. Bind the registered STL byte hash and verify the downloaded bytes against it; inability to measure a required property is not_evaluated.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"feature.requested_change\":{\"method\":\"For tactile_feature_v1, independently compute added solid A = candidate minus trusted revised baseline. Require volume(A) > 1 mm3, with no tolerance relaxation of this strict lower bound. Measure A bounding spans and require X in [8,10], Y in [3,5], Z in [2,2] mm with linearMm (0.01 mm) at each range boundary. Require volume(A outside [20,30] x [25,30] x [5,7]) <= differenceVolumeMm3 (0.01 mm3), and baseline-minus-candidate volume <= 0.01 mm3. Confirm the raised addition joins the baseline as one valid connected solid and verify total bounds separately. This checks generated shape geometry, not a preset operation, visual styling claim or candidate-declared touched region.\",\"units\":[\"mm\",\"mm3\"]},\"geometry.requested_dimensions\":{\"method\":\"Measure boundary planes, X/Y extents and base thickness from reopened geometry in the trusted frame, using absolute error <= linearMm (0.01 mm). For resize_centered_v1 compare against the confirmed version-specific length, width 35 and thickness 5, with bounds [0,L] x [0,35] x [0,5]. For tactile_feature_v1 require the unchanged baseline footprint [0,50] x [0,35] and base layer z=0..5; inspect base cross-sections against the trusted baseline rather than calling total height base thickness. Added material has separately checked height 2 and total candidate bounds [0,50] x [0,35] x [0,7], within linearMm.\",\"units\":[\"mm\"]},\"geometry.valid_single_solid\":{\"method\":\"In a fresh trusted verifier, reopen the sealed candidate STEP without executing candidate source. Require one nonempty connected valid solid, finite bounds and positive finite volume; reject invalid topology, extra solids and nonfinite measurements. Record actual bounds and volume in the immutable setup frame, independently of candidate assertions.\",\"units\":[\"count\",\"mm\",\"mm3\"]},\"holes.layout\":{\"method\":\"From independently reopened geometry, identify the two Z-axis diameter-6 through-bores, measure diameters, axes, center separation 20 and through-depth. Compare diameter, pitch and each center coordinate within linearMm (0.01 mm). Resize centers are ((L-20)/2,17.5) and ((L+20)/2,17.5) for the confirmed length L; feature centers remain (15,17.5) and (35,17.5). Test the trusted bore volumes and sections over the full candidate Z extent for continuity and obstruction, including material above z=5; reject a cap or plug. Do not substitute candidate hole labels, base-only depth or a volume allowance for the unobstructed-bore requirement.\",\"units\":[\"mm\"]},\"interface.protected_region\":{\"method\":\"For tactile_feature_v1, load the trusted revised reference STEP by its registered hash and independently compare baseline and candidate material clipped to the same two fixed cylinders centered at (15,17.5) and (35,17.5), radius 4 mm, z=0..5. Each clipped symmetric-difference volume must be <= differenceVolumeMm3 (0.01 mm3). Also require the full baseline-minus-candidate removed-material volume <= 0.01 mm3 to preserve all baseline material. Recheck both diameter-6 bores over the full candidate extent under holes.layout; a protected base neighborhood alone cannot detect a cap above it.\",\"units\":[\"mm3\",\"mm\"]},\"margin.end_material\":{\"method\":\"Measure the shortest material distances between the outer bore boundaries and their corresponding X-min/X-max plate end faces on independently reopened geometry; report both closest-point pairs and their minimum. Pass only when this measured minimum + linearMm (0.01 mm) >= minimumEndMaterialMm (5 mm). Use setup-specific hole locations and confirmed length. The centered formula (L-20-6)/2 is a fixture expectation only and must not replace geometric distance measurement.\",\"units\":[\"mm\"]}},\"contractVersion\":\"wk-prototype-0.2\",\"frame\":{\"handedness\":\"right\",\"origin\":\"min_plate_corner\",\"x\":\"length\",\"y\":\"width\",\"z\":\"up\"},\"referenceHashes\":{\"originalNative\":\"ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc\",\"revisedNative\":\"c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89\",\"revisedStep\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\"},\"registryId\":\"plate_requirements_v1\",\"setups\":{\"resize_centered_v1\":{\"cases\":[{\"expectedEndMarginMm\":2,\"expectedPass\":false,\"lengthMm\":30,\"requiresNewUserConfirmation\":false},{\"expectedEndMarginMm\":5,\"expectedPass\":true,\"lengthMm\":36,\"requiresNewUserConfirmation\":true}],\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":50,\"widthMm\":35},\"holes\":{\"centersMode\":\"centered\",\"diameterMm\":6,\"spacingMm\":20},\"minimumEndMaterialMm\":5,\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"margin.end_material\"]},\"tactile_feature_v1\":{\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":50,\"widthMm\":35},\"feature\":{\"addedSpanRangesMm\":[[8,10],[3,5],[2,2]],\"allowedBoxMm\":[[20,30],[25,30],[5,7]],\"minimumAddedVolumeExclusiveMm3\":1,\"preserveAllBaselineMaterial\":true,\"unobstructedBores\":\"full_candidate_extent\"},\"holes\":{\"centersMm\":[[15,17.5],[35,17.5]],\"centersMode\":\"fixed\",\"diameterMm\":6,\"spacingMm\":20},\"minimumEndMaterialMm\":5,\"protectedRegions\":{\"centersMm\":[[15,17.5],[35,17.5]],\"kind\":\"z_cylinders\",\"radiusMm\":4,\"zRangeMm\":[0,5]},\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"feature.requested_change\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"interface.protected_region\",\"margin.end_material\"]}},\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001},\"units\":\"mm\"}",
+    "setupCanonicalJson": "{\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":50,\"widthMm\":35},\"feature\":{\"addedSpanRangesMm\":[[8,10],[3,5],[2,2]],\"allowedBoxMm\":[[20,30],[25,30],[5,7]],\"minimumAddedVolumeExclusiveMm3\":1,\"preserveAllBaselineMaterial\":true,\"unobstructedBores\":\"full_candidate_extent\"},\"frame\":{\"handedness\":\"right\",\"origin\":\"min_plate_corner\",\"x\":\"length\",\"y\":\"width\",\"z\":\"up\"},\"holes\":{\"centersMm\":[[15,17.5],[35,17.5]],\"centersMode\":\"fixed\",\"diameterMm\":6,\"spacingMm\":20},\"keepOutRegions\":null,\"minimumEndMaterialMm\":5,\"profileId\":null,\"protectedRegions\":{\"centersMm\":[[15,17.5],[35,17.5]],\"kind\":\"z_cylinders\",\"radiusMm\":4,\"zRangeMm\":[0,5]},\"referenceHash\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\",\"referenceHashes\":{\"originalNative\":\"ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc\",\"revisedNative\":\"c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89\",\"revisedStep\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\"},\"referenceId\":\"plate_revised_50x35x5\",\"referenceTransform\":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],\"registryHash\":\"593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d\",\"registryId\":\"plate_requirements_v1\",\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"feature.requested_change\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"interface.protected_region\",\"margin.end_material\"],\"setupId\":\"tactile_feature_v1\",\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001},\"units\":\"mm\"}"
+  },
+  "executionMode": "fixture",
+  "status": "completed",
+  "proposal": {
+    "kind": "python_source",
+    "source": "from build123d import *\nfrom pathlib import Path\nassert not Path('/input/verify.py').exists()\nassert not Path('/input/config.json').exists()\nassert not Path('/input/requirements.json').exists()\np = import_step('/input/reference.step')\np = p + Pos(25,27.5,5) * extrude(SlotOverall(10,4), amount=2)\nexport_step(p, '/out/candidate.step')\n",
+    "changeSummary": "Fixture of a fixed developer-source capsule trial; not a product model generation"
+  },
+  "proposalHash": "e0541506b295e5eb20f17529b56217fe98faa1307d68eaf0866abdc48bd0c3bc",
+  "sourceSha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107",
+  "engine": {
+    "name": "fixture",
+    "version": "source-feature-v1-fixture",
+    "imageDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+  "checkBundleHash": "c2b6775acef63d11e0ee71f5944598ca5c286ef9760358ebcdf6b67c49023e50",
+  "checks": [
+    {
+      "checkId": "geometry.valid_single_solid",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "geometry.valid_single_solid",
+      "method": "In a fresh trusted verifier, reopen the sealed candidate STEP without executing candidate source. Require one nonempty connected valid solid, finite bounds and positive finite volume; reject invalid topology, extra solids and nonfinite measurements. Record actual bounds and volume in the immutable setup frame, independently of candidate assertions.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.geometry.valid_single_solid"
+        ],
+        "solidCount": 1,
+        "valid": true,
+        "connected": true,
+        "nonempty": true,
+        "finiteBounds": true,
+        "positiveFiniteVolume": true
+      },
+      "measured": {
+        "measurement": {
+          "bounds": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              50,
+              35,
+              7
+            ]
+          ],
+          "volume": 8540.38940240565,
+          "valid": true,
+          "solidCount": 1,
+          "solidOK": true,
+          "dimensionsOK": true,
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "baseLayer": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                5
+              ]
+            ],
+            "symmetricDifferenceMm3": 0,
+            "baseThicknessMm": 5,
+            "sectionRangeMm": [
+              0,
+              5
+            ]
+          },
+          "holesOK": true,
+          "holes": [
+            {
+              "center": [
+                15,
+                17.5
+              ],
+              "radius": 3,
+              "axis": [
+                0,
+                0,
+                -1
+              ],
+              "bounds": [
+                [
+                  12,
+                  14.5,
+                  0
+                ],
+                [
+                  18,
+                  20.5,
+                  5
+                ]
+              ]
+            },
+            {
+              "center": [
+                35,
+                17.5
+              ],
+              "radius": 3,
+              "axis": [
+                0,
+                0,
+                -1
+              ],
+              "bounds": [
+                [
+                  32,
+                  14.5,
+                  0
+                ],
+                [
+                  38,
+                  20.5,
+                  5
+                ]
+              ]
+            }
+          ],
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            }
+          ]
+        },
+        "coreMethod": "Fresh STEP import; kernel topology validity, solid count, finite bounds and positive volume",
+        "measuredValue": 1,
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "count",
+        "mm",
+        "mm3"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    },
+    {
+      "checkId": "geometry.requested_dimensions",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "geometry.requested_dimensions",
+      "method": "Measure boundary planes, X/Y extents and base thickness from reopened geometry in the trusted frame, using absolute error <= linearMm (0.01 mm). For resize_centered_v1 compare against the confirmed version-specific length, width 35 and thickness 5, with bounds [0,L] x [0,35] x [0,5]. For tactile_feature_v1 require the unchanged baseline footprint [0,50] x [0,35] and base layer z=0..5; inspect base cross-sections against the trusted baseline rather than calling total height base thickness. Added material has separately checked height 2 and total candidate bounds [0,50] x [0,35] x [0,7], within linearMm.",
+      "expected": {
+        "requirementFields": [
+          "setup.dimensions",
+          "setup.feature",
+          "setup.tolerances.linearMm"
+        ],
+        "dimensions": {
+          "lengthMm": 50,
+          "widthMm": 35,
+          "baseThicknessMm": 5
+        },
+        "boundsMm": [
+          [
+            0,
+            50
+          ],
+          [
+            0,
+            35
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "linearMm": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "bounds": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              50,
+              35,
+              7
+            ]
+          ],
+          "boundaryPlanes": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "baseLayer": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                5
+              ]
+            ],
+            "symmetricDifferenceMm3": 0,
+            "baseThicknessMm": 5,
+            "sectionRangeMm": [
+              0,
+              5
+            ]
+          }
+        },
+        "coreMethod": "OCP analytic boundary planes and their actual face extents; independent bounding box",
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    },
+    {
+      "checkId": "holes.layout",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "holes.layout",
+      "method": "From independently reopened geometry, identify the two Z-axis diameter-6 through-bores, measure diameters, axes, center separation 20 and through-depth. Compare diameter, pitch and each center coordinate within linearMm (0.01 mm). Resize centers are ((L-20)/2,17.5) and ((L+20)/2,17.5) for the confirmed length L; feature centers remain (15,17.5) and (35,17.5). Test the trusted bore volumes and sections over the full candidate Z extent for continuity and obstruction, including material above z=5; reject a cap or plug. Do not substitute candidate hole labels, base-only depth or a volume allowance for the unobstructed-bore requirement.",
+      "expected": {
+        "requirementFields": [
+          "setup.holes",
+          "setup.tolerances.linearMm"
+        ],
+        "centersMode": "fixed",
+        "centersMm": [
+          [
+            15,
+            17.5
+          ],
+          [
+            35,
+            17.5
+          ]
+        ],
+        "diameterMm": 6,
+        "spacingMm": 20,
+        "axis": "Z",
+        "unobstructedBores": "full_candidate_extent",
+        "linearMm": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "holes": [
+            {
+              "center": [
+                15,
+                17.5
+              ],
+              "radius": 3,
+              "axis": [
+                0,
+                0,
+                -1
+              ],
+              "bounds": [
+                [
+                  12,
+                  14.5,
+                  0
+                ],
+                [
+                  18,
+                  20.5,
+                  5
+                ]
+              ]
+            },
+            {
+              "center": [
+                35,
+                17.5
+              ],
+              "radius": 3,
+              "axis": [
+                0,
+                0,
+                -1
+              ],
+              "bounds": [
+                [
+                  32,
+                  14.5,
+                  0
+                ],
+                [
+                  38,
+                  20.5,
+                  5
+                ]
+              ]
+            }
+          ],
+          "obstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            }
+          ],
+          "probeRadialInsetMm": 1e-7
+        },
+        "coreMethod": "OCP analytic cylindrical faces, axes, diameter, centers, pitch and full-depth bounds; full-height bore Boolean intersection must contain zero solids, with no volume allowance",
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    },
+    {
+      "checkId": "margin.end_material",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "margin.end_material",
+      "method": "Measure the shortest material distances between the outer bore boundaries and their corresponding X-min/X-max plate end faces on independently reopened geometry; report both closest-point pairs and their minimum. Pass only when this measured minimum + linearMm (0.01 mm) >= minimumEndMaterialMm (5 mm). Use setup-specific hole locations and confirmed length. The centered formula (L-20-6)/2 is a fixture expectation only and must not replace geometric distance measurement.",
+      "expected": {
+        "requirementFields": [
+          "setup.minimumEndMaterialMm",
+          "setup.tolerances.linearMm"
+        ],
+        "minimumEndMaterialMm": 5,
+        "linearMm": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "closestPointPairs": [
+            [
+              [
+                12,
+                17.5,
+                0
+              ],
+              [
+                0,
+                17.5,
+                0
+              ]
+            ],
+            [
+              [
+                38,
+                17.5,
+                0
+              ],
+              [
+                50,
+                17.5,
+                0
+              ]
+            ]
+          ],
+          "distances": [
+            12,
+            12
+          ]
+        },
+        "coreMethod": "OCP BRepExtrema shortest cylinder-face to actual corresponding X end-face distance",
+        "measuredValue": 12,
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented.",
+      "diagnostics": {
+        "pointPairs": [
+          [
+            [
+              12,
+              17.5,
+              0
+            ],
+            [
+              0,
+              17.5,
+              0
+            ]
+          ],
+          [
+            [
+              38,
+              17.5,
+              0
+            ],
+            [
+              50,
+              17.5,
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "interface.protected_region",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "interface.protected_region",
+      "method": "For tactile_feature_v1, load the trusted revised reference STEP by its registered hash and independently compare baseline and candidate material clipped to the same two fixed cylinders centered at (15,17.5) and (35,17.5), radius 4 mm, z=0..5. Each clipped symmetric-difference volume must be <= differenceVolumeMm3 (0.01 mm3). Also require the full baseline-minus-candidate removed-material volume <= 0.01 mm3 to preserve all baseline material. Recheck both diameter-6 bores over the full candidate extent under holes.layout; a protected base neighborhood alone cannot detect a cap above it.",
+      "expected": {
+        "requirementFields": [
+          "setup.protectedRegions",
+          "setup.tolerances.differenceVolumeMm3"
+        ],
+        "protectedRegions": {
+          "kind": "z_cylinders",
+          "centersMm": [
+            [
+              15,
+              17.5
+            ],
+            [
+              35,
+              17.5
+            ]
+          ],
+          "radiusMm": 4,
+          "zRangeMm": [
+            0,
+            5
+          ]
+        },
+        "maximumDifferenceVolumeMm3": 0.01,
+        "maximumRemovedVolumeMm3": 0.01,
+        "unobstructedBores": "full_candidate_extent"
+      },
+      "measured": {
+        "measurement": {
+          "regions": [
+            {
+              "centerMm": [
+                15,
+                17.5
+              ],
+              "radiusMm": 4,
+              "zRangeMm": [
+                0,
+                5
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baselineVolumeMm3": 109.9557428756427,
+              "candidateVolumeMm3": 109.95574287564168
+            },
+            {
+              "centerMm": [
+                35,
+                17.5
+              ],
+              "radiusMm": 4,
+              "zRangeMm": [
+                0,
+                5
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baselineVolumeMm3": 109.95574287564271,
+              "candidateVolumeMm3": 109.9557428756417
+            }
+          ],
+          "removedVolumeMm3": 0,
+          "boreObstructions": [
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            },
+            {
+              "solidCount": 0,
+              "volumeMm3": 0
+            }
+          ],
+          "closestPointPairs": [],
+          "diagnosticBounds": null
+        },
+        "coreMethod": "Clipped reference/candidate symmetric differences in frozen protected cylinders; whole-baseline removal and full-height bore probes",
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm3",
+        "mm"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented.",
+      "diagnostics": {
+        "pointPairs": []
+      }
+    },
+    {
+      "checkId": "feature.requested_change",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "feature.requested_change",
+      "method": "For tactile_feature_v1, independently compute added solid A = candidate minus trusted revised baseline. Require volume(A) > 1 mm3, with no tolerance relaxation of this strict lower bound. Measure A bounding spans and require X in [8,10], Y in [3,5], Z in [2,2] mm with linearMm (0.01 mm) at each range boundary. Require volume(A outside [20,30] x [25,30] x [5,7]) <= differenceVolumeMm3 (0.01 mm3), and baseline-minus-candidate volume <= 0.01 mm3. Confirm the raised addition joins the baseline as one valid connected solid and verify total bounds separately. This checks generated shape geometry, not a preset operation, visual styling claim or candidate-declared touched region.",
+      "expected": {
+        "requirementFields": [
+          "setup.feature",
+          "setup.tolerances"
+        ],
+        "feature": {
+          "allowedBoxMm": [
+            [
+              20,
+              30
+            ],
+            [
+              25,
+              30
+            ],
+            [
+              5,
+              7
+            ]
+          ],
+          "addedSpanRangesMm": [
+            [
+              8,
+              10
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "minimumAddedVolumeExclusiveMm3": 1,
+          "preserveAllBaselineMaterial": true,
+          "unobstructedBores": "full_candidate_extent"
+        },
+        "linearMm": 0.01,
+        "maximumOutsideVolumeMm3": 0.01,
+        "maximumRemovedVolumeMm3": 0.01,
+        "connected": true
+      },
+      "measured": {
+        "measurement": {
+          "addedVolumeMm3": 73.13274122871944,
+          "addedBounds": [
+            [
+              20,
+              25.5,
+              5
+            ],
+            [
+              30,
+              29.5,
+              7
+            ]
+          ],
+          "addedSpansMm": [
+            10,
+            4,
+            2
+          ],
+          "outsideVolumeMm3": 0,
+          "removedVolumeMm3": 0,
+          "connectedValidSolid": true,
+          "closestPointPairs": [],
+          "diagnosticBounds": [
+            [
+              20,
+              25.5,
+              5
+            ],
+            [
+              30,
+              29.5,
+              7
+            ]
+          ]
+        },
+        "coreMethod": "Boolean candidate-minus-reference addition, independent bounds/spans, outside-box and removed volumes",
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm",
+        "mm3"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented.",
+      "diagnostics": {
+        "pointPairs": [],
+        "box": [
+          [
+            20,
+            25.5,
+            5
+          ],
+          [
+            30,
+            29.5,
+            7
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "export.step_reopen",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "export.step_reopen",
+      "method": "Reopen the actual registered STEP export bytes in a fresh trusted verifier and compare with the sealed checked candidate: valid single solid, frame/bounds, required dimensions and holes. Require absolute volume difference divided by positive checked-candidate volume <= stepRelativeVolume (0.00001); use geometric symmetric-difference volume <= differenceVolumeMm3 (0.01 mm3) to detect equal-volume substitutions. Export STEP byte identity must match the sealed geometry hash; if an exporter changes bytes, reseal and revalidate as new evidence before acceptance. Record export hash and independent measurements; verify downloaded-byte identity at delivery.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.step_reopen",
+          "setup.tolerances"
+        ],
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "relativeVolume": 0.00001,
+        "sealedByteIdentity": true,
+        "validSingleSolid": true,
+        "dimensionsAndHolesMatch": true
+      },
+      "measured": {
+        "measurement": {
+          "symmetricDifferenceMm3": 0,
+          "relativeVolumeDifference": 0,
+          "candidate": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                7
+              ]
+            ],
+            "volume": 8540.38940240565,
+            "valid": true,
+            "solidCount": 1,
+            "solidOK": true,
+            "dimensionsOK": true,
+            "boundaryPlanes": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "baseLayer": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  50,
+                  35,
+                  5
+                ]
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baseThicknessMm": 5,
+              "sectionRangeMm": [
+                0,
+                5
+              ]
+            },
+            "holesOK": true,
+            "holes": [
+              {
+                "center": [
+                  15,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    12,
+                    14.5,
+                    0
+                  ],
+                  [
+                    18,
+                    20.5,
+                    5
+                  ]
+                ]
+              },
+              {
+                "center": [
+                  35,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    32,
+                    14.5,
+                    0
+                  ],
+                  [
+                    38,
+                    20.5,
+                    5
+                  ]
+                ]
+              }
+            ],
+            "boreObstructions": [
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              },
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              }
+            ]
+          },
+          "reopened": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                7
+              ]
+            ],
+            "volume": 8540.38940240565,
+            "valid": true,
+            "solidCount": 1,
+            "solidOK": true,
+            "dimensionsOK": true,
+            "boundaryPlanes": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "baseLayer": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  50,
+                  35,
+                  5
+                ]
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baseThicknessMm": 5,
+              "sectionRangeMm": [
+                0,
+                5
+              ]
+            },
+            "holesOK": true,
+            "holes": [
+              {
+                "center": [
+                  15,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    12,
+                    14.5,
+                    0
+                  ],
+                  [
+                    18,
+                    20.5,
+                    5
+                  ]
+                ]
+              },
+              {
+                "center": [
+                  35,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    32,
+                    14.5,
+                    0
+                  ],
+                  [
+                    38,
+                    20.5,
+                    5
+                  ]
+                ]
+              }
+            ],
+            "boreObstructions": [
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              },
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              }
+            ]
+          },
+          "exportSha256": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+          "checkedSha256": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d"
+        },
+        "coreMethod": "Reimport exact sealed STEP bytes in fresh export verifier; byte identity, bounds, holes, positive valid solid, relative volume and bidirectional Boolean difference",
+        "measuredValue": 0,
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    },
+    {
+      "checkId": "export.editable_reopen",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "export.editable_reopen",
+      "method": "For FreeCAD, independently reopen/recompute the trusted-exported native document in isolation and compare its solid, dimensions, holes, bounds within linearMm (0.01 mm), relative volume within stepRelativeVolume (0.00001), and geometric symmetric difference <= differenceVolumeMm3 (0.01 mm3) against checked STEP. Deliver source and describe actual native history. For build123d, regenerate from delivered editable source in a separate isolated generator without verifier authority, stop that generator and seal its STEP, then compare in a fresh trusted verifier using the same measurements. Any Python regeneration for either engine follows this separation; the verifier never executes candidate Python. If the required reopen/regeneration cannot run, return not_evaluated and block acceptance.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.editable_reopen",
+          "setup.tolerances"
+        ],
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "relativeVolume": 0.00001,
+        "isolatedReopenOrRegeneration": true,
+        "validSingleSolid": true,
+        "dimensionsAndHolesMatch": true
+      },
+      "measured": {
+        "measurement": {
+          "symmetricDifferenceMm3": 0,
+          "relativeVolumeDifference": 0,
+          "candidate": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                7
+              ]
+            ],
+            "volume": 8540.38940240565,
+            "valid": true,
+            "solidCount": 1,
+            "solidOK": true,
+            "dimensionsOK": true,
+            "boundaryPlanes": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "baseLayer": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  50,
+                  35,
+                  5
+                ]
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baseThicknessMm": 5,
+              "sectionRangeMm": [
+                0,
+                5
+              ]
+            },
+            "holesOK": true,
+            "holes": [
+              {
+                "center": [
+                  15,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    12,
+                    14.5,
+                    0
+                  ],
+                  [
+                    18,
+                    20.5,
+                    5
+                  ]
+                ]
+              },
+              {
+                "center": [
+                  35,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    32,
+                    14.5,
+                    0
+                  ],
+                  [
+                    38,
+                    20.5,
+                    5
+                  ]
+                ]
+              }
+            ],
+            "boreObstructions": [
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              },
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              }
+            ]
+          },
+          "reopened": {
+            "bounds": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                50,
+                35,
+                7
+              ]
+            ],
+            "volume": 8540.38940240565,
+            "valid": true,
+            "solidCount": 1,
+            "solidOK": true,
+            "dimensionsOK": true,
+            "boundaryPlanes": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "baseLayer": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  50,
+                  35,
+                  5
+                ]
+              ],
+              "symmetricDifferenceMm3": 0,
+              "baseThicknessMm": 5,
+              "sectionRangeMm": [
+                0,
+                5
+              ]
+            },
+            "holesOK": true,
+            "holes": [
+              {
+                "center": [
+                  15,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    12,
+                    14.5,
+                    0
+                  ],
+                  [
+                    18,
+                    20.5,
+                    5
+                  ]
+                ]
+              },
+              {
+                "center": [
+                  35,
+                  17.5
+                ],
+                "radius": 3,
+                "axis": [
+                  0,
+                  0,
+                  -1
+                ],
+                "bounds": [
+                  [
+                    32,
+                    14.5,
+                    0
+                  ],
+                  [
+                    38,
+                    20.5,
+                    5
+                  ]
+                ]
+              }
+            ],
+            "boreObstructions": [
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              },
+              {
+                "solidCount": 0,
+                "volumeMm3": 0
+              }
+            ]
+          },
+          "sourceSha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107",
+          "regeneratedStepSha256": "f214423b9b086314e5fc9f983ecfba912c9c5072a592ebe4b59d599e7e66d35d"
+        },
+        "coreMethod": "Independent isolated regeneration of same delivered source, sealed before trusted STEP imports; validity, bounds, holes, relative volume and bidirectional Boolean difference; no native history claim",
+        "measuredValue": 0,
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    },
+    {
+      "checkId": "export.stl_reopen",
+      "revisionId": "fixture_source_candidate",
+      "requirementsVersion": 1,
+      "requirementsId": "req_e6dfa991f7bec43ab061213619bb3dae",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "tactile_feature_v1",
+      "setupHash": "059ad3d82d2bb56ca8a07e0cb066c66cabfafad09050223988ce1137094dc185",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "geometryHash": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture",
+      "state": "passed",
+      "label": "export.stl_reopen",
+      "method": "Reopen the actual trusted-exported STL bytes independently, with manifest units explicitly mm. Require finite vertices, a closed consistently oriented watertight connected mesh, positive enclosed volume and agreement with checked candidate bounds/dimensions and hole layout within linearMm (0.01 mm). Compare absolute enclosed-volume difference divided by checked-candidate volume <= stlRelativeVolume (0.001). Inspect full-height bore openings and feature bounds on the mesh, not the generator report. Bind the registered STL byte hash and verify the downloaded bytes against it; inability to measure a required property is not_evaluated.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.stl_reopen",
+          "setup.tolerances"
+        ],
+        "linearMm": 0.01,
+        "relativeVolume": 0.001,
+        "finiteVertices": true,
+        "watertight": true,
+        "connected": true,
+        "consistentlyOriented": true,
+        "positiveVolume": true,
+        "dimensionsAndHolesMatch": true,
+        "unobstructedBores": "full_candidate_extent",
+        "manifestUnits": "mm"
+      },
+      "measured": {
+        "measurement": {
+          "sha256": "168e25612117fe44de77b20dddfbe4df4ddbd7939326d871c9cceef62a83f473",
+          "bytes": 77084,
+          "triangles": 1540,
+          "volume": 8540.496161903635,
+          "bounds": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              50,
+              35,
+              7
+            ]
+          ],
+          "relativeVolumeDifference": 0.000012500542183111157,
+          "closed": true,
+          "consistentOrientation": true,
+          "connected": true,
+          "featureBounds": [
+            [
+              20.000621795654297,
+              25.5,
+              5
+            ],
+            [
+              29.999378204345703,
+              29.5,
+              7
+            ]
+          ],
+          "holes": [
+            {
+              "rims": [
+                {
+                  "center": [
+                    15,
+                    17.499999756352626
+                  ],
+                  "diameter": 6.0000000000000195,
+                  "z": 0,
+                  "fitResidual": 0.0000012641776288013773
+                },
+                {
+                  "center": [
+                    15,
+                    17.499999756352626
+                  ],
+                  "diameter": 6.0000000000000195,
+                  "z": 5,
+                  "fitResidual": 0.0000012641776288013773
+                }
+              ],
+              "wallTriangles": 252,
+              "minimumSurfaceRadius": 2.9990666785262863,
+              "fullHeightUnobstructed": true
+            },
+            {
+              "rims": [
+                {
+                  "center": [
+                    35,
+                    17.499999732569677
+                  ],
+                  "diameter": 6.000000000000024,
+                  "z": 0,
+                  "fitResidual": 0.0000017156923561856274
+                },
+                {
+                  "center": [
+                    35,
+                    17.500000267430323
+                  ],
+                  "diameter": 6.000000000000024,
+                  "z": 5,
+                  "fitResidual": 0.0000017156923561856274
+                }
+              ],
+              "wallTriangles": 252,
+              "minimumSurfaceRadius": 2.9990660598918124,
+              "fullHeightUnobstructed": true
+            }
+          ],
+          "pitch": 20,
+          "fullHeightBoreOpenings": true
+        },
+        "coreMethod": "Independent binary STL parse; exact edge pairing and opposite winding, connected triangle graph, positive signed volume, bounds, fitted circular rims and full-height wall coverage; every triangle tested for bore-interior obstruction",
+        "measuredValue": 8540.496161903635,
+        "provenance": "Fixture snapshot of fixed developer-source trial measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Fixture snapshot only; no live product generation, acceptance or physical testing is represented."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/fixture-private/tools-03/source.py",
+      "kind": "source",
+      "fileName": "source.py",
+      "mediaType": "text/x-python",
+      "bytes": 335,
+      "sha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107",
+      "executionMode": "fixture"
+    },
+    {
+      "path": "/fixture-private/tools-03/editable.py",
+      "kind": "editable",
+      "fileName": "editable.py",
+      "mediaType": "text/x-python",
+      "bytes": 335,
+      "sha256": "edb5e0dd8db142f65478797d8f4ac14643e30c60388661a1738b4e1b63a85107",
+      "executionMode": "fixture"
+    },
+    {
+      "path": "/fixture-private/tools-03/candidate.step",
+      "kind": "export",
+      "fileName": "candidate.step",
+      "mediaType": "model/step",
+      "bytes": 38972,
+      "sha256": "880eaf10383cec15106cd2f40d5b9dad373558623d24d733ea904b0d9df6e46d",
+      "executionMode": "fixture"
+    },
+    {
+      "path": "/fixture-private/tools-03/preview.stl",
+      "kind": "preview",
+      "fileName": "preview.stl",
+      "mediaType": "model/stl",
+      "bytes": 77084,
+      "sha256": "168e25612117fe44de77b20dddfbe4df4ddbd7939326d871c9cceef62a83f473",
+      "executionMode": "fixture"
+    }
+  ],
+  "error": null
+}

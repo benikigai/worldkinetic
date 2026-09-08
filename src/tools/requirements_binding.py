@@ -36,21 +36,24 @@ def validate_binding(raw, length, reference_hash):
         raise ValueError("Canonical hash mismatch")
     registry, setup = parse(registry_text), parse(setup_text)
     if (r["contractVersion"] != "wk-prototype-0.2" or r["validatorVersion"] != "plate-validator-v1"
-            or r["registryId"] != "plate_requirements_v1" or r["setupId"] != "resize_centered_v1"
+            or r["registryId"] != "plate_requirements_v1" or r["setupId"] not in ("resize_centered_v1", "tactile_feature_v1")
             or r["units"] != "mm" or reference_hash != REFERENCE_HASH
             or r["referenceHash"] != reference_hash or r["referenceId"] != "plate_revised_50x35x5"
             or not math.isfinite(length) or not 26 <= length <= 200):
         raise ValueError("Unsupported requirements identity")
-    template = registry["setups"]["resize_centered_v1"]
+    feature = r["setupId"] == "tactile_feature_v1"
+    template = registry["setups"][r["setupId"]]
+    if feature and length != 50:
+        raise ValueError("Feature baseline dimensions are frozen")
     expected = {
-        "setupId": "resize_centered_v1", "registryId": registry["registryId"], "registryHash": REGISTRY_HASH,
+        "setupId": r["setupId"], "registryId": registry["registryId"], "registryHash": REGISTRY_HASH,
         "units": registry["units"], "frame": registry["frame"], "referenceId": r["referenceId"],
         "referenceHash": reference_hash, "referenceHashes": registry["referenceHashes"],
         "referenceTransform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
         "dimensions": {**template["dimensions"], "lengthMm": length},
         "holes": {**template["holes"], "centersMm": [[(length-20)/2, 17.5], [(length+20)/2, 17.5]]},
         "minimumEndMaterialMm": template["minimumEndMaterialMm"], "tolerances": registry["tolerances"],
-        "protectedRegions": None, "feature": None, "keepOutRegions": None, "profileId": None,
+        "protectedRegions": template.get("protectedRegions"), "feature": template.get("feature"), "keepOutRegions": None, "profileId": None,
         "requiredChecks": template["requiredChecks"],
     }
     # requiredChecks has set order in the canonical contract.
