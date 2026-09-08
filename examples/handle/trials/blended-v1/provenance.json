@@ -1,0 +1,42 @@
+{
+  "scope": "OUTSIDE_WRAPPER actual isolated developer refinement against exact provider initial STEP. Synthetic acceptance binding; no product refinement or user acceptance claimed.",
+  "originalPrivateResultSha256": "af5217713ef40b17cb8f75194f51e414f9600d61b986188640554a3cca3add90",
+  "checkBundleHash": "512d31b8ac0f47c1e9da89385da83ca6b4baa311b127d09aeb89cf65aed82b55",
+  "startedAt": "2026-09-08T22:58:50.568366+00:00",
+  "completedAt": "2026-09-08T22:59:28.737156+00:00",
+  "verifierSha256": {
+    "handle_geometry.py": "b187a4763c20275642958dd25dd5242d98f8308a7e317bd4386d031015205d2c",
+    "handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "handle_export.py": "c337b14087b6de4cc2ebe99871dfe20d5060ffbdee9632fbfcd91c9a795dfa98",
+    "mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58",
+    "handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "verify.py": "f30689c0f31488ae0bbffaa9cf9678ca5ea849b2917e460f60f339ebb40155dc"
+  },
+  "stages": [
+    {
+      "role": "generator",
+      "seconds": 2.0152,
+      "exitCode": 0,
+      "removed": true
+    },
+    {
+      "role": "regenerator",
+      "seconds": 1.9238,
+      "exitCode": 0,
+      "removed": true
+    },
+    {
+      "role": "verifier",
+      "seconds": 5.5123,
+      "exitCode": 0,
+      "removed": true
+    },
+    {
+      "role": "export_verifier",
+      "seconds": 28.6189,
+      "exitCode": 0,
+      "removed": true
+    }
+  ]
+}

@@ -1,0 +1,3447 @@
+{
+  "contractVersion": "wk-prototype-0.2",
+  "runId": "developer_actual_blend",
+  "requestId": "developer_actual_blend_request",
+  "designId": "handle",
+  "inputRevisionId": "revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3",
+  "outputRevisionId": "developer_blended_candidate",
+  "attemptId": "developer_actual_blend_attempt",
+  "units": "mm",
+  "requirementsVersion": 2,
+  "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+  "registryId": "handle_sample_v1",
+  "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+  "setupId": "handle_refine_v1",
+  "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+  "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+  "validatorVersion": "handle-validator-v1",
+  "requirements": {
+    "contractVersion": "wk-prototype-0.2",
+    "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+    "designId": "handle",
+    "requirementsVersion": 2,
+    "units": "mm",
+    "registryId": "handle_sample_v1",
+    "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+    "registryFileSha256": "6c1ae7ca15127d45146fc4c27e9659c206e9d7b77d1f7b925e0d7a54c60a4c7c",
+    "setupId": "handle_refine_v1",
+    "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+    "referenceId": "handle_mount_v1",
+    "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+    "validatorVersion": "handle-validator-v1",
+    "requiredChecks": [
+      "geometry.valid_single_solid",
+      "handle.mount_interface",
+      "handle.envelope",
+      "handle.grip_clearance",
+      "handle.grip_sections",
+      "export.step_reopen",
+      "export.stl_reopen",
+      "export.editable_reopen",
+      "handle.refinement_delta"
+    ],
+    "setup": {
+      "setupId": "handle_refine_v1",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "units": "mm",
+      "referenceId": "handle_mount_v1",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "reference": {
+        "referenceId": "handle_mount_v1",
+        "revisionId": "handle_mount_reference_v1",
+        "stepSha256": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+        "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83"
+      },
+      "geometry": {
+        "additionalRefinementChecks": [
+          "handle.refinement_delta"
+        ],
+        "assumedEnvelopeMm": {
+          "x": [
+            -70,
+            70
+          ],
+          "y": [
+            -20,
+            20
+          ],
+          "z": [
+            0,
+            50
+          ]
+        },
+        "fabricationProcess": null,
+        "frame": {
+          "handedness": "right",
+          "origin": "midpoint_between_mount_axes",
+          "panelPlaneZ": 0,
+          "positiveZ": "outward",
+          "x": "handle_length"
+        },
+        "grip": {
+          "allowedIntersectingSolids": 0,
+          "centralXRangeMm": [
+            -30,
+            30
+          ],
+          "centralYRangeMm": [
+            -20,
+            20
+          ],
+          "centralZRangeMm": [
+            0,
+            50
+          ],
+          "clippedSolidCount": 1,
+          "emptyBelowZmm": 25,
+          "gapKernelInsetMm": 1e-7,
+          "initialStationWidthRangeMm": [
+            8,
+            14
+          ],
+          "initialYRangeMm": [
+            -7,
+            7
+          ],
+          "requiredXSpanMm": 60,
+          "sectionConnectedFaceCount": 1,
+          "sectionStationsXmm": [
+            -24,
+            -12,
+            0,
+            12,
+            24
+          ],
+          "strictEmptyGap": true
+        },
+        "hardware": null,
+        "loadRating": null,
+        "material": null,
+        "mounting": {
+          "axesMm": [
+            [
+              -48,
+              0,
+              0
+            ],
+            [
+              48,
+              0,
+              0
+            ]
+          ],
+          "axisDirection": [
+            0,
+            0,
+            1
+          ],
+          "choice": "concept_pads_hardware_unspecified",
+          "datumSpecSha256": null,
+          "padDimensionSource": "PLAN_demo_assumption",
+          "padRadiusMm": 7,
+          "padZRangeMm": [
+            0,
+            2
+          ],
+          "panelHolesAreHandleBores": false,
+          "referenceContainsHandle": false,
+          "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+          "referenceSolidCount": 2,
+          "referenceStepSha256": null,
+          "userConfirmed": true
+        },
+        "physicalFit": "not_tested",
+        "refinement": {
+          "baseline": "actual_accepted_initial_STEP",
+          "baselineSha256": null,
+          "initialAcceptanceRequiredBeforeRefinement": true,
+          "minimumAddedSectionAreaEveryStationMm2": 8,
+          "minimumOutboardAddedVolumeMm3": 5,
+          "minimumProtrusionIncreaseMm": 2,
+          "minimumProtrusionMm": 2,
+          "minimumThumbRestAddedVolumeExclusiveMm3": 25,
+          "minimumWidthIncreaseEveryStationMm": 4,
+          "outboardBoundary": "max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm",
+          "preserveInitialMaterial": true,
+          "protrusionFormula": "maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)",
+          "thumbRestBoxMm": {
+            "x": [
+              -10,
+              10
+            ],
+            "y": [
+              4,
+              18
+            ],
+            "z": [
+              25,
+              50
+            ]
+          }
+        },
+        "registryId": "handle_sample_v1",
+        "requiredInitialChecks": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "export.step_reopen",
+          "export.stl_reopen",
+          "export.editable_reopen"
+        ],
+        "sampleRequirements": {
+          "maximumOverallLengthMm": 140,
+          "minimumFingerGapMm": 25,
+          "mountPitchMm": 96,
+          "panelHoleCount": 2,
+          "panelHoleDiameterMm": 4.5
+        },
+        "stages": [
+          "handle_initial_v1",
+          "handle_refine_v1"
+        ],
+        "tolerances": {
+          "differenceVolumeMm3": 0.01,
+          "linearMm": 0.01,
+          "sectionAreaMm2": 0.01,
+          "stepRelativeVolume": 0.00001,
+          "stlRelativeVolume": 0.001,
+          "strictMinimumGapUsesLinearSlack": false
+        },
+        "units": "mm"
+      },
+      "acceptedInitial": {
+        "acceptanceId": "developer_synthetic_actual_initial",
+        "revisionId": "revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3",
+        "artifactId": "developer_actual_initial_step",
+        "sha256": "5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67",
+        "requirementsId": "req_34b5b5d224e81b8c3ab816f69784355d",
+        "requirementsVersion": 1,
+        "setupHash": "1b99bf3ce774f01164d23c02c00abdaa2cdd3e9282d3b579631cc28eeb264bd0",
+        "sourceSha256": "7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525",
+        "checkBundleHash": "db2701af9537fb3602d5d6f1363b1ed59a178addbf5f7905c49cf8ee792242d3"
+      },
+      "requiredChecks": [
+        "geometry.valid_single_solid",
+        "handle.mount_interface",
+        "handle.envelope",
+        "handle.grip_clearance",
+        "handle.grip_sections",
+        "export.step_reopen",
+        "export.stl_reopen",
+        "export.editable_reopen",
+        "handle.refinement_delta"
+      ]
+    },
+    "registryCanonicalJson": "{\"checks\":{\"export.editable_reopen\":{\"method\":\"Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.step_reopen\":{\"method\":\"Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.stl_reopen\":{\"method\":\"Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"geometry.valid_single_solid\":{\"method\":\"Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.\",\"units\":[\"count\",\"mm3\"]},\"handle.envelope\":{\"method\":\"Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.\",\"units\":[\"mm\"]},\"handle.grip_clearance\":{\"method\":\"Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.\",\"units\":[\"mm\",\"count\"]},\"handle.grip_sections\":{\"method\":\"Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.\",\"units\":[\"mm\",\"mm2\",\"count\"]},\"handle.mount_interface\":{\"method\":\"Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.\",\"units\":[\"mm\",\"mm3\",\"count\"]},\"handle.refinement_delta\":{\"method\":\"Compare against exact accepted initial STEP: preserve initial material, increase width and area at every station, measure added thumb-rest volume, protrusion and outboard added volume.\",\"units\":[\"mm\",\"mm2\",\"mm3\"]}},\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"registryId\":\"handle_sample_v1\"}",
+    "setupCanonicalJson": "{\"acceptedInitial\":{\"acceptanceId\":\"developer_synthetic_actual_initial\",\"artifactId\":\"developer_actual_initial_step\",\"checkBundleHash\":\"db2701af9537fb3602d5d6f1363b1ed59a178addbf5f7905c49cf8ee792242d3\",\"requirementsId\":\"req_34b5b5d224e81b8c3ab816f69784355d\",\"requirementsVersion\":1,\"revisionId\":\"revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3\",\"setupHash\":\"1b99bf3ce774f01164d23c02c00abdaa2cdd3e9282d3b579631cc28eeb264bd0\",\"sha256\":\"5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67\",\"sourceSha256\":\"7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525\"},\"geometry\":{\"additionalRefinementChecks\":[\"handle.refinement_delta\"],\"assumedEnvelopeMm\":{\"x\":[-70,70],\"y\":[-20,20],\"z\":[0,50]},\"fabricationProcess\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"midpoint_between_mount_axes\",\"panelPlaneZ\":0,\"positiveZ\":\"outward\",\"x\":\"handle_length\"},\"grip\":{\"allowedIntersectingSolids\":0,\"centralXRangeMm\":[-30,30],\"centralYRangeMm\":[-20,20],\"centralZRangeMm\":[0,50],\"clippedSolidCount\":1,\"emptyBelowZmm\":25,\"gapKernelInsetMm\":1e-7,\"initialStationWidthRangeMm\":[8,14],\"initialYRangeMm\":[-7,7],\"requiredXSpanMm\":60,\"sectionConnectedFaceCount\":1,\"sectionStationsXmm\":[-24,-12,0,12,24],\"strictEmptyGap\":true},\"hardware\":null,\"loadRating\":null,\"material\":null,\"mounting\":{\"axesMm\":[[-48,0,0],[48,0,0]],\"axisDirection\":[0,0,1],\"choice\":\"concept_pads_hardware_unspecified\",\"datumSpecSha256\":null,\"padDimensionSource\":\"PLAN_demo_assumption\",\"padRadiusMm\":7,\"padZRangeMm\":[0,2],\"panelHolesAreHandleBores\":false,\"referenceContainsHandle\":false,\"referenceKind\":\"trusted_mount_datums_and_two_pad_solids\",\"referenceSolidCount\":2,\"referenceStepSha256\":null,\"userConfirmed\":true},\"physicalFit\":\"not_tested\",\"refinement\":{\"baseline\":\"actual_accepted_initial_STEP\",\"baselineSha256\":null,\"initialAcceptanceRequiredBeforeRefinement\":true,\"minimumAddedSectionAreaEveryStationMm2\":8,\"minimumOutboardAddedVolumeMm3\":5,\"minimumProtrusionIncreaseMm\":2,\"minimumProtrusionMm\":2,\"minimumThumbRestAddedVolumeExclusiveMm3\":25,\"minimumWidthIncreaseEveryStationMm\":4,\"outboardBoundary\":\"max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm\",\"preserveInitialMaterial\":true,\"protrusionFormula\":\"maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)\",\"thumbRestBoxMm\":{\"x\":[-10,10],\"y\":[4,18],\"z\":[25,50]}},\"registryId\":\"handle_sample_v1\",\"requiredInitialChecks\":[\"geometry.valid_single_solid\",\"handle.mount_interface\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"export.step_reopen\",\"export.stl_reopen\",\"export.editable_reopen\"],\"sampleRequirements\":{\"maximumOverallLengthMm\":140,\"minimumFingerGapMm\":25,\"mountPitchMm\":96,\"panelHoleCount\":2,\"panelHoleDiameterMm\":4.5},\"stages\":[\"handle_initial_v1\",\"handle_refine_v1\"],\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"sectionAreaMm2\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001,\"strictMinimumGapUsesLinearSlack\":false},\"units\":\"mm\"},\"reference\":{\"datumSpecSha256\":\"6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83\",\"referenceId\":\"handle_mount_v1\",\"revisionId\":\"handle_mount_reference_v1\",\"stepSha256\":\"1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7\"},\"referenceHash\":\"1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7\",\"referenceId\":\"handle_mount_v1\",\"registryHash\":\"b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce\",\"registryId\":\"handle_sample_v1\",\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.valid_single_solid\",\"handle.envelope\",\"handle.grip_clearance\",\"handle.grip_sections\",\"handle.mount_interface\",\"handle.refinement_delta\"],\"setupId\":\"handle_refine_v1\",\"units\":\"mm\"}"
+  },
+  "executionMode": "live",
+  "status": "completed",
+  "proposal": {
+    "kind": "python_source",
+    "source": "from build123d import *\nfrom math import sqrt, sin, cos, atan2, pi\n\nbaseline = import_step('/input/baseline.step')\nwith BuildSketch(Plane.XZ) as arch:\n    with BuildLine():\n        ThreePointArc((-54,32), (0,40), (54,32))\n        Line((54,32), (54,24))\n        ThreePointArc((54,24), (0,32), (-54,24))\n        Line((-54,24), (-54,32))\n    make_face()\nbridge = extrude(arch.sketch, amount=12, both=True)\n# Tangent concave arcs join the sidewall to the rounded thumb lobe.\nfx = 6 + sqrt(35)\ntx, ty = 6 + 2*sqrt(35)/3, 8 + 2/3\na = atan2(ty-9, tx-fx)\nmx, my = fx + 2*cos((-pi/2+a)/2), 9 + 2*sin((-pi/2+a)/2)\nb = atan2(ty-8, tx-6)\nnx, ny = 6 + 4*cos((b+pi/2)/2), 8 + 4*sin((b+pi/2)/2)\nwith BuildSketch(Plane.XY.offset(20)) as footprint:\n    with BuildLine():\n        Polyline((54,-7), (54,7), (fx,7))\n        ThreePointArc((fx,7), (mx,my), (tx,ty))\n        ThreePointArc((tx,ty), (nx,ny), (6,12))\n        Line((6,12), (-6,12))\n        ThreePointArc((-6,12), (-nx,ny), (-tx,ty))\n        ThreePointArc((-tx,ty), (-mx,my), (-fx,7))\n        Polyline((-fx,7), (-54,7), (-54,-7), (54,-7))\n    make_face()\nprism = extrude(footprint.sketch, amount=25)\ngrip = bridge & prism\ngrip = fillet(grip.edges(), radius=1.5)\nhandle = baseline + grip\nexport_step(handle, '/out/candidate.step')\n",
+    "changeSummary": "Developer additive smooth thumb-root feasibility against actual provider initial; synthetic acceptance only"
+  },
+  "proposalHash": "4b6a7f5daf82743a8bb56e3c52410bbee47e8692b98a05e0f36d029b59725402",
+  "sourceSha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+  "engine": {
+    "name": "build123d",
+    "version": "0.11.1",
+    "imageDigest": "sha256:bba502dc5c3fb943c078cdcb5c0a4b9faa321839ceb59bcfd5c41c33cbe0c440"
+  },
+  "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+  "checkBundleHash": "512d31b8ac0f47c1e9da89385da83ca6b4baa311b127d09aeb89cf65aed82b55",
+  "checks": [
+    {
+      "checkId": "geometry.valid_single_solid",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "geometry.valid_single_solid",
+      "method": "Reopen sealed candidate STEP; require one valid connected nonempty solid, finite bounds and positive finite volume.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.geometry.valid_single_solid"
+        ],
+        "solidCount": 1,
+        "valid": true,
+        "connected": true,
+        "nonempty": true,
+        "finiteBounds": true,
+        "positiveFiniteVolume": true
+      },
+      "measured": {
+        "measurement": {
+          "bounds": [
+            [
+              -55,
+              -7,
+              0
+            ],
+            [
+              55,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "volumeMm3": 16930.886194752788,
+          "solidCount": 1,
+          "valid": true,
+          "passed": true
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "count",
+        "mm3"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements."
+    },
+    {
+      "checkId": "handle.mount_interface",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "handle.mount_interface",
+      "method": "Compare the two trusted reference pads and mount axes in the fixed datum frame; bound removed pad material and axis displacement without requiring handle bores.",
+      "expected": {
+        "requirementFields": [
+          "setup.geometry.mounting",
+          "setup.geometry.sampleRequirements",
+          "setup.reference",
+          "setup.geometry.tolerances"
+        ],
+        "mounting": {
+          "axesMm": [
+            [
+              -48,
+              0,
+              0
+            ],
+            [
+              48,
+              0,
+              0
+            ]
+          ],
+          "axisDirection": [
+            0,
+            0,
+            1
+          ],
+          "choice": "concept_pads_hardware_unspecified",
+          "datumSpecSha256": null,
+          "padDimensionSource": "PLAN_demo_assumption",
+          "padRadiusMm": 7,
+          "padZRangeMm": [
+            0,
+            2
+          ],
+          "panelHolesAreHandleBores": false,
+          "referenceContainsHandle": false,
+          "referenceKind": "trusted_mount_datums_and_two_pad_solids",
+          "referenceSolidCount": 2,
+          "referenceStepSha256": null,
+          "userConfirmed": true
+        },
+        "mountPitchMm": 96,
+        "panelHoleDiameterMm": 4.5,
+        "panelHoleCount": 2,
+        "reference": {
+          "referenceId": "handle_mount_v1",
+          "revisionId": "handle_mount_reference_v1",
+          "stepSha256": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+          "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83"
+        },
+        "maximumRemovedPadVolumeMm3": 0.01,
+        "linearMm": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "passed": true,
+          "contacts": [
+            {
+              "radiusMm": 7,
+              "centerMm": [
+                -48,
+                0,
+                0
+              ],
+              "areaMm2": 153.93804002589985
+            },
+            {
+              "radiusMm": 7,
+              "centerMm": [
+                48,
+                0,
+                0
+              ],
+              "areaMm2": 153.93804002589985
+            }
+          ],
+          "axes": [
+            {
+              "radiusMm": 7,
+              "centerMm": [
+                -48,
+                0,
+                0
+              ],
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "bounds": [
+                [
+                  -55,
+                  -7,
+                  0
+                ],
+                [
+                  -41,
+                  7,
+                  2
+                ]
+              ]
+            },
+            {
+              "radiusMm": 7,
+              "centerMm": [
+                48,
+                0,
+                0
+              ],
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "bounds": [
+                [
+                  41,
+                  -7,
+                  0
+                ],
+                [
+                  55,
+                  7,
+                  2
+                ]
+              ]
+            }
+          ],
+          "mountPitchMm": 96,
+          "symmetricDifferenceMm3": 0
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "count"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements."
+    },
+    {
+      "checkId": "handle.envelope",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "handle.envelope",
+      "method": "Measure all candidate bounds in the fixed reference frame against the assumed envelope and maximum overall length.",
+      "expected": {
+        "requirementFields": [
+          "setup.geometry.assumedEnvelopeMm",
+          "setup.geometry.sampleRequirements.maximumOverallLengthMm"
+        ],
+        "envelopeMm": {
+          "x": [
+            -70,
+            70
+          ],
+          "y": [
+            -20,
+            20
+          ],
+          "z": [
+            0,
+            50
+          ]
+        },
+        "maximumOverallLengthMm": 140,
+        "linearMm": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "bounds": [
+            [
+              -55,
+              -7,
+              0
+            ],
+            [
+              55,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "overallLengthMm": 110,
+          "diagnosticBounds": [
+            [
+              -55,
+              -7,
+              0
+            ],
+            [
+              55,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "passed": true
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements.",
+      "diagnostics": {
+        "box": [
+          [
+            -55,
+            -7,
+            0
+          ],
+          [
+            55,
+            12.000000100000003,
+            40.00000010000003
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "handle.grip_clearance",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "handle.grip_clearance",
+      "method": "Intersect candidate with the central grip gap below Z=25 using only the kernel inset; require zero intersecting solids with no linear tolerance slack.",
+      "expected": {
+        "requirementFields": [
+          "setup.geometry.grip",
+          "setup.geometry.sampleRequirements.minimumFingerGapMm"
+        ],
+        "centralXRangeMm": [
+          -30,
+          30
+        ],
+        "centralYRangeMm": [
+          -20,
+          20
+        ],
+        "emptyBelowZmm": 25,
+        "minimumFingerGapMm": 25,
+        "strictEmptyGap": true,
+        "gapKernelInsetMm": 1e-7,
+        "allowedIntersectingSolids": 0,
+        "strictMinimumGapUsesLinearSlack": false
+      },
+      "measured": {
+        "measurement": {
+          "minimumGapMm": 29.568014623159286,
+          "intersectingSolids": 0,
+          "intrusionVolumeMm3": 0,
+          "diagnosticBounds": null,
+          "closestPointPairs": [
+            [
+              [
+                -30.00000000000013,
+                5.5,
+                29.568014623159286
+              ],
+              [
+                -30.00000000000013,
+                5.5,
+                0
+              ]
+            ],
+            [
+              [
+                -30,
+                -5.5,
+                29.568014623159286
+              ],
+              [
+                -30,
+                -5.5,
+                0
+              ]
+            ],
+            [
+              [
+                30.000000000000007,
+                5.5,
+                29.568014623159314
+              ],
+              [
+                30.000000000000007,
+                5.5,
+                0
+              ]
+            ],
+            [
+              [
+                30.000000000000007,
+                -5.5,
+                29.568014623159314
+              ],
+              [
+                30.000000000000007,
+                -5.5,
+                0
+              ]
+            ]
+          ],
+          "passed": true
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "count"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements.",
+      "diagnostics": {
+        "pointPairs": [
+          [
+            [
+              -30.00000000000013,
+              5.5,
+              29.568014623159286
+            ],
+            [
+              -30.00000000000013,
+              5.5,
+              0
+            ]
+          ],
+          [
+            [
+              -30,
+              -5.5,
+              29.568014623159286
+            ],
+            [
+              -30,
+              -5.5,
+              0
+            ]
+          ],
+          [
+            [
+              30.000000000000007,
+              5.5,
+              29.568014623159314
+            ],
+            [
+              30.000000000000007,
+              5.5,
+              0
+            ]
+          ],
+          [
+            [
+              30.000000000000007,
+              -5.5,
+              29.568014623159314
+            ],
+            [
+              30.000000000000007,
+              -5.5,
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "handle.grip_sections",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "handle.grip_sections",
+      "method": "Clip the central grip and require one spanning solid; section at every frozen X station and require one connected face, with initial width and Y bounds only in the initial stage.",
+      "expected": {
+        "requirementFields": [
+          "setup.geometry.grip",
+          "setup.geometry.tolerances"
+        ],
+        "centralXRangeMm": [
+          -30,
+          30
+        ],
+        "centralYRangeMm": [
+          -20,
+          20
+        ],
+        "centralZRangeMm": [
+          0,
+          50
+        ],
+        "clippedSolidCount": 1,
+        "requiredXSpanMm": 60,
+        "sectionStationsXmm": [
+          -24,
+          -12,
+          0,
+          12,
+          24
+        ],
+        "sectionConnectedFaceCount": 1,
+        "initialYRangeMm": null,
+        "initialStationWidthRangeMm": null,
+        "linearMm": 0.01,
+        "sectionAreaMm2": 0.01
+      },
+      "measured": {
+        "measurement": {
+          "stations": [
+            {
+              "xMm": -24,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.05234852536745,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -24.0000001,
+                  -7.0000001,
+                  30.447218341426456
+                ],
+                [
+                  -23.9999999,
+                  7.0000001,
+                  38.44721854142646
+                ]
+              ]
+            },
+            {
+              "xMm": -12,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.06456602215056,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -12.0000001,
+                  -7.0000001,
+                  31.613020697575557
+                ],
+                [
+                  -11.9999999,
+                  7.0000001,
+                  39.61302094151589
+                ]
+              ]
+            },
+            {
+              "xMm": 0,
+              "widthMm": 19,
+              "areaMm2": 150.068583470577,
+              "maxYMm": 12,
+              "minYMm": -7,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -2.556831758308e-15,
+                  -7,
+                  32
+                ],
+                [
+                  2.556831758308e-15,
+                  12,
+                  40
+                ]
+              ]
+            },
+            {
+              "xMm": 12,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.06456577094542,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  11.9999999,
+                  -7.0000001,
+                  31.613020697575557
+                ],
+                [
+                  12.0000001,
+                  7.0000001,
+                  39.61302094151518
+                ]
+              ]
+            },
+            {
+              "xMm": 24,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.05234852536752,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  23.9999999,
+                  -7.0000001,
+                  30.447218341426428
+                ],
+                [
+                  24.0000001,
+                  7.0000001,
+                  38.44721854142646
+                ]
+              ]
+            }
+          ],
+          "centralBounds": [
+            [
+              -30.000000100000133,
+              -7.0000001,
+              29.568014523159285
+            ],
+            [
+              30.00000010000001,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "centralSolidCount": 1,
+          "diagnosticBounds": [
+            [
+              -30.000000100000133,
+              -7.0000001,
+              29.568014523159285
+            ],
+            [
+              30.00000010000001,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "passed": true
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm2",
+        "count"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements.",
+      "diagnostics": {
+        "box": [
+          [
+            -30.000000100000133,
+            -7.0000001,
+            29.568014523159285
+          ],
+          [
+            30.00000010000001,
+            12.000000100000003,
+            40.00000010000003
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "handle.refinement_delta",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "handle.refinement_delta",
+      "method": "Compare against exact accepted initial STEP: preserve initial material, increase width and area at every station, measure added thumb-rest volume, protrusion and outboard added volume.",
+      "expected": {
+        "requirementFields": [
+          "setup.geometry.refinement",
+          "setup.acceptedInitial",
+          "setup.geometry.tolerances"
+        ],
+        "refinement": {
+          "baseline": "actual_accepted_initial_STEP",
+          "baselineSha256": null,
+          "initialAcceptanceRequiredBeforeRefinement": true,
+          "minimumAddedSectionAreaEveryStationMm2": 8,
+          "minimumOutboardAddedVolumeMm3": 5,
+          "minimumProtrusionIncreaseMm": 2,
+          "minimumProtrusionMm": 2,
+          "minimumThumbRestAddedVolumeExclusiveMm3": 25,
+          "minimumWidthIncreaseEveryStationMm": 4,
+          "outboardBoundary": "max(refined_maxY_at_minus24, refined_maxY_at_plus24) + 1mm",
+          "preserveInitialMaterial": true,
+          "protrusionFormula": "maxY_at_0 - max(maxY_at_minus24, maxY_at_plus24)",
+          "thumbRestBoxMm": {
+            "x": [
+              -10,
+              10
+            ],
+            "y": [
+              4,
+              18
+            ],
+            "z": [
+              25,
+              50
+            ]
+          }
+        },
+        "acceptedInitial": {
+          "acceptanceId": "developer_synthetic_actual_initial",
+          "revisionId": "revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3",
+          "artifactId": "developer_actual_initial_step",
+          "sha256": "5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67",
+          "requirementsId": "req_34b5b5d224e81b8c3ab816f69784355d",
+          "requirementsVersion": 1,
+          "setupHash": "1b99bf3ce774f01164d23c02c00abdaa2cdd3e9282d3b579631cc28eeb264bd0",
+          "sourceSha256": "7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525",
+          "checkBundleHash": "db2701af9537fb3602d5d6f1363b1ed59a178addbf5f7905c49cf8ee792242d3"
+        },
+        "tolerances": {
+          "differenceVolumeMm3": 0.01,
+          "linearMm": 0.01,
+          "sectionAreaMm2": 0.01,
+          "stepRelativeVolume": 0.00001,
+          "stlRelativeVolume": 0.001,
+          "strictMinimumGapUsesLinearSlack": false
+        },
+        "sectionStationsXmm": [
+          -24,
+          -12,
+          0,
+          12,
+          24
+        ]
+      },
+      "measured": {
+        "measurement": {
+          "stations": [
+            {
+              "xMm": -24,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.05234852536745,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -24.0000001,
+                  -7.0000001,
+                  30.447218341426456
+                ],
+                [
+                  -23.9999999,
+                  7.0000001,
+                  38.44721854142646
+                ]
+              ],
+              "widthIncreaseMm": 4,
+              "addedAreaMm2": 31.999999988128117
+            },
+            {
+              "xMm": -12,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.06456602215056,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -12.0000001,
+                  -7.0000001,
+                  31.613020697575557
+                ],
+                [
+                  -11.9999999,
+                  7.0000001,
+                  39.61302094151589
+                ]
+              ],
+              "widthIncreaseMm": 4,
+              "addedAreaMm2": 32.000001506772946
+            },
+            {
+              "xMm": 0,
+              "widthMm": 19,
+              "areaMm2": 150.068583470577,
+              "maxYMm": 12,
+              "minYMm": -7,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  -2.556831758308e-15,
+                  -7,
+                  32
+                ],
+                [
+                  2.556831758308e-15,
+                  12,
+                  40
+                ]
+              ],
+              "widthIncreaseMm": 9,
+              "addedAreaMm2": 72
+            },
+            {
+              "xMm": 12,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.06456577094542,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  11.9999999,
+                  -7.0000001,
+                  31.613020697575557
+                ],
+                [
+                  12.0000001,
+                  7.0000001,
+                  39.61302094151518
+                ]
+              ],
+              "widthIncreaseMm": 4,
+              "addedAreaMm2": 32.00000125556744
+            },
+            {
+              "xMm": 24,
+              "widthMm": 14.0000002,
+              "areaMm2": 110.05234852536752,
+              "maxYMm": 7.0000001,
+              "minYMm": -7.0000001,
+              "faceCount": 1,
+              "valid": true,
+              "bounds": [
+                [
+                  23.9999999,
+                  -7.0000001,
+                  30.447218341426428
+                ],
+                [
+                  24.0000001,
+                  7.0000001,
+                  38.44721854142646
+                ]
+              ],
+              "widthIncreaseMm": 4,
+              "addedAreaMm2": 31.999999988128263
+            }
+          ],
+          "removedVolumeMm3": 0,
+          "thumbAddedVolumeMm3": 1060.4511458542215,
+          "outboardAddedVolumeMm3": 562.5082966416209,
+          "protrusionMm": 4.9999999,
+          "protrusionIncreaseMm": 5,
+          "baselineInitialChecks": [
+            {
+              "checkId": "geometry.valid_single_solid",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    7,
+                    40.00000000000003
+                  ]
+                ],
+                "volumeMm3": 12738.689229048332,
+                "solidCount": 1,
+                "valid": true,
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.mount_interface",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "passed": true,
+                "contacts": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  }
+                ],
+                "axes": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        -55,
+                        -7,
+                        0
+                      ],
+                      [
+                        -41,
+                        7,
+                        2
+                      ]
+                    ]
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        41,
+                        -7,
+                        0
+                      ],
+                      [
+                        55,
+                        7,
+                        2
+                      ]
+                    ]
+                  }
+                ],
+                "mountPitchMm": 96,
+                "symmetricDifferenceMm3": 0
+              }
+            },
+            {
+              "checkId": "handle.envelope",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    7,
+                    40.00000000000003
+                  ]
+                ],
+                "overallLengthMm": 110,
+                "diagnosticBounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    7,
+                    40.00000000000003
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_clearance",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "minimumGapMm": 29.568014623159286,
+                "intersectingSolids": 0,
+                "intrusionVolumeMm3": 0,
+                "diagnosticBounds": null,
+                "closestPointPairs": [
+                  [
+                    [
+                      -30,
+                      3.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30,
+                      3.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      -30,
+                      -3.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30,
+                      -3.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      -3.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      -3.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      3.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      3.5,
+                      0
+                    ]
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_sections",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "stations": [
+                  {
+                    "xMm": -24,
+                    "widthMm": 10.0000002,
+                    "areaMm2": 78.05234853723933,
+                    "maxYMm": 5.0000001,
+                    "minYMm": -5.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -24.0000001,
+                        -5.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        -23.9999999,
+                        5.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": -12,
+                    "widthMm": 10.0000002,
+                    "areaMm2": 78.06456451537761,
+                    "maxYMm": 5.0000001,
+                    "minYMm": -5.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -12.0000001,
+                        -5.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        -11.9999999,
+                        5.0000001,
+                        39.61302089757556
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 0,
+                    "widthMm": 10,
+                    "areaMm2": 78.06858347057704,
+                    "maxYMm": 5,
+                    "minYMm": -5,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        0,
+                        -5,
+                        32
+                      ],
+                      [
+                        0,
+                        5,
+                        40
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 12,
+                    "widthMm": 10.0000002,
+                    "areaMm2": 78.06456451537797,
+                    "maxYMm": 5.0000001,
+                    "minYMm": -5.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        11.9999999,
+                        -5.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        12.0000001,
+                        5.0000001,
+                        39.61302089757556
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 24,
+                    "widthMm": 10.0000002,
+                    "areaMm2": 78.05234853723928,
+                    "maxYMm": 5.0000001,
+                    "minYMm": -5.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        23.9999999,
+                        -5.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        24.0000001,
+                        5.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  }
+                ],
+                "centralBounds": [
+                  [
+                    -30.000000100000015,
+                    -5.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.000000100000015,
+                    5.0000001,
+                    40.00000010000003
+                  ]
+                ],
+                "centralSolidCount": 1,
+                "diagnosticBounds": [
+                  [
+                    -30.000000100000015,
+                    -5.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.000000100000015,
+                    5.0000001,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            }
+          ],
+          "diagnosticBounds": [
+            [
+              -10.887462732520731,
+              3.9999999,
+              31.730731769241565
+            ],
+            [
+              10.887417947105108,
+              12.000000100000003,
+              40.00000010000003
+            ]
+          ],
+          "passed": true
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm2",
+        "mm3"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements.",
+      "diagnostics": {
+        "box": [
+          [
+            -10.887462732520731,
+            3.9999999,
+            31.730731769241565
+          ],
+          [
+            10.887417947105108,
+            12.000000100000003,
+            40.00000010000003
+          ]
+        ]
+      }
+    },
+    {
+      "checkId": "export.step_reopen",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "export.step_reopen",
+      "method": "Reopen exact sealed STEP bytes; compare bounds, volume and symmetric difference, and rerun applicable handle geometry checks in the fixed reference frame.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.step_reopen",
+          "setup.geometry.tolerances"
+        ],
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "relativeVolume": 0.00001,
+        "validSingleSolid": true,
+        "handleChecksMatch": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "handle.refinement_delta"
+        ],
+        "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+        "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+        "sealedByteIdentity": true
+      },
+      "measured": {
+        "measurement": {
+          "passed": true,
+          "symmetricDifferenceMm3": 0,
+          "relativeVolumeDifference": 0,
+          "reopenedChecks": [
+            {
+              "checkId": "geometry.valid_single_solid",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "volumeMm3": 16930.886194752788,
+                "solidCount": 1,
+                "valid": true,
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.mount_interface",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "passed": true,
+                "contacts": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  }
+                ],
+                "axes": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        -55,
+                        -7,
+                        0
+                      ],
+                      [
+                        -41,
+                        7,
+                        2
+                      ]
+                    ]
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        41,
+                        -7,
+                        0
+                      ],
+                      [
+                        55,
+                        7,
+                        2
+                      ]
+                    ]
+                  }
+                ],
+                "mountPitchMm": 96,
+                "symmetricDifferenceMm3": 0
+              }
+            },
+            {
+              "checkId": "handle.envelope",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "overallLengthMm": 110,
+                "diagnosticBounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_clearance",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "minimumGapMm": 29.568014623159286,
+                "intersectingSolids": 0,
+                "intrusionVolumeMm3": 0,
+                "diagnosticBounds": null,
+                "closestPointPairs": [
+                  [
+                    [
+                      -30.00000000000013,
+                      5.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30.00000000000013,
+                      5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      -30,
+                      -5.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30,
+                      -5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      5.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      -5.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      -5.5,
+                      0
+                    ]
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_sections",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "stations": [
+                  {
+                    "xMm": -24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536745,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -24.0000001,
+                        -7.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        -23.9999999,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": -12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456602215056,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -12.0000001,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        -11.9999999,
+                        7.0000001,
+                        39.61302094151589
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 0,
+                    "widthMm": 19,
+                    "areaMm2": 150.068583470577,
+                    "maxYMm": 12,
+                    "minYMm": -7,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -2.556831758308e-15,
+                        -7,
+                        32
+                      ],
+                      [
+                        2.556831758308e-15,
+                        12,
+                        40
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456577094542,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        11.9999999,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        12.0000001,
+                        7.0000001,
+                        39.61302094151518
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536752,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        23.9999999,
+                        -7.0000001,
+                        30.447218341426428
+                      ],
+                      [
+                        24.0000001,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  }
+                ],
+                "centralBounds": [
+                  [
+                    -30.000000100000133,
+                    -7.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.00000010000001,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "centralSolidCount": 1,
+                "diagnosticBounds": [
+                  [
+                    -30.000000100000133,
+                    -7.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.00000010000001,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.refinement_delta",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "stations": [
+                  {
+                    "xMm": -24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536745,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -24.0000001,
+                        -7.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        -23.9999999,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 31.999999988128117
+                  },
+                  {
+                    "xMm": -12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456602215056,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -12.0000001,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        -11.9999999,
+                        7.0000001,
+                        39.61302094151589
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 32.000001506772946
+                  },
+                  {
+                    "xMm": 0,
+                    "widthMm": 19,
+                    "areaMm2": 150.068583470577,
+                    "maxYMm": 12,
+                    "minYMm": -7,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -2.556831758308e-15,
+                        -7,
+                        32
+                      ],
+                      [
+                        2.556831758308e-15,
+                        12,
+                        40
+                      ]
+                    ],
+                    "widthIncreaseMm": 9,
+                    "addedAreaMm2": 72
+                  },
+                  {
+                    "xMm": 12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456577094542,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        11.9999999,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        12.0000001,
+                        7.0000001,
+                        39.61302094151518
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 32.00000125556744
+                  },
+                  {
+                    "xMm": 24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536752,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        23.9999999,
+                        -7.0000001,
+                        30.447218341426428
+                      ],
+                      [
+                        24.0000001,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 31.999999988128263
+                  }
+                ],
+                "removedVolumeMm3": 0,
+                "thumbAddedVolumeMm3": 1060.4511458542215,
+                "outboardAddedVolumeMm3": 562.5082966416209,
+                "protrusionMm": 4.9999999,
+                "protrusionIncreaseMm": 5,
+                "baselineInitialChecks": [
+                  {
+                    "checkId": "geometry.valid_single_solid",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "bounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "volumeMm3": 12738.689229048332,
+                      "solidCount": 1,
+                      "valid": true,
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.mount_interface",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "passed": true,
+                      "contacts": [
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            -48,
+                            0,
+                            0
+                          ],
+                          "areaMm2": 153.93804002589985
+                        },
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            48,
+                            0,
+                            0
+                          ],
+                          "areaMm2": 153.93804002589985
+                        }
+                      ],
+                      "axes": [
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            -48,
+                            0,
+                            0
+                          ],
+                          "axis": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "bounds": [
+                            [
+                              -55,
+                              -7,
+                              0
+                            ],
+                            [
+                              -41,
+                              7,
+                              2
+                            ]
+                          ]
+                        },
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            48,
+                            0,
+                            0
+                          ],
+                          "axis": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "bounds": [
+                            [
+                              41,
+                              -7,
+                              0
+                            ],
+                            [
+                              55,
+                              7,
+                              2
+                            ]
+                          ]
+                        }
+                      ],
+                      "mountPitchMm": 96,
+                      "symmetricDifferenceMm3": 0
+                    }
+                  },
+                  {
+                    "checkId": "handle.envelope",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "bounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "overallLengthMm": 110,
+                      "diagnosticBounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.grip_clearance",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "minimumGapMm": 29.568014623159286,
+                      "intersectingSolids": 0,
+                      "intrusionVolumeMm3": 0,
+                      "diagnosticBounds": null,
+                      "closestPointPairs": [
+                        [
+                          [
+                            -30,
+                            3.5,
+                            29.568014623159286
+                          ],
+                          [
+                            -30,
+                            3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            -30,
+                            -3.5,
+                            29.568014623159286
+                          ],
+                          [
+                            -30,
+                            -3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            30.000000000000007,
+                            -3.5,
+                            29.568014623159314
+                          ],
+                          [
+                            30.000000000000007,
+                            -3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            30.000000000000007,
+                            3.5,
+                            29.568014623159314
+                          ],
+                          [
+                            30.000000000000007,
+                            3.5,
+                            0
+                          ]
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.grip_sections",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "stations": [
+                        {
+                          "xMm": -24,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.05234853723933,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              -24.0000001,
+                              -5.0000001,
+                              30.447218341426456
+                            ],
+                            [
+                              -23.9999999,
+                              5.0000001,
+                              38.44721854142646
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": -12,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.06456451537761,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              -12.0000001,
+                              -5.0000001,
+                              31.613020697575557
+                            ],
+                            [
+                              -11.9999999,
+                              5.0000001,
+                              39.61302089757556
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 0,
+                          "widthMm": 10,
+                          "areaMm2": 78.06858347057704,
+                          "maxYMm": 5,
+                          "minYMm": -5,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              0,
+                              -5,
+                              32
+                            ],
+                            [
+                              0,
+                              5,
+                              40
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 12,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.06456451537797,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              11.9999999,
+                              -5.0000001,
+                              31.613020697575557
+                            ],
+                            [
+                              12.0000001,
+                              5.0000001,
+                              39.61302089757556
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 24,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.05234853723928,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              23.9999999,
+                              -5.0000001,
+                              30.447218341426456
+                            ],
+                            [
+                              24.0000001,
+                              5.0000001,
+                              38.44721854142646
+                            ]
+                          ]
+                        }
+                      ],
+                      "centralBounds": [
+                        [
+                          -30.000000100000015,
+                          -5.0000001,
+                          29.568014523159285
+                        ],
+                        [
+                          30.000000100000015,
+                          5.0000001,
+                          40.00000010000003
+                        ]
+                      ],
+                      "centralSolidCount": 1,
+                      "diagnosticBounds": [
+                        [
+                          -30.000000100000015,
+                          -5.0000001,
+                          29.568014523159285
+                        ],
+                        [
+                          30.000000100000015,
+                          5.0000001,
+                          40.00000010000003
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  }
+                ],
+                "diagnosticBounds": [
+                  [
+                    -10.887462732520731,
+                    3.9999999,
+                    31.730731769241565
+                  ],
+                  [
+                    10.887417947105108,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            }
+          ],
+          "sha256": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f"
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements."
+    },
+    {
+      "checkId": "export.editable_reopen",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "export.editable_reopen",
+      "method": "Regenerate source in isolation using original mount reference and accepted baseline when refining; compare regenerated STEP and rerun applicable handle checks without executing source in the verifier.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.editable_reopen",
+          "setup.geometry.tolerances",
+          "setup.acceptedInitial"
+        ],
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "relativeVolume": 0.00001,
+        "validSingleSolid": true,
+        "handleChecksMatch": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "handle.refinement_delta"
+        ],
+        "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+        "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+        "isolatedReopenOrRegeneration": true,
+        "acceptedInitial": {
+          "acceptanceId": "developer_synthetic_actual_initial",
+          "revisionId": "revision_cfa10ddf-aab7-462f-9d6d-7013dd92a9e3",
+          "artifactId": "developer_actual_initial_step",
+          "sha256": "5284ab863ce3b7e787f274d5b542b7ab5ec7bf286bfe535dfe9a5bfa6fcbee67",
+          "requirementsId": "req_34b5b5d224e81b8c3ab816f69784355d",
+          "requirementsVersion": 1,
+          "setupHash": "1b99bf3ce774f01164d23c02c00abdaa2cdd3e9282d3b579631cc28eeb264bd0",
+          "sourceSha256": "7001337d0318be9bffd4143179b101c524793714cdf5655333a65cca3a118525",
+          "checkBundleHash": "db2701af9537fb3602d5d6f1363b1ed59a178addbf5f7905c49cf8ee792242d3"
+        }
+      },
+      "measured": {
+        "measurement": {
+          "passed": true,
+          "symmetricDifferenceMm3": 0,
+          "relativeVolumeDifference": 0,
+          "reopenedChecks": [
+            {
+              "checkId": "geometry.valid_single_solid",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "volumeMm3": 16930.886194752788,
+                "solidCount": 1,
+                "valid": true,
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.mount_interface",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "passed": true,
+                "contacts": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "areaMm2": 153.93804002589985
+                  }
+                ],
+                "axes": [
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      -48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        -55,
+                        -7,
+                        0
+                      ],
+                      [
+                        -41,
+                        7,
+                        2
+                      ]
+                    ]
+                  },
+                  {
+                    "radiusMm": 7,
+                    "centerMm": [
+                      48,
+                      0,
+                      0
+                    ],
+                    "axis": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "bounds": [
+                      [
+                        41,
+                        -7,
+                        0
+                      ],
+                      [
+                        55,
+                        7,
+                        2
+                      ]
+                    ]
+                  }
+                ],
+                "mountPitchMm": 96,
+                "symmetricDifferenceMm3": 0
+              }
+            },
+            {
+              "checkId": "handle.envelope",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "bounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "overallLengthMm": 110,
+                "diagnosticBounds": [
+                  [
+                    -55,
+                    -7,
+                    0
+                  ],
+                  [
+                    55,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_clearance",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "minimumGapMm": 29.568014623159286,
+                "intersectingSolids": 0,
+                "intrusionVolumeMm3": 0,
+                "diagnosticBounds": null,
+                "closestPointPairs": [
+                  [
+                    [
+                      -30.00000000000013,
+                      5.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30.00000000000013,
+                      5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      -30,
+                      -5.5,
+                      29.568014623159286
+                    ],
+                    [
+                      -30,
+                      -5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      5.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      5.5,
+                      0
+                    ]
+                  ],
+                  [
+                    [
+                      30.000000000000007,
+                      -5.5,
+                      29.568014623159314
+                    ],
+                    [
+                      30.000000000000007,
+                      -5.5,
+                      0
+                    ]
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.grip_sections",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "stations": [
+                  {
+                    "xMm": -24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536745,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -24.0000001,
+                        -7.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        -23.9999999,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": -12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456602215056,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -12.0000001,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        -11.9999999,
+                        7.0000001,
+                        39.61302094151589
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 0,
+                    "widthMm": 19,
+                    "areaMm2": 150.068583470577,
+                    "maxYMm": 12,
+                    "minYMm": -7,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -2.556831758308e-15,
+                        -7,
+                        32
+                      ],
+                      [
+                        2.556831758308e-15,
+                        12,
+                        40
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456577094542,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        11.9999999,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        12.0000001,
+                        7.0000001,
+                        39.61302094151518
+                      ]
+                    ]
+                  },
+                  {
+                    "xMm": 24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536752,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        23.9999999,
+                        -7.0000001,
+                        30.447218341426428
+                      ],
+                      [
+                        24.0000001,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ]
+                  }
+                ],
+                "centralBounds": [
+                  [
+                    -30.000000100000133,
+                    -7.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.00000010000001,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "centralSolidCount": 1,
+                "diagnosticBounds": [
+                  [
+                    -30.000000100000133,
+                    -7.0000001,
+                    29.568014523159285
+                  ],
+                  [
+                    30.00000010000001,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            },
+            {
+              "checkId": "handle.refinement_delta",
+              "state": "passed",
+              "method": "Independent reopened OCP geometry and planar Boolean measurements",
+              "measured": {
+                "stations": [
+                  {
+                    "xMm": -24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536745,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -24.0000001,
+                        -7.0000001,
+                        30.447218341426456
+                      ],
+                      [
+                        -23.9999999,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 31.999999988128117
+                  },
+                  {
+                    "xMm": -12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456602215056,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -12.0000001,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        -11.9999999,
+                        7.0000001,
+                        39.61302094151589
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 32.000001506772946
+                  },
+                  {
+                    "xMm": 0,
+                    "widthMm": 19,
+                    "areaMm2": 150.068583470577,
+                    "maxYMm": 12,
+                    "minYMm": -7,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        -2.556831758308e-15,
+                        -7,
+                        32
+                      ],
+                      [
+                        2.556831758308e-15,
+                        12,
+                        40
+                      ]
+                    ],
+                    "widthIncreaseMm": 9,
+                    "addedAreaMm2": 72
+                  },
+                  {
+                    "xMm": 12,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.06456577094542,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        11.9999999,
+                        -7.0000001,
+                        31.613020697575557
+                      ],
+                      [
+                        12.0000001,
+                        7.0000001,
+                        39.61302094151518
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 32.00000125556744
+                  },
+                  {
+                    "xMm": 24,
+                    "widthMm": 14.0000002,
+                    "areaMm2": 110.05234852536752,
+                    "maxYMm": 7.0000001,
+                    "minYMm": -7.0000001,
+                    "faceCount": 1,
+                    "valid": true,
+                    "bounds": [
+                      [
+                        23.9999999,
+                        -7.0000001,
+                        30.447218341426428
+                      ],
+                      [
+                        24.0000001,
+                        7.0000001,
+                        38.44721854142646
+                      ]
+                    ],
+                    "widthIncreaseMm": 4,
+                    "addedAreaMm2": 31.999999988128263
+                  }
+                ],
+                "removedVolumeMm3": 0,
+                "thumbAddedVolumeMm3": 1060.4511458542215,
+                "outboardAddedVolumeMm3": 562.5082966416209,
+                "protrusionMm": 4.9999999,
+                "protrusionIncreaseMm": 5,
+                "baselineInitialChecks": [
+                  {
+                    "checkId": "geometry.valid_single_solid",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "bounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "volumeMm3": 12738.689229048332,
+                      "solidCount": 1,
+                      "valid": true,
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.mount_interface",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "passed": true,
+                      "contacts": [
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            -48,
+                            0,
+                            0
+                          ],
+                          "areaMm2": 153.93804002589985
+                        },
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            48,
+                            0,
+                            0
+                          ],
+                          "areaMm2": 153.93804002589985
+                        }
+                      ],
+                      "axes": [
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            -48,
+                            0,
+                            0
+                          ],
+                          "axis": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "bounds": [
+                            [
+                              -55,
+                              -7,
+                              0
+                            ],
+                            [
+                              -41,
+                              7,
+                              2
+                            ]
+                          ]
+                        },
+                        {
+                          "radiusMm": 7,
+                          "centerMm": [
+                            48,
+                            0,
+                            0
+                          ],
+                          "axis": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "bounds": [
+                            [
+                              41,
+                              -7,
+                              0
+                            ],
+                            [
+                              55,
+                              7,
+                              2
+                            ]
+                          ]
+                        }
+                      ],
+                      "mountPitchMm": 96,
+                      "symmetricDifferenceMm3": 0
+                    }
+                  },
+                  {
+                    "checkId": "handle.envelope",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "bounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "overallLengthMm": 110,
+                      "diagnosticBounds": [
+                        [
+                          -55,
+                          -7,
+                          0
+                        ],
+                        [
+                          55,
+                          7,
+                          40.00000000000003
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.grip_clearance",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "minimumGapMm": 29.568014623159286,
+                      "intersectingSolids": 0,
+                      "intrusionVolumeMm3": 0,
+                      "diagnosticBounds": null,
+                      "closestPointPairs": [
+                        [
+                          [
+                            -30,
+                            3.5,
+                            29.568014623159286
+                          ],
+                          [
+                            -30,
+                            3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            -30,
+                            -3.5,
+                            29.568014623159286
+                          ],
+                          [
+                            -30,
+                            -3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            30.000000000000007,
+                            -3.5,
+                            29.568014623159314
+                          ],
+                          [
+                            30.000000000000007,
+                            -3.5,
+                            0
+                          ]
+                        ],
+                        [
+                          [
+                            30.000000000000007,
+                            3.5,
+                            29.568014623159314
+                          ],
+                          [
+                            30.000000000000007,
+                            3.5,
+                            0
+                          ]
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  },
+                  {
+                    "checkId": "handle.grip_sections",
+                    "state": "passed",
+                    "method": "Independent reopened OCP geometry and planar Boolean measurements",
+                    "measured": {
+                      "stations": [
+                        {
+                          "xMm": -24,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.05234853723933,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              -24.0000001,
+                              -5.0000001,
+                              30.447218341426456
+                            ],
+                            [
+                              -23.9999999,
+                              5.0000001,
+                              38.44721854142646
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": -12,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.06456451537761,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              -12.0000001,
+                              -5.0000001,
+                              31.613020697575557
+                            ],
+                            [
+                              -11.9999999,
+                              5.0000001,
+                              39.61302089757556
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 0,
+                          "widthMm": 10,
+                          "areaMm2": 78.06858347057704,
+                          "maxYMm": 5,
+                          "minYMm": -5,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              0,
+                              -5,
+                              32
+                            ],
+                            [
+                              0,
+                              5,
+                              40
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 12,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.06456451537797,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              11.9999999,
+                              -5.0000001,
+                              31.613020697575557
+                            ],
+                            [
+                              12.0000001,
+                              5.0000001,
+                              39.61302089757556
+                            ]
+                          ]
+                        },
+                        {
+                          "xMm": 24,
+                          "widthMm": 10.0000002,
+                          "areaMm2": 78.05234853723928,
+                          "maxYMm": 5.0000001,
+                          "minYMm": -5.0000001,
+                          "faceCount": 1,
+                          "valid": true,
+                          "bounds": [
+                            [
+                              23.9999999,
+                              -5.0000001,
+                              30.447218341426456
+                            ],
+                            [
+                              24.0000001,
+                              5.0000001,
+                              38.44721854142646
+                            ]
+                          ]
+                        }
+                      ],
+                      "centralBounds": [
+                        [
+                          -30.000000100000015,
+                          -5.0000001,
+                          29.568014523159285
+                        ],
+                        [
+                          30.000000100000015,
+                          5.0000001,
+                          40.00000010000003
+                        ]
+                      ],
+                      "centralSolidCount": 1,
+                      "diagnosticBounds": [
+                        [
+                          -30.000000100000015,
+                          -5.0000001,
+                          29.568014523159285
+                        ],
+                        [
+                          30.000000100000015,
+                          5.0000001,
+                          40.00000010000003
+                        ]
+                      ],
+                      "passed": true
+                    }
+                  }
+                ],
+                "diagnosticBounds": [
+                  [
+                    -10.887462732520731,
+                    3.9999999,
+                    31.730731769241565
+                  ],
+                  [
+                    10.887417947105108,
+                    12.000000100000003,
+                    40.00000010000003
+                  ]
+                ],
+                "passed": true
+              }
+            }
+          ],
+          "sourceSha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+          "regeneratedSha256": "1231b3097bf58130cd2e2caa8dbcac0244baf5b6faba81fd5852039e5c97850e"
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements."
+    },
+    {
+      "checkId": "export.stl_reopen",
+      "revisionId": "developer_blended_candidate",
+      "requirementsVersion": 2,
+      "requirementsId": "req_8ef2d6503d46be82bdcb1ffd180d019a",
+      "registryId": "handle_sample_v1",
+      "registryHash": "b71ce9b567c33e3070ada344a581777b326d313da4eab205b4878383f0d310ce",
+      "setupId": "handle_refine_v1",
+      "setupHash": "724d058d43328f9fb621cc600dbc3d332b595ccae5a54b191af4aa0209f0fb3e",
+      "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+      "validatorVersion": "handle-validator-v1",
+      "geometryHash": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live",
+      "state": "passed",
+      "label": "export.stl_reopen",
+      "method": "Reopen trusted STL exported from sealed STEP; verify finite watertight connected oriented mesh, positive volume, bounds, units and handle interface and gap within export tolerances.",
+      "expected": {
+        "requirementFields": [
+          "registry.checks.export.stl_reopen",
+          "setup.geometry.tolerances"
+        ],
+        "linearMm": 0.01,
+        "differenceVolumeMm3": 0.01,
+        "relativeVolume": 0.001,
+        "validSingleSolid": true,
+        "handleChecksMatch": [
+          "geometry.valid_single_solid",
+          "handle.mount_interface",
+          "handle.envelope",
+          "handle.grip_clearance",
+          "handle.grip_sections",
+          "handle.refinement_delta"
+        ],
+        "referenceHash": "1d3539376f23932255cf8a5fbfbf85037946cb309c1d94c694fff55f69c96ac7",
+        "datumSpecSha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+        "finiteVertices": true,
+        "watertight": true,
+        "connected": true,
+        "consistentlyOriented": true,
+        "positiveVolume": true,
+        "manifestUnits": "mm"
+      },
+      "measured": {
+        "measurement": {
+          "sha256": "d3179d5d1ec90df46357c150e1d5820c5e5628b50a35652b2589121989593337",
+          "bytes": 3962584,
+          "passed": true,
+          "triangles": 79250,
+          "components": 1,
+          "componentVolumesMm3": [
+            16930.199476807175
+          ],
+          "volumeMm3": 16930.199476807134,
+          "bounds": [
+            [
+              -55,
+              -7,
+              0
+            ],
+            [
+              55,
+              12,
+              39.99956512451172
+            ]
+          ],
+          "relativeVolumeDifference": 0.00004056007097052601,
+          "watertight": true,
+          "consistentlyOriented": true,
+          "contacts": [
+            {
+              "centerMm": [
+                -48,
+                0
+              ],
+              "radiusMm": 7,
+              "radialResidualMm": 0.0000017443341295830805
+            },
+            {
+              "centerMm": [
+                47.99999999999998,
+                0
+              ],
+              "radiusMm": 6.999999999999979,
+              "radialResidualMm": 0.0000017443341704392878
+            }
+          ],
+          "contactLayerWithinPads": true,
+          "contactLayerVolumeMm3": 615.7463013314293,
+          "contactLayerVolumeDifferenceMm3": 0.005858772170086013,
+          "minimumGapMm": 29.56752452007107,
+          "stations": [
+            {
+              "xMm": -24,
+              "widthMm": 14,
+              "areaMm2": 110.05136359839027,
+              "maxYMm": 7,
+              "contourCount": 1
+            },
+            {
+              "xMm": -12,
+              "widthMm": 14,
+              "areaMm2": 110.06396028076891,
+              "maxYMm": 7,
+              "contourCount": 1
+            },
+            {
+              "xMm": 0,
+              "widthMm": 19,
+              "areaMm2": 150.06323010895457,
+              "maxYMm": 12,
+              "contourCount": 1
+            },
+            {
+              "xMm": 12,
+              "widthMm": 14,
+              "areaMm2": 110.06362054231236,
+              "maxYMm": 7,
+              "contourCount": 1
+            },
+            {
+              "xMm": 24,
+              "widthMm": 14,
+              "areaMm2": 110.0510922102164,
+              "maxYMm": 7,
+              "contourCount": 1
+            }
+          ]
+        },
+        "coreMethod": "Independent reopened OCP geometry and planar Boolean measurements"
+      },
+      "units": [
+        "mm",
+        "mm3",
+        "ratio",
+        "SHA-256"
+      ],
+      "details": "Measured by the isolated CAD verifier against sealed geometry and frozen requirements."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/saved-developer-trials/handle/blended-v1/source.py",
+      "kind": "source",
+      "fileName": "source.py",
+      "mediaType": "text/x-python",
+      "bytes": 1269,
+      "sha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+      "executionMode": "live"
+    },
+    {
+      "path": "/saved-developer-trials/handle/blended-v1/editable.py",
+      "kind": "editable",
+      "fileName": "editable.py",
+      "mediaType": "text/x-python",
+      "bytes": 1269,
+      "sha256": "2447576274b2639af8590c14dd8a9e9ef45ff10f899705f8ee6699f704a279a4",
+      "executionMode": "live"
+    },
+    {
+      "path": "/saved-developer-trials/handle/blended-v1/candidate.step",
+      "kind": "export",
+      "fileName": "candidate.step",
+      "mediaType": "model/step",
+      "bytes": 476365,
+      "sha256": "f8145830112d707535e7648ee13361c16d6233f766f7e8890eb4fa201f8c1a5f",
+      "executionMode": "live"
+    },
+    {
+      "path": "/saved-developer-trials/handle/blended-v1/preview.stl",
+      "kind": "preview",
+      "fileName": "preview.stl",
+      "mediaType": "model/stl",
+      "bytes": 3962584,
+      "sha256": "d3179d5d1ec90df46357c150e1d5820c5e5628b50a35652b2589121989593337",
+      "executionMode": "live"
+    }
+  ],
+  "error": null
+}
