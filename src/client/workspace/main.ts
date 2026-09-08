@@ -38,7 +38,7 @@ let selectionToken = 0;
 let webglError = '';
 let mode: 'saved' | 'review' | 'live' = 'saved';
 const liveController = createLiveWorkspaceController({ fetch: window.fetch.bind(window) });
-const live = mountLive(liveController, listeners.signal, () => { void loadSelection(); });
+const live = mountLive(liveController, listeners.signal, update => { void loadSelection(update.previewKey); });
 const review = mountReview({
   history: { ...reviewableFixture, runs: [...reviewableFixture.runs, ...rejectedFixture.runs],
     candidates: [...reviewableFixture.candidates, ...rejectedFixture.candidates] },
@@ -72,6 +72,7 @@ function graphicsUnavailable(detail: string) {
   request?.abort();
   selectionToken++;
   webglError = detail;
+  if (mode === 'live') live.retryPreview();
   clearIdentity();
   setStatus('WebGL preview unavailable', detail);
 }
@@ -108,7 +109,7 @@ async function download(url: string, signal: AbortSignal): Promise<ArrayBuffer> 
   return bytes.buffer;
 }
 
-async function loadSelection() {
+async function loadSelection(previewKey: string | null = null) {
   const token = ++selectionToken;
   request?.abort();
   request = new AbortController();
@@ -120,7 +121,7 @@ async function loadSelection() {
     return;
   }
   if (mode === 'live') {
-    await loadLivePreview(token, signal);
+    await loadLivePreview(token, signal, previewKey);
     return;
   }
   const fixture = fixtures[reference.value === 'original' ? 'original' : 'revised'];
@@ -161,7 +162,7 @@ async function loadSelection() {
   }
 }
 
-async function loadLivePreview(token: number, signal: AbortSignal) {
+async function loadLivePreview(token: number, signal: AbortSignal, previewKey: string | null) {
   const s = liveController.snapshot();
   const baseline = live.comparison() === 'baseline';
   const candidate = s.bootstrap?.candidates.find(item => item.revisionId === s.viewedRevisionId);
@@ -169,7 +170,7 @@ async function loadLivePreview(token: number, signal: AbortSignal) {
     : `Inspected ${candidate?.revisionId === s.bootstrap?.design?.selectedCandidateRevisionId ? 'selected' : 'historical'} candidate · ${candidate?.revisionId ?? 'none'}`;
   element('live-mesh-identity').textContent = label;
   element('model-title').textContent = baseline ? 'Baseline geometry' : 'Candidate geometry';
-  if (!s.trusted || s.loading) {
+  if (!s.trusted || s.loading || s.error) {
     setStatus(s.loading ? 'Loading live evidence' : 'Live preview unavailable', s.error ?? 'Verifying authoritative records and baseline bytes.');
     return;
   }
@@ -177,7 +178,12 @@ async function loadLivePreview(token: number, signal: AbortSignal) {
     setStatus('No candidate preview', 'Request a numeric run, then inspect its registered candidate.');
     return;
   }
+  if (!previewKey) {
+    setStatus('Live preview unavailable', 'No verified registered STL is available for this comparison.');
+    return;
+  }
   if (!viewer?.available) {
+    live.failed(previewKey);
     setStatus('WebGL preview unavailable', webglError || 'Enable hardware graphics support and reload.');
     return;
   }
@@ -186,12 +192,15 @@ async function loadLivePreview(token: number, signal: AbortSignal) {
     const preview = await liveController.preview(baseline ? null : candidate!.revisionId);
     if (token !== selectionToken || signal.aborted) return;
     if (!preview) {
+      live.failed(previewKey);
       setStatus('Registered preview unavailable', liveController.snapshot().error ?? 'This revision has no verified STL bytes. Refresh to retry.');
       return;
     }
     const geometry = await parsePreviewGeometry(preview.bytes, preview.artifact.sha256);
     if (token !== selectionToken || signal.aborted) { geometry.dispose(); return; }
     const dimensions = viewer.show(geometry, wireframe.checked);
+    if (token !== selectionToken || signal.aborted || !viewer.available) return;
+    live.rendered(previewKey);
     const measured = dimensions.map(value => Number(value.toFixed(3))).join(' × ');
     element('mesh-dimensions').textContent = `${measured} mm · mesh bounds`;
     element('live-mesh-identity').textContent = `${label} · ${preview.artifact.artifactId} · ${preview.bytes.byteLength} bytes · STL SHA-256 ${preview.artifact.sha256}`;
@@ -199,6 +208,7 @@ async function loadLivePreview(token: number, signal: AbortSignal) {
   } catch {
     if (token !== selectionToken || signal.aborted) return;
     viewer.clear();
+    live.failed(previewKey);
     element('mesh-dimensions').textContent = 'No mesh loaded';
     setStatus('Registered STL preview failed', 'The registered bytes could not be safely rendered. Refresh to retry. No substitute mesh is shown.');
   }
@@ -215,7 +225,11 @@ const requestedTheme = new URLSearchParams(window.location.search).get('theme');
 if (requestedTheme && ['frost', 'graphite', 'canvas'].includes(requestedTheme)) theme.value = requestedTheme;
 applyTheme();
 try {
-  viewer = new PreviewViewer(viewport, graphicsUnavailable, () => { webglError = ''; void loadSelection(); });
+  viewer = new PreviewViewer(viewport, graphicsUnavailable, () => {
+    webglError = '';
+    if (mode === 'live') live.retryPreview();
+    else void loadSelection();
+  });
 } catch {
   graphicsUnavailable('This browser could not start WebGL. Enable hardware graphics support and reload the page. Reference information and theme controls remain available.');
 }
@@ -234,7 +248,7 @@ function switchMode(next: 'saved' | 'review' | 'live') {
   element('live-mode').setAttribute('aria-pressed', String(mode === 'live'));
   element('saved-mode').setAttribute('aria-pressed', String(mode === 'saved'));
   element('review-mode').setAttribute('aria-pressed', String(mode === 'review'));
-  void loadSelection();
+  if (mode !== 'live') void loadSelection();
   if (mode === 'review') review.open();
   if (mode === 'live') live.open();
 }

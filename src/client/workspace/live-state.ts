@@ -104,14 +104,28 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
     return value;
   }
 
-  async function artifactBytes(artifact: Artifact | ReferenceArtifact): Promise<ArrayBuffer> {
+  async function artifactBytes(artifact: Artifact | ReferenceArtifact, currentExport = false): Promise<ArrayBuffer> {
     const response = await request(artifact.href);
     if (!response.ok || response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !== artifact.mediaType.toLowerCase()) {
       await response.body?.cancel();
       throw new LiveError(`Registered artifact unavailable or wrong media type (HTTP ${response.status}). Refresh and retry the download.`);
     }
+    const applicability = response.headers.get('x-worldkinetics-applicability');
+    const candidate = 'revisionId' in artifact;
+    const identityMatches = candidate
+      ? artifact.executionMode === 'live'
+        && response.headers.get('x-worldkinetics-revision') === artifact.revisionId
+        && response.headers.get('x-worldkinetics-execution') === artifact.executionMode
+        && (applicability === 'current' || (!currentExport && applicability === 'historical'))
+      : response.headers.get('x-worldkinetics-revision') === 'baseline_50' && applicability === 'saved_reference';
+    if (!identityMatches) {
+      await response.body?.cancel();
+      throw new LiveError('Artifact revision, execution or applicability does not match the registered request. No file was loaded. Refresh and retry.');
+    }
     const bytes = await readBytes(response, artifact.bytes);
-    if (bytes.byteLength !== artifact.bytes || await sha256(new Uint8Array(bytes)) !== artifact.sha256) {
+    const declaredBytes = response.headers.get('content-length');
+    if ((declaredBytes !== null && Number(declaredBytes) !== artifact.bytes)
+      || bytes.byteLength !== artifact.bytes || await sha256(new Uint8Array(bytes)) !== artifact.sha256) {
       throw new LiveError('Artifact byte count or SHA-256 mismatch. No file was loaded. Refresh and retry.');
     }
     return bytes;
@@ -260,7 +274,7 @@ export function createLiveWorkspaceController({ fetch: fetcher }: { fetch: typeo
       const artifact = response.manifest.artifacts.find(item => item.artifactId === action.artifactId);
       if (!artifact) throw new LiveError('Choose an artifact registered in the latest accepted manifest.');
       const token = generation;
-      const bytes = await artifactBytes(artifact);
+      const bytes = await artifactBytes(artifact, true);
       if (token !== generation || !trusted) throw new LiveError('State changed while downloading. Review the current acceptance and retry.');
       return { artifact, bytes };
     }
