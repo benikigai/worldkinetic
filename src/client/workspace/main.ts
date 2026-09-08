@@ -1,5 +1,10 @@
 import { MAX_PREVIEW_BYTES, parsePreviewGeometry } from './preview.js';
 import { PreviewViewer, type ViewName } from './viewer.js';
+import { mountReview } from './review.js';
+import reviewableFixture from '../../../fixtures/api/v2/reviewable.fixture.json' with { type: 'json' };
+import rejectedFixture from '../../../fixtures/api/v2/rejected.fixture.json' with { type: 'json' };
+import featureRequirements from '../../../fixtures/api/v2/feature-requirements.fixture.json' with { type: 'json' };
+import eventFixture from '../../../fixtures/api/v2/event.fixture.json' with { type: 'json' };
 
 const fixtures = {
   original: {
@@ -29,6 +34,18 @@ let viewer: PreviewViewer | undefined;
 let request: AbortController | undefined;
 let selectionToken = 0;
 let webglError = '';
+let mode: 'saved' | 'review' = 'saved';
+const review = mountReview({
+  history: { ...reviewableFixture, runs: [...reviewableFixture.runs, ...rejectedFixture.runs],
+    candidates: [...reviewableFixture.candidates, ...rejectedFixture.candidates] },
+  feature: { ...reviewableFixture, requirements: featureRequirements, runs: [], candidates: [],
+    design: { ...reviewableFixture.design, designId: featureRequirements.designId,
+      setupId: featureRequirements.setupId, setupHash: featureRequirements.setupHash,
+      referenceId: featureRequirements.referenceId, referenceHash: featureRequirements.referenceHash,
+      activeRequirementsVersion: featureRequirements.requirementsVersion,
+      selectedCandidateRevisionId: null, activeRunId: null } },
+  event: eventFixture,
+}, listeners.signal);
 
 function setStatus(title: string, detail: string, ready = false) {
   element('preview-status').textContent = title;
@@ -94,6 +111,10 @@ async function loadSelection() {
   const signal = request.signal;
   viewer?.clear();
   clearIdentity();
+  if (mode === 'review') {
+    setStatus('Candidate geometry unavailable', 'Synthetic review fixtures contain NON-CAD strings. No saved reference mesh is displayed.');
+    return;
+  }
   const fixture = fixtures[reference.value === 'original' ? 'original' : 'revised'];
   const saved = scenario.value === 'saved';
   element('identity-title').textContent = saved ? fixture.name : `${scenario.value === 'empty' ? 'Empty' : 'Unavailable'} preview scenario`;
@@ -149,6 +170,18 @@ try {
 }
 
 reference.addEventListener('change', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
+function switchMode(next: 'saved' | 'review') {
+  if (mode === next) return;
+  mode = next;
+  document.querySelectorAll<HTMLElement>('[data-saved-only]').forEach(node => { node.hidden = mode !== 'saved'; });
+  document.querySelectorAll<HTMLElement>('[data-review-only]').forEach(node => { node.hidden = mode !== 'review'; });
+  element('saved-mode').setAttribute('aria-pressed', String(mode === 'saved'));
+  element('review-mode').setAttribute('aria-pressed', String(mode === 'review'));
+  void loadSelection();
+  if (mode === 'review') review.open();
+}
+element('saved-mode').addEventListener('click', () => switchMode('saved'), { signal: listeners.signal });
+element('review-mode').addEventListener('click', () => switchMode('review'), { signal: listeners.signal });
 scenario.addEventListener('change', () => { void loadSelection(); }, { signal: listeners.signal });
 element('reload').addEventListener('click', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
 theme.addEventListener('change', applyTheme, { signal: listeners.signal });

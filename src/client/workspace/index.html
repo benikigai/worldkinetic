@@ -18,18 +18,22 @@
       <img class="wk-mark-dark" src="/brand/mark-inverse.svg" alt="" width="34" height="34">
       <span>WorldKinetics</span>
     </a>
-    <span class="wk-header-label">Workspace / reference study</span>
+    <span class="wk-header-label">Workspace / revision study</span>
     <label class="wk-theme-label">Theme
       <select id="theme" aria-label="Workspace theme"><option value="frost">Frost</option><option value="graphite">Graphite</option><option value="canvas">Canvas</option></select>
     </label>
   </header>
   <main id="workspace" class="wk-main">
-    <div class="wk-notice">
+    <div class="wk-mode-switch" role="group" aria-label="Workspace mode">
+      <button id="saved-mode" type="button" aria-pressed="true">Saved reference viewer</button>
+      <button id="review-mode" type="button" aria-pressed="false">Revision review</button>
+    </div>
+    <div class="wk-notice" data-saved-only>
       <strong>Fixture preview</strong>
       <p>Two saved CAD reference examples. No current run, check or acceptance evidence.</p>
     </div>
     <div class="wk-layout">
-      <section class="wk-model" aria-labelledby="model-title">
+      <section class="wk-model" aria-labelledby="model-title" data-saved-only>
         <div class="wk-model-heading">
           <h1 id="model-title">Reference geometry</h1>
           <label class="wk-reference-label">Saved reference
@@ -59,8 +63,37 @@
         </div>
         <p id="navigation-help" class="wk-navigation">Drag to rotate · Right-drag to pan · Scroll to zoom. Touch: one finger rotates, two pan / zoom. Focus the canvas and use arrow keys to pan.</p>
       </section>
+      <section id="revision-review" class="wk-model wk-review" aria-labelledby="review-title" data-review-only hidden>
+        <div class="wk-model-heading">
+          <div><p class="wk-kicker">wk-prototype-0.2 / public conformance fixtures</p><h1 id="review-title">Synthetic revision review</h1></div>
+          <span class="wk-badge">Fixture only</span>
+        </div>
+        <div class="wk-review-controls">
+          <label for="review-scenario">Fixture-only scenario</label>
+          <select id="review-scenario"><option value="history">36 mm + 30 mm history</option><option value="feature">Feature requirements / 9 checks</option><option value="unavailable">Unavailable review data</option></select>
+          <button id="review-reload" type="button">Reload selected fixture</button>
+        </div>
+        <p id="review-status" class="wk-review-status" role="status" aria-live="polite"></p>
+        <div id="review-content" hidden>
+          <div class="wk-review-summary">
+            <div><p class="wk-kicker">Current confirmed requirement / synthetic</p><h2 id="review-requirement"></h2><p id="review-minimum"></p></div>
+            <div><p class="wk-kicker">Server state in fixture</p><p id="review-server-selection" class="wk-mono"></p><p id="review-accepted"></p></div>
+          </div>
+          <div class="wk-review-inspection">
+            <label for="review-revision">Inspect revision locally</label><select id="review-revision"></select>
+            <p id="review-binding"></p><p id="review-candidate" class="wk-mono"></p>
+          </div>
+          <div class="wk-geometry-unavailable"><strong>Candidate geometry unavailable</strong><p>Published STEP/STL fixture bytes are deliberately NON-CAD strings. No synthetic mesh exists. The saved 50 mm reference is cleared and is never shown as a 30 or 36 mm candidate.</p></div>
+          <div class="wk-check-heading"><h2>Required checks</h2><span id="review-check-count"></span></div>
+          <p class="wk-review-note">All measurements and check states below are synthetic evidence. No real run happened.</p>
+          <table class="wk-check-table"><caption class="wk-sr-only">Checks for the locally inspected requirements. Expand a row for exact evidence.</caption><thead><tr><th scope="col">Check / evidence</th><th scope="col">State</th></tr></thead><tbody id="review-checks"></tbody></table>
+          <details class="wk-review-evidence"><summary>Check bundle, STEP hash and artifact identity</summary><div id="review-evidence"></div></details>
+          <div class="wk-review-activity"><h2>Synthetic event sample</h2><p>No live stream. Replaying the published event adds an observation only. run.completed never means accepted.</p><button id="review-event" type="button">Replay published event sample</button><p id="review-refresh" role="status" aria-live="polite"></p><ol id="review-activity"></ol></div>
+        </div>
+        <div class="wk-review-blockers"><h2>Actions unavailable</h2><ul id="review-blockers"></ul></div>
+      </section>
       <aside class="wk-sidebar" aria-label="Reference identity and request">
-        <section class="wk-panel" aria-labelledby="identity-title">
+        <section class="wk-panel" aria-labelledby="identity-title" data-saved-only>
           <p class="wk-kicker">Selected reference</p>
           <h2 id="identity-title">Saved revised baseline</h2>
           <dl class="wk-identity">
@@ -80,12 +113,20 @@
         <section class="wk-panel wk-request" aria-labelledby="request-title">
           <h2 id="request-title">Describe a change</h2>
           <label for="request">Request</label>
-          <textarea id="request" rows="3" disabled aria-describedby="api-gap" placeholder="Requests are unavailable in fixture preview."></textarea>
+          <textarea id="request" rows="3" maxlength="2000" aria-describedby="draft-note api-gap" placeholder="Describe a change for your local draft..."></textarea>
+          <p id="draft-note">Local draft only. Text is not sent or saved to the server.</p>
+          <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Confirm requirements</button>
           <button type="button" class="wk-primary" disabled aria-describedby="api-gap">Request revision</button>
-          <p id="api-gap">Requests, checks, revision acceptance and generated downloads will connect with the API handoff.</p>
+          <p id="api-gap">The server still uses wk-backend-draft-0.1. wk-prototype-0.2 confirmation, run, acceptance and export handlers are not connected. Positive acceptance and export manifest records are unavailable.</p>
           <div class="wk-future-actions"><button type="button" disabled aria-describedby="api-gap">Accept revision</button><button type="button" disabled aria-describedby="api-gap">Download</button></div>
         </section>
-        <section class="wk-scenario" aria-labelledby="scenario-title">
+        <section class="wk-panel wk-review-guide" data-review-only hidden>
+          <p class="wk-kicker">How to inspect</p><h2>One requirement, two revisions</h2>
+          <p>The history fixture confirms 36 mm at requirements v2 and selects its reviewable candidate. The rejected 30 mm candidate retains v1 evidence.</p>
+          <p>Inspecting history does not change server selection or acceptance. The frozen minimum end material remains 5 mm.</p>
+          <p>Choose unavailable data to clear the review. Select a valid fixture and reload to recover explicitly.</p>
+        </section>
+        <section class="wk-scenario" aria-labelledby="scenario-title" data-saved-only>
           <h2 id="scenario-title">Fixture-only scenarios</h2>
           <label for="scenario">Preview availability</label>
           <select id="scenario"><option value="saved">Load saved reference</option><option value="empty">Empty preview</option><option value="unavailable">Unavailable preview</option></select>
