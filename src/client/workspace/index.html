@@ -102,14 +102,14 @@
         </section>
       </aside>
       <section class="wk-model" aria-labelledby="model-title" data-viewer-only>
-        <div class="wk-model-heading"><h2 id="model-title">Your handle</h2><div class="wk-model-actions"><label class="wk-sr-only" for="live-comparison">Compare designs</label><select id="live-comparison" data-live-only hidden><option value="baseline">Before</option><option value="candidate">Your design</option></select><button type="button" data-view="fit" disabled>Reset view</button></div></div>
+        <div class="wk-model-heading"><h2 id="model-title">Your handle</h2><div id="live-view-actions" class="wk-model-actions"><label class="wk-sr-only" for="live-comparison">Compare designs</label><select id="live-comparison" data-live-only hidden><option value="baseline">Before</option><option value="candidate">Your design</option></select><button type="button" data-view="fit" disabled>Reset view</button></div></div>
         <div id="viewport" class="wk-viewport" aria-label="Interactive 3D preview" aria-describedby="navigation-help">
           <div id="preview-message" class="wk-preview-message" role="status" aria-live="polite"><strong id="preview-status">Preparing viewer</strong><p id="preview-detail">Your reference will appear here when the service connects.</p></div>
           <div class="wk-axis-labels" aria-hidden="true"><span data-axis="x">X 50</span><span data-axis="y">Y 50</span><span data-axis="origin">0, 0, 0</span></div>
         </div>
-        <div class="wk-model-footer"><span id="mesh-dimensions">No model loaded</span><span>All sizes in millimeters</span></div>
+        <div id="model-measurements" class="wk-model-footer"><span id="mesh-dimensions">No model loaded</span><span>All sizes in millimeters</span></div>
         <p id="navigation-help" class="wk-navigation">Drag to rotate · Scroll or pinch to zoom.</p>
-        <div data-live-only hidden>
+        <div id="live-results" data-live-only hidden>
           <div class="wk-change-summary"><div><h3>What changed</h3><p id="live-change-summary">Your design will appear after a completed run.</p></div><div><h3>What stayed the same</h3><p id="live-preserved">Confirm the sizes before creating your design.</p></div></div>
           <p id="live-candidate-status" class="wk-review-note"></p><details id="live-check-details" class="wk-result-checks"><summary>Design checks <span id="live-check-count"></span></summary>
           <table class="wk-check-table"><caption class="wk-sr-only">Checks for the displayed design</caption><thead><tr><th scope="col">Requirement</th><th scope="col">Result</th></tr></thead><tbody id="live-checks"></tbody></table></details>
@@ -117,12 +117,15 @@
       </section>
     </div>
     <div class="wk-secondary">
-      <details class="wk-disclosure" data-live-only hidden><summary>Earlier designs</summary><div class="wk-disclosure-body"><label for="live-revision">View an earlier design</label><select id="live-revision"></select><ol id="live-history"></ol></div></details>
+      <details id="live-earlier-designs" class="wk-disclosure" data-live-only hidden><summary>Earlier designs</summary><div class="wk-disclosure-body"><label for="live-revision">View an earlier design</label><select id="live-revision"></select><ol id="live-history"></ol></div></details>
+      <details id="workspace-help" class="wk-disclosure"><summary>Help</summary><div class="wk-disclosure-body">
+        <p>Describe your change, confirm the sizes, then review the design. Approve it before downloading files.</p>
+        <p>Drag to rotate. Scroll or pinch to zoom. A prototype still needs a physical fit check.</p>
       <details class="wk-disclosure"><summary>Technical details</summary><div class="wk-disclosure-body">
         <p>Pan with right-drag, two fingers, or arrow keys while the model is focused. Sizes use millimeters.</p><div class="wk-toolbar" role="group" aria-label="Detailed model view"><button type="button" data-view="isometric" disabled>Isometric</button><button type="button" data-view="top" disabled>Top</button><button type="button" data-view="front" disabled>Front</button><label class="wk-wireframe"><input id="wireframe" type="checkbox" disabled> Wireframe</label></div>
         <div data-live-only hidden><p id="live-selection" class="wk-mono"></p><p id="live-run-status"></p><p id="live-mesh-identity" class="wk-review-status"></p><p id="live-error-detail"></p><pre id="live-evidence"></pre><div class="wk-review-activity"><h2>Observed activity</h2><label for="live-event-run">Show observations</label><select id="live-event-run"><option value="">All runs and design events</option></select><p id="live-cursor"></p><ol id="live-activity"></ol></div></div>
       </div></details>
-      <details class="wk-disclosure"><summary>How this demo works</summary><div class="wk-disclosure-body">
+      <details class="wk-disclosure"><summary>Example reference</summary><div class="wk-disclosure-body">
     <section id="workspace-guide" class="wk-guide" aria-labelledby="guide-title">
       <div class="wk-guide-intro">
         <div>
@@ -318,6 +321,7 @@
           <p>Unavailable requests a missing fixture. Return to a saved reference to recover.</p>
           <button id="reload" type="button">Reload saved reference</button>
         </section>
+      </div></details>
       </div></details>
     </div>
     <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect 3D designs.</p></noscript>

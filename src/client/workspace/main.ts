@@ -174,7 +174,8 @@ async function loadLivePreview(token: number, signal: AbortSignal, previewKey: s
   element('live-mesh-identity').textContent = label;
   element('model-title').textContent = baseline ? (initial ? 'Before · starting design' : 'Before · mounting pads') : 'Your design';
   if (!s.trusted || s.loading || s.error) {
-    setStatus(s.loading ? 'Loading live evidence' : 'Live preview unavailable', s.error ?? 'Verifying authoritative records and baseline bytes.');
+    element('model-title').textContent = 'Your design';
+    setStatus(s.loading ? 'Loading your design…' : 'Your design will appear here', s.loading ? '' : 'Connect to the demo to create and review a handle.');
     return;
   }
   if (requirements?.registryId !== 'handle_sample_v1' || s.bootstrap?.executionMode === 'fixture') {

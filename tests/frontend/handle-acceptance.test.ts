@@ -283,6 +283,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
   let previewKey:string|null=null;
   try {
     const ui=mountLive(s.controller,abort.signal,update=>{previewKey=update.previewKey;}); ui.open(); await settled();
+    assert.equal(node('live-results').hidden,true,'No empty results before generation');
+    assert.equal(node('live-earlier-designs').hidden,true,'No empty history before generation');
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
     node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
@@ -326,6 +328,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.equal(node('live-files').hidden,false); assert.equal(node('live-download').disabled,false);
     assert.equal(node('live-inputs').hidden,true,'Verified final recovery keeps the completed prompt out of the download flow');
     assert.equal(node('live-check-details').open,false,'Passed checks are summarized and can be expanded');
+    assert.equal(node('live-results').hidden,false,'Actual revision evidence remains available');
+    assert.equal(node('live-earlier-designs').hidden,false,'History appears when there are earlier designs');
     assert.equal(node('live-change').hidden,true,'Only the accepted initial supports this refinement stage');
     s.controller.selectRevision(initialId); assert.equal(node('live-download').disabled,false,'History inspection cannot change accepted file eligibility');
   } finally {abort.abort();if(previous)Object.defineProperty(globalThis,'document',previous);else Reflect.deleteProperty(globalThis,'document');}

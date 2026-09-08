@@ -88,7 +88,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element<HTMLButtonElement>('make-package').disabled = true;
     element('live-inputs').hidden = filesReady;
     text('live-title', filesReady ? 'Your design is ready' : 'What would you like to change?');
-    const status = s.error ? 'Connection problem. Your draft is safe. Try Check status.'
+    const status = s.error ? 'The demo is offline. Your draft is safe. Try Check status.'
       : s.loading ? 'Checking your design…'
         : s.busy ? 'Saving…'
           : !s.trusted || !handle ? 'The handle demo is unavailable. Try Check status.'
@@ -138,6 +138,12 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       text('live-fixed', 'Connect a handle-capable workspace. Unknown sizes have not been filled in.');
     }
     const verifiedCandidate = s.trusted && !s.error && candidate?.executionMode === 'live' ? candidate : null;
+    element('live-results').hidden = !active || !verifiedCandidate;
+    element('live-earlier-designs').hidden = !active || !s.trusted || Boolean(s.error) || (b?.candidates.length ?? 0) < 2;
+    const noPreview = active && (!display.previewKey || previewFailed);
+    element('live-view-actions').hidden = noPreview;
+    element('model-measurements').hidden = noPreview;
+    element('navigation-help').hidden = noPreview;
     text('live-change-summary', verifiedCandidate?.changeSummary ?? 'No verified design changes yet.');
     const protectedChecks = verifiedCandidate?.checks.filter(item => ['handle.mount_interface', 'handle.grip_clearance'].includes(item.checkId));
     text('live-preserved', protectedChecks?.length === 2 && protectedChecks.every(item => item.state === 'passed')
