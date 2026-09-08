@@ -1,3 +1,92 @@
+# TOOLS-02 numeric plate core
+
+`cad_runner.py` is an internal Python CLI for fixed numeric plate reconstruction.
+It is not the application API, a shared schema, an acceptance action, or support
+for arbitrary generated Python (TOOLS-03). The host requires Python 3.9+ and
+Docker; only containers import CAD libraries. No new dependencies were added.
+
+```sh
+python3 -B src/tools/cad_runner.py --length-mm 36 \
+  --output-dir /absolute/existing-parent/new-output \
+  --reference-step examples/plate/revised/plate-50x35x5.step \
+  --reference-sha256 9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3 \
+  --deadline-seconds 60
+```
+
+The output directory must not exist. Its parent must exist, and paths cannot
+contain symlinks. JSON stdout is the internal result; successful computation
+also writes `result.json`, `source.py`, `candidate.step` and `preview.stl`.
+STEP/STL coordinates are mm in a right-handed Z-up frame at the minimum plate
+corner. Width is 35, thickness 5, bore diameter 6 and centered pitch 20 mm.
+Length 30 stays 30: its actual 2 mm margin fails the 5 mm requirement. Lengths
+50 and 36 measure 12 and 5 mm respectively. These are fixture operations.
+
+The seven `resize_centered_v1` records distinguish passed, failed and
+not_evaluated. Geometric conflicts return exit 0 with `status: check_failed`
+and `checkFailureCode: CHECK_FAILED`; infrastructure and input errors return
+nonzero with `error.code` and no passing checks. A checked candidate remains
+unaccepted and physically untested. No FreeCAD history or FCStd is claimed.
+A future thin TypeScript adapter must handle these distinctions and bind the
+files to BACKEND's versioned application contract.
+
+Execution is serialized by a per-user host lock. A single global deadline
+covers lock wait, runtime inspection and all four ordered stages:
+
+1. `generator` executes the delivered editable source with no verifier code.
+2. `regenerator` independently executes those same source bytes.
+3. `verifier` imports sealed candidate/reference/regenerated STEP; measures
+   actual planes, OCP cylinders, full-height bore obstruction and OCP extrema
+   closest-point pairs; exports STL from the checked candidate.
+4. `export_verifier` independently imports the exact sealed export and
+   regenerated STEP, compares both Boolean differences, bounds, holes and
+   volumes, and reopens the binary STL. Mesh checks cover exact edge topology,
+   orientation, connectedness, volume, bounds, fitted circular rims, full-height
+   bore walls and triangle projections into bore interiors. Unsupported bore
+   wall geometry returns not_evaluated rather than a guessed pass.
+
+Each stage uses the selected image ID below with a nonroot UID, read-only root,
+no network, no capabilities, no-new-privileges, 2 GiB memory/swap, 2 CPUs,
+64 PIDs, a 25 MiB file-size limit and 128 MiB bounded tmpfs. Only its private
+immutable input and private output directories are mounted. Candidate stages
+receive source only. Trusted stages receive no candidate Python. Unique named
+containers are created before startup, stopped/removed before sealing, and
+absence is checked through Docker. Cleanup has bounded 5-second command grace
+periods even when the computation deadline expires. Failed cleanup prevents
+artifact delivery. Stage traces include actual container names and sealed hashes.
+
+The host rejects unexpected, linked, missing or oversized outputs; source is
+limited to 64 KiB, delivered files to 25 MiB total and STL to 100,000 triangles.
+Raw failures and per-stage logs remain in private `worldkinetics-cad-*`
+directories under the host temporary directory. They are not public artifacts.
+Only complete successful-computation packages are written to the requested path.
+A hard host kill or unavailable Docker daemon can prevent cleanup confirmation;
+this core is not a public multi-tenant service.
+
+`WORLDKINETICS_CAD_IMAGE` defaults to the exact selected immutable image ID. An
+explicit tag is allowed only if local inspection resolves to that same ID.
+The runner never pulls, builds or changes an image. The transferred
+`scripts/runtime/cad.Dockerfile` pins the documented base digest and includes
+libgl1, libglu1-mesa and libgomp1; `cad-requirements.txt` pins the protected
+observed Python packages. Packaging is source-consistency-checked, not rebuilt.
+Apt package versions are not locked, so it does not promise identical rebuilds.
+
+Protected acceptance (owned by the parent):
+
+```sh
+python3 -B tests/tools/plate_acceptance.py && python3 -B tests/tools/check_runtime_package.py
+```
+
+`docs/development-evidence.md` was absent in this checkout when implementing
+TOOLS-02. The parent owns the execution ledger and commit. The [numeric trial fixture](../../fixtures/tools/numeric-core-trial.json) records
+actual CLI fixture executions, not user acceptance or application integration.
+Additional fixed negative probes run with `python3 -B src/tools/check_numeric_core.py`;
+they exercise a thin bore cap, misplaced holes, extra solids, mesh failures,
+symlinks, unexpected outputs and truncated STL.
+The following TOOLS-01 account is historical immutable observation context;
+its scope and gaps refer to that earlier gate.
+
+---
+
 # TOOLS-01 engine gate
 
 The supervisor ran the fixed acceptance harness in `tests/tools/runtime_gate.py`
