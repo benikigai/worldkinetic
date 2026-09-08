@@ -28,6 +28,8 @@ export function isPublicSegment(name: string): boolean {
 }
 
 export function publicMediaType(name: string): string | undefined {
+  if (/^demo\/handle\/(?:initial|refined)\.step$/.test(name)) return 'model/step';
+  if (/^demo\/handle\/(?:initial|refined)-(?:source|editable)\.py$/.test(name)) return 'text/x-python';
   return mediaTypes[path.extname(name).toLowerCase()];
 }
 
