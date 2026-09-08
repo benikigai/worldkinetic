@@ -37,7 +37,7 @@ async function candidate(ctx: Awaited<ReturnType<typeof setup>>, requestId = 're
   result.checks = requirements.requiredChecks.map((id: string) => ({ ...fixture.candidates[0].checks.find((check: any) => check.checkId === id), ...identity, revisionId: draft.revisionId, geometryHash: result.geometryHash, executionMode: 'live', state: 'passed', expected: c.expectedForCheck(requirements, id), measured: { synthetic: true }, details: 'Injected state test, no geometry measured.' }));
   result.checkBundleHash = await c.computeCheckBundleHash(result);
   await mkdir(path.join(directory, 'artifacts'), { recursive: true });
-  for (const [name, kind, mediaType, body] of [['part.step', 'export', 'model/step', step], ['model.py', 'source', 'text/x-python', source], ['part.stl', 'preview', 'model/stl', 'synthetic STL bytes'], ['checks.json', 'checks', 'application/json', JSON.stringify(result.checks)], ['requirements.json', 'specification', 'application/json', JSON.stringify(requirements)]]) {
+  for (const [name, kind, mediaType, body] of [['part.step', 'export', 'model/step', step], ['model.py', 'source', 'text/x-python', source], ['editable.py', 'editable', 'text/x-python', source], ['part.stl', 'preview', 'model/stl', 'synthetic STL bytes'], ['checks.json', 'checks', 'application/json', JSON.stringify(result.checks)], ['requirements.json', 'specification', 'application/json', JSON.stringify(requirements)]]) {
     const artifactId = 'artifact_' + randomUUID();
     await writeFile(path.join(directory, 'artifacts', artifactId), body);
     result.artifacts.push({ ...identity, artifactId, runId: run.runId, designId: design.designId, revisionId: draft.revisionId, units: 'mm', kind, mediaType, fileName: name, bytes: Buffer.byteLength(body), sha256: sha(body), href: '/api/artifacts/' + artifactId, executionMode: 'live' });
@@ -167,4 +167,41 @@ test('actual HTTP acceptance and requirements routes enforce CAS and expose v0.2
     const state = await (await fetch(base + '/api/bootstrap')).json(); assert.equal(state.contractVersion, 'wk-prototype-0.2'); assert.equal(state.design.acceptedRequirementsMatch, false);
     const ambiguous = await fetch(base + '/api/designs/' + ctx.design.designId + '/requirements', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: '{"requestId":"a","requestId":"b"}' }); assert.equal(ambiguous.status, 400);
   } finally { await new Promise<void>(resolve => server.close(resolve)); }
+});
+
+
+test('acceptance history can be recovered through HTTP after a reload', async () => {
+  const ctx = await setup();
+  const { result } = await candidate(ctx);
+  await ctx.store.completeCandidate(result);
+  const accepted = await ctx.store.acceptRevision(acceptRequest(ctx, result));
+  const restarted = new (RunStore as any)(ctx.directory, ctx.design, ctx.requirements);
+  const server = createApp(restarted, ctx.directory, null);
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const address = server.address() as { port: number };
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/acceptances`);
+    assert.equal(response.status, 200);
+    const body = await response.json() as any;
+    const responseSchemas = await import('../../src/shared/state-v2.js') as any;
+    assert.deepEqual(responseSchemas.AcceptanceHistorySchema.parse(body), body);
+    assert.equal(body.contractVersion, ctx.c.CONTRACT_VERSION);
+    assert.deepEqual(body.acceptances, [accepted.acceptance]);
+    assert.deepEqual(body.manifests, [accepted.manifest]);
+    assert.equal(body.manifests[0].acceptanceId, body.acceptances[0].acceptanceId);
+    assert.equal(JSON.stringify(body).includes(ctx.directory), false);
+  } finally { await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+});
+
+test('completed evidence requires geometry, source, editable and mesh artifacts', async () => {
+  for (const omitted of ['all', 'step', 'source', 'editable', 'stl']) {
+    const ctx = await setup(); const { result } = await candidate(ctx);
+    result.artifacts = result.artifacts.filter((a: any) => omitted !== 'all'
+      && !(omitted === 'step' && a.mediaType === 'model/step')
+      && !(omitted === 'source' && a.kind === 'source')
+      && !(omitted === 'editable' && a.kind === 'editable')
+      && !(omitted === 'stl' && a.mediaType === 'model/stl'));
+    await assert.rejects(async () => ctx.store.completeCandidate(result), omitted);
+    assert.equal(ctx.store.getDesign().acceptedRevisionId, null);
+  }
 });
