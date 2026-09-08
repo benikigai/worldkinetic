@@ -1,0 +1,23 @@
+{
+  "examples/plate/README.md": "83cb0a31676191b99ee024c4aabb794d53bb0b30f4885f822af302d592aa034e",
+  "examples/plate/create_original.py": "23c0d3428b593e6e9ccc1aea964e4d2391b12b0fecb7e7a43f83d4eabce63b92",
+  "examples/plate/original/mcp-test-plate.FCStd": "ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc",
+  "examples/plate/original/mcp-test-plate.step": "7ef52662b688709c36aadebe4e18d5cf509dfe71ebfd8512266220b53914ca8d",
+  "examples/plate/original/mcp-test-plate.stl": "e078a52ece47d126ca7a22d19070e73d170b709f14847359e94252379f0ed76c",
+  "examples/plate/revised/plate-50x35x5.FCStd": "c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89",
+  "examples/plate/revised/plate-50x35x5.png": "9e04c642f3515b99352d0c2263a92187ba73cd70167e5f802a3cd5bec61d8974",
+  "examples/plate/revised/plate-50x35x5.step": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+  "examples/plate/revised/plate-50x35x5.stl": "be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a",
+  "examples/plate/verification.json": "3e8c3e6690f2f381fadebac3fd9f64e7f3d726aea518afe1ec79a8aed4c83b84",
+  "src/client/brand/mark-color.svg": "c08f24e6eb7dc08b600cc0d9ce6c7d80f59fc989021f0159227124b1bbcc0895",
+  "src/client/brand/mark-inverse.svg": "8e988f5d24d4693d5fb22cfa30ae769368163ce8cfca0ece18a9a1c4d11d196e",
+  "src/client/brand/mark-mono.svg": "142ff5c33e99a1ff3336b6c032e6f6890109257d2f275e1741bf1e041c3b83b0",
+  "src/client/brand/mark-small.svg": "1adaa3c750c7c4d9f12bb2964a8a6c8495f5bf834f3b4e25b9d61e9d8409f425",
+  "src/client/brand/study.css": "e660037cdf65a4ddfdb2c1e47121830e6aa03a67065c8f3410809b1111b42bea",
+  "src/client/brand/study.js": "f15f1c0a408c1f623c768069f48e6e6ab244a4e89bc8e8c3654ba9b634dd93f9",
+  "src/client/brand/worldkinetics-horizontal.svg": "a949cc63dabe70cc9653682fa4171c989b30cf758b6945a6cffb77b27843b33c",
+  "src/client/brand/worldkinetics-wordmark.svg": "3ac36d2e7e7ebb30fa9b86def20e58b35627466a471343004a6d7c9a14f5207a",
+  "src/client/mark.svg": "31fb08c4e86bfaab393db249bf9cd9a1bc87b44d23eb13e8d2d0f930b07b0af2",
+  "src/client/theme.css": "2906ac5f4ab5a3d257db872b4bc5a829cb4f77ba199555cd995f0cccdaeab3a5",
+  "src/client/theme.js": "448cce678b2880da4b41c0bde89d4d378860a27eff4a33158b2cf65cf831c62c"
+}

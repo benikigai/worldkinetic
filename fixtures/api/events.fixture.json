@@ -1,62 +1,735 @@
 [
   {
-    "contractVersion": "wk-backend-draft-0.1",
-    "eventId": 1,
-    "runId": "fixture_run_1",
-    "designId": "fixture_design",
-    "revisionId": "fixture_rev_1",
+    "contractVersion": "wk-prototype-0.2",
+    "eventId": 4,
+    "designId": "fixture_plate",
+    "stateVersion": 11,
+    "runId": "fixture_36_run",
+    "revisionId": "fixture_36_revision",
+    "requirementsVersion": 2,
     "units": "mm",
-    "type": "run.completed",
-    "createdAt": "2026-09-08T17:45:01.000Z",
+    "executionMode": "fixture",
+    "createdAt": "2026-09-08T19:00:00.000Z",
+    "type": "candidate.reviewable",
     "run": {
-      "contractVersion": "wk-backend-draft-0.1",
-      "runId": "fixture_run_1",
-      "requestId": "fixture_request_1",
-      "designId": "fixture_design",
-      "inputRevisionId": "fixture_rev_0",
-      "outputRevisionId": "fixture_rev_1",
+      "contractVersion": "wk-prototype-0.2",
+      "runId": "fixture_36_run",
+      "requestId": "fixture_36_request",
+      "designId": "fixture_plate",
+      "inputRevisionId": "fixture_baseline_50",
+      "requirementsVersion": 2,
+      "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "resize_centered_v1",
+      "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
       "units": "mm",
-      "instruction": "Illustrative request for browser development only.",
-      "status": "succeeded",
+      "instruction": "Synthetic request: make length 36 mm.",
+      "status": "completed",
       "executionMode": "fixture",
-      "createdAt": "2026-09-08T17:45:00.000Z",
-      "updatedAt": "2026-09-08T17:45:01.000Z",
-      "operation": {
-        "name": "unselected_fixture",
-        "parameters": {}
+      "attemptIds": [
+        "fixture_36_attempt_1"
+      ],
+      "candidateRevisionIds": [
+        "fixture_36_revision"
+      ],
+      "activeAttemptId": null,
+      "createdAt": "2026-09-08T19:00:00.000Z",
+      "updatedAt": "2026-09-08T19:00:00.000Z",
+      "error": null
+    },
+    "candidate": {
+      "contractVersion": "wk-prototype-0.2",
+      "runId": "fixture_36_run",
+      "requestId": "fixture_36_request",
+      "designId": "fixture_plate",
+      "attemptId": "fixture_36_attempt_1",
+      "revisionId": "fixture_36_revision",
+      "inputRevisionId": "fixture_baseline_50",
+      "requirementsVersion": 2,
+      "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+      "registryId": "plate_requirements_v1",
+      "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+      "setupId": "resize_centered_v1",
+      "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+      "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+      "validatorVersion": "fixture_validator_v1",
+      "units": "mm",
+      "requirements": {
+        "contractVersion": "wk-prototype-0.2",
+        "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+        "designId": "fixture_plate",
+        "requirementsVersion": 2,
+        "units": "mm",
+        "registryId": "plate_requirements_v1",
+        "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+        "registryFileSha256": "d9de0bbe0c6a03f101d5f9562360ac10d0a4216401533eb9be0b4148c8a9aa33",
+        "setupId": "resize_centered_v1",
+        "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+        "referenceId": "plate_revised_50x35x5",
+        "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+        "validatorVersion": "fixture_validator_v1",
+        "requiredChecks": [
+          "export.editable_reopen",
+          "export.step_reopen",
+          "export.stl_reopen",
+          "geometry.requested_dimensions",
+          "geometry.valid_single_solid",
+          "holes.layout",
+          "margin.end_material"
+        ],
+        "setup": {
+          "setupId": "resize_centered_v1",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "units": "mm",
+          "frame": {
+            "handedness": "right",
+            "z": "up",
+            "x": "length",
+            "y": "width",
+            "origin": "min_plate_corner"
+          },
+          "referenceId": "plate_revised_50x35x5",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "referenceHashes": {
+            "originalNative": "ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc",
+            "revisedNative": "c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89",
+            "revisedStep": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3"
+          },
+          "referenceTransform": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "dimensions": {
+            "lengthMm": 36,
+            "widthMm": 35,
+            "baseThicknessMm": 5
+          },
+          "holes": {
+            "centersMode": "centered",
+            "centersMm": [
+              [
+                8,
+                17.5
+              ],
+              [
+                28,
+                17.5
+              ]
+            ],
+            "diameterMm": 6,
+            "spacingMm": 20
+          },
+          "minimumEndMaterialMm": 5,
+          "tolerances": {
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "stepRelativeVolume": 1e-05,
+            "stlRelativeVolume": 0.001
+          },
+          "protectedRegions": null,
+          "keepOutRegions": null,
+          "profileId": null,
+          "feature": null,
+          "requiredChecks": [
+            "export.editable_reopen",
+            "export.step_reopen",
+            "export.stl_reopen",
+            "geometry.requested_dimensions",
+            "geometry.valid_single_solid",
+            "holes.layout",
+            "margin.end_material"
+          ]
+        },
+        "registryCanonicalJson": "{\"checks\":{\"export.editable_reopen\":{\"method\":\"For FreeCAD, independently reopen/recompute the trusted-exported native document in isolation and compare its solid, dimensions, holes, bounds within linearMm (0.01 mm), relative volume within stepRelativeVolume (0.00001), and geometric symmetric difference <= differenceVolumeMm3 (0.01 mm3) against checked STEP. Deliver source and describe actual native history. For build123d, regenerate from delivered editable source in a separate isolated generator without verifier authority, stop that generator and seal its STEP, then compare in a fresh trusted verifier using the same measurements. Any Python regeneration for either engine follows this separation; the verifier never executes candidate Python. If the required reopen/regeneration cannot run, return not_evaluated and block acceptance.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.step_reopen\":{\"method\":\"Reopen the actual registered STEP export bytes in a fresh trusted verifier and compare with the sealed checked candidate: valid single solid, frame/bounds, required dimensions and holes. Require absolute volume difference divided by positive checked-candidate volume <= stepRelativeVolume (0.00001); use geometric symmetric-difference volume <= differenceVolumeMm3 (0.01 mm3) to detect equal-volume substitutions. Export STEP byte identity must match the sealed geometry hash; if an exporter changes bytes, reseal and revalidate as new evidence before acceptance. Record export hash and independent measurements; verify downloaded-byte identity at delivery.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"export.stl_reopen\":{\"method\":\"Reopen the actual trusted-exported STL bytes independently, with manifest units explicitly mm. Require finite vertices, a closed consistently oriented watertight connected mesh, positive enclosed volume and agreement with checked candidate bounds/dimensions and hole layout within linearMm (0.01 mm). Compare absolute enclosed-volume difference divided by checked-candidate volume <= stlRelativeVolume (0.001). Inspect full-height bore openings and feature bounds on the mesh, not the generator report. Bind the registered STL byte hash and verify the downloaded bytes against it; inability to measure a required property is not_evaluated.\",\"units\":[\"mm\",\"mm3\",\"ratio\",\"SHA-256\"]},\"feature.requested_change\":{\"method\":\"For tactile_feature_v1, independently compute added solid A = candidate minus trusted revised baseline. Require volume(A) > 1 mm3, with no tolerance relaxation of this strict lower bound. Measure A bounding spans and require X in [8,10], Y in [3,5], Z in [2,2] mm with linearMm (0.01 mm) at each range boundary. Require volume(A outside [20,30] x [25,30] x [5,7]) <= differenceVolumeMm3 (0.01 mm3), and baseline-minus-candidate volume <= 0.01 mm3. Confirm the raised addition joins the baseline as one valid connected solid and verify total bounds separately. This checks generated shape geometry, not a preset operation, visual styling claim or candidate-declared touched region.\",\"units\":[\"mm\",\"mm3\"]},\"geometry.requested_dimensions\":{\"method\":\"Measure boundary planes, X/Y extents and base thickness from reopened geometry in the trusted frame, using absolute error <= linearMm (0.01 mm). For resize_centered_v1 compare against the confirmed version-specific length, width 35 and thickness 5, with bounds [0,L] x [0,35] x [0,5]. For tactile_feature_v1 require the unchanged baseline footprint [0,50] x [0,35] and base layer z=0..5; inspect base cross-sections against the trusted baseline rather than calling total height base thickness. Added material has separately checked height 2 and total candidate bounds [0,50] x [0,35] x [0,7], within linearMm.\",\"units\":[\"mm\"]},\"geometry.valid_single_solid\":{\"method\":\"In a fresh trusted verifier, reopen the sealed candidate STEP without executing candidate source. Require one nonempty connected valid solid, finite bounds and positive finite volume; reject invalid topology, extra solids and nonfinite measurements. Record actual bounds and volume in the immutable setup frame, independently of candidate assertions.\",\"units\":[\"count\",\"mm\",\"mm3\"]},\"holes.layout\":{\"method\":\"From independently reopened geometry, identify the two Z-axis diameter-6 through-bores, measure diameters, axes, center separation 20 and through-depth. Compare diameter, pitch and each center coordinate within linearMm (0.01 mm). Resize centers are ((L-20)/2,17.5) and ((L+20)/2,17.5) for the confirmed length L; feature centers remain (15,17.5) and (35,17.5). Test the trusted bore volumes and sections over the full candidate Z extent for continuity and obstruction, including material above z=5; reject a cap or plug. Do not substitute candidate hole labels, base-only depth or a volume allowance for the unobstructed-bore requirement.\",\"units\":[\"mm\"]},\"interface.protected_region\":{\"method\":\"For tactile_feature_v1, load the trusted revised reference STEP by its registered hash and independently compare baseline and candidate material clipped to the same two fixed cylinders centered at (15,17.5) and (35,17.5), radius 4 mm, z=0..5. Each clipped symmetric-difference volume must be <= differenceVolumeMm3 (0.01 mm3). Also require the full baseline-minus-candidate removed-material volume <= 0.01 mm3 to preserve all baseline material. Recheck both diameter-6 bores over the full candidate extent under holes.layout; a protected base neighborhood alone cannot detect a cap above it.\",\"units\":[\"mm3\",\"mm\"]},\"margin.end_material\":{\"method\":\"Measure the shortest material distances between the outer bore boundaries and their corresponding X-min/X-max plate end faces on independently reopened geometry; report both closest-point pairs and their minimum. Pass only when this measured minimum + linearMm (0.01 mm) >= minimumEndMaterialMm (5 mm). Use setup-specific hole locations and confirmed length. The centered formula (L-20-6)/2 is a fixture expectation only and must not replace geometric distance measurement.\",\"units\":[\"mm\"]}},\"contractVersion\":\"wk-prototype-0.2\",\"frame\":{\"handedness\":\"right\",\"origin\":\"min_plate_corner\",\"x\":\"length\",\"y\":\"width\",\"z\":\"up\"},\"referenceHashes\":{\"originalNative\":\"ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc\",\"revisedNative\":\"c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89\",\"revisedStep\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\"},\"registryId\":\"plate_requirements_v1\",\"setups\":{\"resize_centered_v1\":{\"cases\":[{\"expectedEndMarginMm\":2,\"expectedPass\":false,\"lengthMm\":30,\"requiresNewUserConfirmation\":false},{\"expectedEndMarginMm\":5,\"expectedPass\":true,\"lengthMm\":36,\"requiresNewUserConfirmation\":true}],\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":50,\"widthMm\":35},\"holes\":{\"centersMode\":\"centered\",\"diameterMm\":6,\"spacingMm\":20},\"minimumEndMaterialMm\":5,\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"margin.end_material\"]},\"tactile_feature_v1\":{\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":50,\"widthMm\":35},\"feature\":{\"addedSpanRangesMm\":[[8,10],[3,5],[2,2]],\"allowedBoxMm\":[[20,30],[25,30],[5,7]],\"minimumAddedVolumeExclusiveMm3\":1,\"preserveAllBaselineMaterial\":true,\"unobstructedBores\":\"full_candidate_extent\"},\"holes\":{\"centersMm\":[[15,17.5],[35,17.5]],\"centersMode\":\"fixed\",\"diameterMm\":6,\"spacingMm\":20},\"minimumEndMaterialMm\":5,\"protectedRegions\":{\"centersMm\":[[15,17.5],[35,17.5]],\"kind\":\"z_cylinders\",\"radiusMm\":4,\"zRangeMm\":[0,5]},\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"feature.requested_change\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"interface.protected_region\",\"margin.end_material\"]}},\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001},\"units\":\"mm\"}",
+        "setupCanonicalJson": "{\"dimensions\":{\"baseThicknessMm\":5,\"lengthMm\":36,\"widthMm\":35},\"feature\":null,\"frame\":{\"handedness\":\"right\",\"origin\":\"min_plate_corner\",\"x\":\"length\",\"y\":\"width\",\"z\":\"up\"},\"holes\":{\"centersMm\":[[8,17.5],[28,17.5]],\"centersMode\":\"centered\",\"diameterMm\":6,\"spacingMm\":20},\"keepOutRegions\":null,\"minimumEndMaterialMm\":5,\"profileId\":null,\"protectedRegions\":null,\"referenceHash\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\",\"referenceHashes\":{\"originalNative\":\"ad0fcb3e58f6f0fd7405c9d42b01901a2f31e299322bb84b3e92fe4b7a012bfc\",\"revisedNative\":\"c4872f021e4e54a573511bb7ed9ddf40730229a986b81f507c72b87073306e89\",\"revisedStep\":\"9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3\"},\"referenceId\":\"plate_revised_50x35x5\",\"referenceTransform\":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],\"registryHash\":\"593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d\",\"registryId\":\"plate_requirements_v1\",\"requiredChecks\":[\"export.editable_reopen\",\"export.step_reopen\",\"export.stl_reopen\",\"geometry.requested_dimensions\",\"geometry.valid_single_solid\",\"holes.layout\",\"margin.end_material\"],\"setupId\":\"resize_centered_v1\",\"tolerances\":{\"differenceVolumeMm3\":0.01,\"linearMm\":0.01,\"stepRelativeVolume\":0.00001,\"stlRelativeVolume\":0.001},\"units\":\"mm\"}"
       },
+      "executionMode": "fixture",
+      "status": "reviewable",
+      "createdAt": "2026-09-08T19:00:00.000Z",
+      "updatedAt": "2026-09-08T19:00:00.000Z",
+      "changeSummary": "Synthetic 36 mm centered resize. Fixture only; no accepted state.",
+      "engine": {
+        "name": "fixture",
+        "version": "fixture_engine_v1",
+        "imageDigest": "sha256:783f6401cfb7ba38e6369c2babd68ac7c050853421576679845150fb26b75a36"
+      },
+      "sourceSha256": "44524191013d952f2f075b656d0d32a47b6ee5f840df037c40894918c9d97958",
+      "proposalHash": "280f8385e622a3441e0fe13fc0c209a33cb00fe501473afa35682a329bbc06e2",
+      "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+      "checkBundleHash": "7190d7cef5f281139a93c8d05714931e1548c9e1c822fcd4602c4f28bbc44fa2",
       "checks": [
         {
-          "checkId": "fixture_check",
-          "label": "Illustrative check; no engineering operation ran",
-          "revisionId": "fixture_rev_1",
-          "state": "not_evaluated",
-          "method": "API fixture",
-          "details": "PLAN has not selected the object or check criteria.",
-          "measuredValue": null,
-          "expected": null,
-          "units": null
+          "checkId": "export.editable_reopen",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.editable_reopen",
+          "method": "For FreeCAD, independently reopen/recompute the trusted-exported native document in isolation and compare its solid, dimensions, holes, bounds within linearMm (0.01 mm), relative volume within stepRelativeVolume (0.00001), and geometric symmetric difference <= differenceVolumeMm3 (0.01 mm3) against checked STEP. Deliver source and describe actual native history. For build123d, regenerate from delivered editable source in a separate isolated generator without verifier authority, stop that generator and seal its STEP, then compare in a fresh trusted verifier using the same measurements. Any Python regeneration for either engine follows this separation; the verifier never executes candidate Python. If the required reopen/regeneration cannot run, return not_evaluated and block acceptance.",
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.editable_reopen",
+              "setup.tolerances"
+            ],
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "relativeVolume": 1e-05,
+            "isolatedReopenOrRegeneration": true,
+            "validSingleSolid": true,
+            "dimensionsAndHolesMatch": true
+          },
+          "measured": {
+            "fixture": true,
+            "sourceSha256": "44524191013d952f2f075b656d0d32a47b6ee5f840df037c40894918c9d97958",
+            "isolatedRegeneration": true,
+            "validSingleSolid": true,
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "volumeMm3": 6017.256661176919,
+            "relativeVolumeError": 0,
+            "symmetricDifferenceVolumeMm3": 0,
+            "maximumAbsoluteErrorMm": 0,
+            "dimensionsAndHolesMatch": true,
+            "nativeHistory": "fixture source only; no native document"
+          },
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "export.step_reopen",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.step_reopen",
+          "method": "Reopen the actual registered STEP export bytes in a fresh trusted verifier and compare with the sealed checked candidate: valid single solid, frame/bounds, required dimensions and holes. Require absolute volume difference divided by positive checked-candidate volume <= stepRelativeVolume (0.00001); use geometric symmetric-difference volume <= differenceVolumeMm3 (0.01 mm3) to detect equal-volume substitutions. Export STEP byte identity must match the sealed geometry hash; if an exporter changes bytes, reseal and revalidate as new evidence before acceptance. Record export hash and independent measurements; verify downloaded-byte identity at delivery.",
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.step_reopen",
+              "setup.tolerances"
+            ],
+            "linearMm": 0.01,
+            "differenceVolumeMm3": 0.01,
+            "relativeVolume": 1e-05,
+            "sealedByteIdentity": true,
+            "validSingleSolid": true,
+            "dimensionsAndHolesMatch": true
+          },
+          "measured": {
+            "fixture": true,
+            "sha256": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+            "validSingleSolid": true,
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "volumeMm3": 6017.256661176919,
+            "relativeVolumeError": 0,
+            "symmetricDifferenceVolumeMm3": 0,
+            "maximumAbsoluteErrorMm": 0,
+            "dimensionsAndHolesMatch": true
+          },
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "export.stl_reopen",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: export.stl_reopen",
+          "method": "Reopen the actual trusted-exported STL bytes independently, with manifest units explicitly mm. Require finite vertices, a closed consistently oriented watertight connected mesh, positive enclosed volume and agreement with checked candidate bounds/dimensions and hole layout within linearMm (0.01 mm). Compare absolute enclosed-volume difference divided by checked-candidate volume <= stlRelativeVolume (0.001). Inspect full-height bore openings and feature bounds on the mesh, not the generator report. Bind the registered STL byte hash and verify the downloaded bytes against it; inability to measure a required property is not_evaluated.",
+          "expected": {
+            "requirementFields": [
+              "registry.checks.export.stl_reopen",
+              "setup.tolerances"
+            ],
+            "linearMm": 0.01,
+            "relativeVolume": 0.001,
+            "finiteVertices": true,
+            "watertight": true,
+            "connected": true,
+            "consistentlyOriented": true,
+            "positiveVolume": true,
+            "dimensionsAndHolesMatch": true,
+            "unobstructedBores": "full_candidate_extent",
+            "manifestUnits": "mm"
+          },
+          "measured": {
+            "fixture": true,
+            "sha256": "988b363657fd3846d6fa2f3e31feed8a6965e448cdf1d444b07bc9ad2893f569",
+            "finiteVertices": true,
+            "watertight": true,
+            "connected": true,
+            "consistentlyOriented": true,
+            "enclosedVolumeMm3": 6017.256661176919,
+            "relativeVolumeError": 0,
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "maximumAbsoluteErrorMm": 0,
+            "dimensionsAndHolesMatch": true,
+            "unobstructedFullExtent": true,
+            "manifestUnits": "mm"
+          },
+          "units": [
+            "mm",
+            "mm3",
+            "ratio",
+            "SHA-256"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "geometry.requested_dimensions",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: geometry.requested_dimensions",
+          "method": "Measure boundary planes, X/Y extents and base thickness from reopened geometry in the trusted frame, using absolute error <= linearMm (0.01 mm). For resize_centered_v1 compare against the confirmed version-specific length, width 35 and thickness 5, with bounds [0,L] x [0,35] x [0,5]. For tactile_feature_v1 require the unchanged baseline footprint [0,50] x [0,35] and base layer z=0..5; inspect base cross-sections against the trusted baseline rather than calling total height base thickness. Added material has separately checked height 2 and total candidate bounds [0,50] x [0,35] x [0,7], within linearMm.",
+          "expected": {
+            "requirementFields": [
+              "setup.dimensions",
+              "setup.feature",
+              "setup.tolerances.linearMm"
+            ],
+            "dimensions": {
+              "lengthMm": 36,
+              "widthMm": 35,
+              "baseThicknessMm": 5
+            },
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "linearMm": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "lengthMm": 36,
+            "widthMm": 35,
+            "baseThicknessMm": 5,
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "maximumAbsoluteErrorMm": 0
+          },
+          "units": [
+            "mm"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "geometry.valid_single_solid",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: geometry.valid_single_solid",
+          "method": "In a fresh trusted verifier, reopen the sealed candidate STEP without executing candidate source. Require one nonempty connected valid solid, finite bounds and positive finite volume; reject invalid topology, extra solids and nonfinite measurements. Record actual bounds and volume in the immutable setup frame, independently of candidate assertions.",
+          "expected": {
+            "requirementFields": [
+              "registry.checks.geometry.valid_single_solid"
+            ],
+            "solidCount": 1,
+            "valid": true,
+            "connected": true,
+            "nonempty": true,
+            "finiteBounds": true,
+            "positiveFiniteVolume": true
+          },
+          "measured": {
+            "fixture": true,
+            "solidCount": 1,
+            "valid": true,
+            "connected": true,
+            "nonempty": true,
+            "boundsMm": [
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                35
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "volumeMm3": 6017.256661176919
+          },
+          "units": [
+            "count",
+            "mm",
+            "mm3"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "holes.layout",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: holes.layout",
+          "method": "From independently reopened geometry, identify the two Z-axis diameter-6 through-bores, measure diameters, axes, center separation 20 and through-depth. Compare diameter, pitch and each center coordinate within linearMm (0.01 mm). Resize centers are ((L-20)/2,17.5) and ((L+20)/2,17.5) for the confirmed length L; feature centers remain (15,17.5) and (35,17.5). Test the trusted bore volumes and sections over the full candidate Z extent for continuity and obstruction, including material above z=5; reject a cap or plug. Do not substitute candidate hole labels, base-only depth or a volume allowance for the unobstructed-bore requirement.",
+          "expected": {
+            "requirementFields": [
+              "setup.holes",
+              "setup.tolerances.linearMm"
+            ],
+            "centersMode": "centered",
+            "centersMm": [
+              [
+                8,
+                17.5
+              ],
+              [
+                28,
+                17.5
+              ]
+            ],
+            "diameterMm": 6,
+            "spacingMm": 20,
+            "axis": "Z",
+            "unobstructedBores": "full_candidate_extent",
+            "linearMm": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "count": 2,
+            "diametersMm": [
+              6,
+              6
+            ],
+            "axes": [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "centersMm": [
+              [
+                8,
+                17.5
+              ],
+              [
+                28,
+                17.5
+              ]
+            ],
+            "spacingMm": 20,
+            "throughDepthMm": [
+              5,
+              5
+            ],
+            "unobstructedFullExtent": true,
+            "maximumAbsoluteErrorMm": 0
+          },
+          "units": [
+            "mm"
+          ],
+          "details": "SYNTHETIC conformance values. No geometry, reopen, or independent measurement was executed."
+        },
+        {
+          "checkId": "margin.end_material",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "geometryHash": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "executionMode": "fixture",
+          "state": "passed",
+          "label": "Synthetic fixture: margin.end_material",
+          "method": "Measure the shortest material distances between the outer bore boundaries and their corresponding X-min/X-max plate end faces on independently reopened geometry; report both closest-point pairs and their minimum. Pass only when this measured minimum + linearMm (0.01 mm) >= minimumEndMaterialMm (5 mm). Use setup-specific hole locations and confirmed length. The centered formula (L-20-6)/2 is a fixture expectation only and must not replace geometric distance measurement.",
+          "expected": {
+            "requirementFields": [
+              "setup.minimumEndMaterialMm",
+              "setup.tolerances.linearMm"
+            ],
+            "minimumEndMaterialMm": 5,
+            "linearMm": 0.01
+          },
+          "measured": {
+            "fixture": true,
+            "endMaterialsMm": [
+              5,
+              5
+            ],
+            "minimumEndMaterialMm": 5
+          },
+          "units": [
+            "mm"
+          ],
+          "details": "SYNTHETIC fixture expectation 5 mm versus immutable minimum 5 mm. No geometric distance measurement was executed.",
+          "diagnostics": {
+            "pointPairs": [
+              [
+                [
+                  0,
+                  17.5,
+                  2.5
+                ],
+                [
+                  5,
+                  17.5,
+                  2.5
+                ]
+              ],
+              [
+                [
+                  31,
+                  17.5,
+                  2.5
+                ],
+                [
+                  36,
+                  17.5,
+                  2.5
+                ]
+              ]
+            ],
+            "message": "Synthetic closest-point pairs for the centered plate fixture."
+          }
         }
       ],
       "artifacts": [
         {
-          "artifactId": "fixture_design_json",
-          "runId": "fixture_run_1",
-          "designId": "fixture_design",
-          "revisionId": "fixture_rev_1",
+          "artifactId": "fixture_36_source",
+          "runId": "fixture_36_run",
+          "designId": "fixture_plate",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
           "units": "mm",
-          "kind": "specification",
-          "fileName": "fixture-design.json",
-          "mediaType": "application/json",
-          "bytes": 160,
-          "sha256": "f2ad463d089eb8898098c9a0a53f442c24dba6ff9e7eb398cb499c72d346025a",
-          "href": "/api/artifacts/fixture_design_json",
+          "kind": "source",
+          "fileName": "fixture_36_model.py",
+          "mediaType": "text/x-python",
+          "bytes": 63,
+          "sha256": "44524191013d952f2f075b656d0d32a47b6ee5f840df037c40894918c9d97958",
+          "href": "/api/artifacts/fixture_36_source",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_36_editable",
+          "runId": "fixture_36_run",
+          "designId": "fixture_plate",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "units": "mm",
+          "kind": "editable",
+          "fileName": "fixture_36_editable.py",
+          "mediaType": "text/x-python",
+          "bytes": 63,
+          "sha256": "44524191013d952f2f075b656d0d32a47b6ee5f840df037c40894918c9d97958",
+          "href": "/api/artifacts/fixture_36_editable",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_36_step",
+          "runId": "fixture_36_run",
+          "designId": "fixture_plate",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "units": "mm",
+          "kind": "export",
+          "fileName": "fixture_36_part.step",
+          "mediaType": "model/step",
+          "bytes": 54,
+          "sha256": "796d0f6d012114ce94e450124d7a6b4b7e688fa8ab4bb918e60bf076cd88a785",
+          "href": "/api/artifacts/fixture_36_step",
+          "executionMode": "fixture"
+        },
+        {
+          "artifactId": "fixture_36_stl",
+          "runId": "fixture_36_run",
+          "designId": "fixture_plate",
+          "revisionId": "fixture_36_revision",
+          "requirementsVersion": 2,
+          "requirementsId": "req_fa0350ce21206e43838d5cdab71c191e",
+          "registryId": "plate_requirements_v1",
+          "registryHash": "593ece1f1387e766f0e80bdabc45ab6ad46c6301e8d1421f8a05d8a06f657f7d",
+          "setupId": "resize_centered_v1",
+          "setupHash": "3afe3355381fdc3aadbd3fc6bea09f01b7a125326961c9aa344b75ef92b9c6e7",
+          "referenceHash": "9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3",
+          "validatorVersion": "fixture_validator_v1",
+          "units": "mm",
+          "kind": "preview",
+          "fileName": "fixture_36_part.stl",
+          "mediaType": "model/stl",
+          "bytes": 49,
+          "sha256": "988b363657fd3846d6fa2f3e31feed8a6965e448cdf1d444b07bc9ad2893f569",
+          "href": "/api/artifacts/fixture_36_stl",
           "executionMode": "fixture"
         }
       ],
-      "evidenceApplicability": "fixture",
-      "error": null,
-      "provider": null
-    }
+      "error": null
+    },
+    "acceptanceId": null
   }
 ]

@@ -1,177 +1,196 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash, randomUUID } from 'node:crypto';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, test } from 'node:test';
-import { CONTRACT_VERSION, type Artifact, type Check, type Design, type Run, type RunRequest } from '../../src/shared/contracts.js';
-import { RunStore, StoreError } from '../../src/server/store.js';
+import { BootstrapSchema, CONTRACT_VERSION, computeCheckBundleHash, createRequirements, expectedForCheck, hashCanonical, type Candidate, type Design, type Run, type RunRequest, type AcceptanceRequest } from '../../src/shared/contracts.js';
+import { RunStore, StoreError, requirementIdentity } from '../../src/server/store.js';
 
 const directories: string[] = [];
-afterEach(() => {
-  for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true });
-});
-
-const design: Design = { designId: 'design_test', label: 'Test reference', currentRevisionId: 'revision_initial', latestRunId: null, units: 'mm' };
-const provider = { name: 'test-provider', requestedModel: 'test-model', reportedModel: 'test-model' };
-const operation = { name: 'test_edit', parameters: { height: 20 } };
-
-function setup(selectedDesign: Design | null = design): { directory: string; store: RunStore } {
-  const directory = mkdtempSync(join(tmpdir(), 'worldkinetics-store-test-'));
-  directories.push(directory);
-  return { directory, store: new RunStore(directory, selectedDesign) };
+afterEach(() => { for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true }); });
+const fixture = BootstrapSchema.parse(JSON.parse(readFileSync(new URL('../../fixtures/api/v2/reviewable.fixture.json', import.meta.url), 'utf8')));
+const bytes = JSON.parse(readFileSync(new URL('../../fixtures/api/v2/synthetic-artifact-bytes.fixture.json', import.meta.url), 'utf8')).artifacts as Record<string, string>;
+const requirements = await createRequirements({ designId: 'design_test', requirementsVersion: 1, setupId: 'resize_centered_v1', lengthMm: 36 });
+const design: Design = { ...fixture.design!, designId: requirements.designId, stateVersion: 0, activeRequirementsVersion: 1, baselineRevisionId: 'revision_initial', activeRunId: null, selectedCandidateRevisionId: null, setupHash: requirements.setupHash };
+function setup(selectedDesign: Design | null = design) {
+  const directory = mkdtempSync(join(tmpdir(), 'worldkinetics-store-test-')); directories.push(directory);
+  return { directory, store: new RunStore(directory, selectedDesign, selectedDesign ? requirements : undefined) };
 }
-
-function request(requestId: string, inputRevisionId = design.currentRevisionId): RunRequest {
-  return { contractVersion: CONTRACT_VERSION, requestId, designId: design.designId, inputRevisionId, units: 'mm', instruction: 'Set height to 20 mm' };
+function request(requestId: string, inputRevisionId = design.baselineRevisionId): RunRequest {
+  return { contractVersion: CONTRACT_VERSION, requestId, designId: design.designId, inputRevisionId, units: 'mm', instruction: 'Set length to 36 mm', requirementsVersion: 1, setupId: requirements.setupId };
 }
-
-function start(store: RunStore, input: RunRequest): Run {
-  const { run } = store.accept(input);
-  store.planning(run.runId, provider);
-  return store.running(run.runId, operation);
+async function start(store: RunStore, input: RunRequest): Promise<Run> {
+  const { run } = await store.enqueueRun(input); await store.planning(run.runId); return store.running(run.runId);
 }
-
-function evidence(run: Run): { checks: Check[]; artifacts: Artifact[] } {
-  return {
-    checks: [{ checkId: 'height', label: 'Height', revisionId: run.outputRevisionId, state: 'passed', method: 'test measurement', details: 'Measured by the test adapter.', measuredValue: 20, expected: '20', units: 'mm' }],
-    artifacts: [{ artifactId: `artifact_${run.runId}`, runId: run.runId, designId: run.designId, revisionId: run.outputRevisionId, units: 'mm', kind: 'editable', fileName: 'revision.json', mediaType: 'application/json', bytes: 2, sha256: '0'.repeat(64), href: `/api/artifacts/artifact_${run.runId}`, executionMode: 'live' }],
-  };
-}
-
-function complete(store: RunStore, run: Run): Run {
-  const { checks, artifacts } = evidence(run);
-  return store.complete(run.runId, checks, artifacts);
-}
-
-function hasError(status: number, code: string): (error: unknown) => boolean {
-  return (error) => error instanceof StoreError && error.status === status && error.code === code;
-}
-
-test('identical parsed retries reuse the original run before and after revision advancement and restart', () => {
-  const { directory, store } = setup();
-  const input = request('request_first');
-  const run = start(store, { ...input, instruction: `  ${input.instruction}  ` });
-  assert.equal(store.accept(input).run.runId, run.runId);
-  assert.equal(store.accept(input).reused, true);
-  assert.equal(store.listRuns().length, 1);
-  const completed = complete(store, run);
-  assert.equal(completed.evidenceApplicability, 'current');
-  assert.equal(store.getDesign()?.currentRevisionId, completed.outputRevisionId);
-
-  const reopened = new RunStore(directory, design);
-  assert.equal(reopened.accept(input).run.runId, run.runId);
-  assert.equal(reopened.accept(input).reused, true);
-  assert.deepEqual(reopened.getEvents(run.runId), store.getEvents(run.runId));
-  assert.throws(() => reopened.accept({ ...input, instruction: 'Set height to 30 mm' }), hasError(409, 'REQUEST_ID_CONFLICT'));
-  assert.throws(() => reopened.accept(request('request_old')), hasError(409, 'REVISION_CONFLICT'));
-});
-
-test('unselected and wrong-design requests fail without creating a run', () => {
-  const { store } = setup(null);
-  assert.throws(() => store.accept(request('request_unselected')), hasError(503, 'DESIGN_NOT_SELECTED'));
-  assert.equal(store.listRuns().length, 0);
-  const selected = setup().store;
-  assert.throws(() => selected.accept({ ...request('request_wrong'), designId: 'another_design' }), hasError(409, 'DESIGN_CONFLICT'));
-});
-
-test('late completion retains its evidence as historical and cannot promote an obsolete revision', () => {
-  const { store } = setup();
-  const older = start(store, request('request_older'));
-  const newer = start(store, request('request_newer'));
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.equal(store.getDesign()?.latestRunId, newer.runId);
-  assert.equal(complete(store, newer).evidenceApplicability, 'current');
-  const late = complete(store, older);
-  assert.equal(late.status, 'superseded');
-  assert.equal(late.evidenceApplicability, 'historical');
-  assert.equal(late.checks.length, 1);
-  assert.equal(store.getDesign()?.currentRevisionId, newer.outputRevisionId);
-  assert.equal(store.getEvents(older.runId).at(-1)?.type, 'run.superseded');
-  assert.ok(store.getEvents(older.runId).every((event) => event.run.evidenceApplicability !== 'current'));
-});
-
-test('superseded pending completion does not advance current even before the newest run completes', () => {
-  const { store } = setup();
-  const older = start(store, request('request_older'));
-  const newer = start(store, request('request_newer'));
-  assert.equal(complete(store, older).status, 'superseded');
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.equal(complete(store, newer).evidenceApplicability, 'current');
-});
-
-test('previously current completion events become historical when a new request is accepted', () => {
-  const { directory, store } = setup();
-  const older = start(store, request('request_older'));
-  complete(store, older);
-  const completionId = store.getEvents(older.runId).at(-1)!.eventId;
-  start(store, request('request_newer', older.outputRevisionId));
-  assert.equal(store.getRun(older.runId).evidenceApplicability, 'historical');
-  assert.equal(store.listRuns().find((run) => run.runId === older.runId)?.evidenceApplicability, 'historical');
-  assert.equal(store.getEvents(older.runId).at(-1)?.run.evidenceApplicability, 'historical');
-  assert.equal(store.getEvents(older.runId, completionId).length, 0);
-  assert.equal(new RunStore(directory, design).getEvents(older.runId).at(-1)?.run.evidenceApplicability, 'historical');
-});
-
-test('restart fails interrupted work once and preserves accepted request identity and monotonic event IDs', () => {
-  const { directory, store } = setup();
-  const queued = store.accept(request('request_queued')).run;
-  const running = start(store, request('request_running'));
-  const lastBefore = store.getEvents(running.runId).at(-1)!.eventId;
-  const reopened = new RunStore(directory, design);
-  for (const run of [queued, running]) {
-    assert.equal(reopened.getRun(run.runId).status, 'failed');
-    assert.equal(reopened.getRun(run.runId).error?.code, 'RUN_INTERRUPTED');
-    assert.equal(reopened.getRun(run.runId).evidenceApplicability, 'unavailable');
-    assert.equal(reopened.getEvents(run.runId).at(-1)?.type, 'run.failed');
-    assert.ok(reopened.getEvents(run.runId).at(-1)!.eventId > lastBefore);
+async function evidence(store: RunStore, directory: string, run: Run): Promise<Candidate> {
+  // These bytes and measurements are synthetic state fixtures, never CAD evidence.
+  const draft = store.getCandidate(run.candidateRevisionIds[0]!); const r = draft.requirements;
+  const result: Candidate = { ...fixture.candidates[0]!, ...draft, status: 'reviewable',
+    engine: { name: 'build123d', version: 'synthetic', imageDigest: 'sha256:' + '1'.repeat(64) },
+    sourceSha256: fixture.candidates[0]!.sourceSha256, geometryHash: fixture.candidates[0]!.geometryHash,
+    proposalHash: await hashCanonical({ kind: 'numeric_operation', operation: { name: 'resize_plate', parameters: { lengthMm: 36 } } }),
+    checks: fixture.candidates[0]!.checks.map(c => ({ ...c, ...requirementIdentity(r), revisionId: draft.revisionId, executionMode: 'live', expected: expectedForCheck(r, c.checkId) })), artifacts: [] };
+  mkdirSync(join(directory, 'artifacts'), { recursive: true });
+  for (const a of fixture.candidates[0]!.artifacts) {
+    const artifactId = `artifact_${randomUUID()}`;
+    writeFileSync(join(directory, 'artifacts', artifactId), bytes[a.artifactId]!);
+    result.artifacts.push({ ...a, ...requirementIdentity(r), artifactId, runId: run.runId, designId: run.designId, revisionId: draft.revisionId, executionMode: 'live', href: `/api/artifacts/${artifactId}` });
   }
-  assert.equal(reopened.accept(request('request_running')).run.runId, running.runId);
-  assert.equal(reopened.accept(request('request_running')).reused, true);
-  assert.equal(reopened.getDesign()?.currentRevisionId, design.currentRevisionId);
-  const secondReopen = new RunStore(directory, design);
-  assert.deepEqual(secondReopen.getEvents(running.runId), reopened.getEvents(running.runId));
+  result.checkBundleHash = await computeCheckBundleHash(result); return result;
+}
+async function complete(store: RunStore, directory: string, run: Run) { return store.completeCandidate(await evidence(store, directory, run)); }
+function acceptance(store: RunStore, c: Candidate, requestId = `accept_${randomUUID()}`): AcceptanceRequest {
+  const d = store.getDesign()!;
+  return { contractVersion: CONTRACT_VERSION, requestId, designId: d.designId, candidateRevisionId: c.revisionId, requirementsVersion: c.requirementsVersion,
+    expectedStateVersion: d.stateVersion, expectedAcceptedRevisionId: d.acceptedRevisionId, registryHash: c.registryHash, setupHash: c.setupHash,
+    geometryHash: c.geometryHash!, checkBundleHash: c.checkBundleHash!, userActionId: `action_${randomUUID()}` };
+}
+const conflict = (error: unknown) => error instanceof StoreError && error.status === 409;
+
+test('identical parsed retries reuse the original run before and after explicit acceptance and restart', async () => {
+  const { directory, store } = setup(); const input = request('request_first');
+  const run = await start(store, { ...input, instruction: `  ${input.instruction}  ` });
+  assert.equal((await store.enqueueRun(input)).run.runId, run.runId); assert.equal((await store.enqueueRun(input)).reused, true); assert.equal(store.listRuns().length, 1);
+  const c = await complete(store, directory, run); assert.equal(store.getDesign()!.acceptedRevisionId, null);
+  await store.acceptRevision(acceptance(store, c)); assert.equal(store.getDesign()!.acceptedRevisionId, c.revisionId);
+  const reopened = new RunStore(directory, design, requirements);
+  assert.equal((await reopened.enqueueRun(input)).run.runId, run.runId); assert.equal((await reopened.enqueueRun(input)).reused, true);
+  assert.deepEqual(reopened.getEvents(run.runId), store.getEvents(run.runId));
+  await assert.rejects(reopened.enqueueRun({ ...input, instruction: 'Different' }), conflict);
+  await assert.rejects(reopened.enqueueRun(request('request_old')), conflict);
+});
+test('unselected and wrong-design requests fail without creating a run', async () => {
+  const { store } = setup(null); await assert.rejects(store.enqueueRun(request('request_unselected')), (e: unknown) => e instanceof StoreError && e.status === 503);
+  assert.equal(store.listRuns().length, 0);
+  await assert.rejects(setup().store.enqueueRun({ ...request('request_wrong'), designId: 'another_design' }), conflict);
+});
+test('late completion retains historical evidence and cannot select or accept an obsolete revision', async () => {
+  const { directory, store } = setup(); const older = await start(store, request('older')); const newer = await start(store, request('newer'));
+  assert.equal(store.getDesign()!.acceptedRevisionId, null); assert.equal(store.getDesign()!.activeRunId, newer.runId);
+  const current = await complete(store, directory, newer); await store.acceptRevision(acceptance(store, current));
+  const late = await complete(store, directory, older); assert.equal(late.status, 'superseded'); assert.equal(late.checks.length, 7);
+  assert.equal(store.getDesign()!.acceptedRevisionId, current.revisionId); assert.equal(store.getDesign()!.selectedCandidateRevisionId, current.revisionId);
+  assert.equal(store.getEvents(older.runId).at(-1)!.type, 'run.superseded');
+  assert.ok(store.getEvents(older.runId).every(e => e.type !== 'revision.accepted'));
+});
+test('superseded pending completion cannot select even before the newest run completes', async () => {
+  const { directory, store } = setup(); const older = await start(store, request('older')); const newer = await start(store, request('newer'));
+  assert.equal((await complete(store, directory, older)).status, 'superseded'); assert.equal(store.getDesign()!.acceptedRevisionId, null);
+  const c = await complete(store, directory, newer); assert.equal(store.getDesign()!.selectedCandidateRevisionId, c.revisionId);
+});
+test('earlier completion events remain immutable history after a new request and restart', async () => {
+  const { directory, store } = setup(); const older = await start(store, request('older')); const c = await complete(store, directory, older);
+  const events = store.getEvents(older.runId); const completionId = events.at(-1)!.eventId;
+  await start(store, request('newer')); assert.equal(store.getDesign()!.selectedCandidateRevisionId, null);
+  assert.equal(store.getCandidate(c.revisionId).revisionId, c.revisionId); assert.deepEqual(store.getEvents(older.runId), events);
+  assert.equal(store.getEvents(older.runId, completionId).length, 0);
+  assert.deepEqual(new RunStore(directory, design, requirements).getEvents(older.runId), events);
+});
+test('restart fails pending work once, preserves request identities and monotonic events', async () => {
+  const { directory, store } = setup(); const queued = (await store.enqueueRun(request('queued'))).run; const running = await start(store, request('running'));
+  const lastBefore = store.getEvents().at(-1)!.eventId; const reopened = new RunStore(directory, design, requirements);
+  assert.equal(reopened.getRun(queued.runId).status, 'superseded');
+  assert.equal(reopened.getRun(running.runId).status, 'failed'); assert.equal(reopened.getRun(running.runId).error!.code, 'EXECUTION_FAILED');
+  assert.equal(reopened.getEvents(running.runId).at(-1)!.type, 'run.failed'); assert.ok(reopened.getEvents(running.runId).at(-1)!.eventId > lastBefore);
+  for (const run of [queued, running]) assert.equal((await reopened.enqueueRun(request(run.requestId))).run.runId, run.runId);
+  assert.equal(reopened.getDesign()!.acceptedRevisionId, null);
+  assert.deepEqual(new RunStore(directory, design, requirements).getEvents(), reopened.getEvents());
+});
+test('mismatched revision or run evidence is rejected without mutating the run', async () => {
+  const { directory, store } = setup(); const run = await start(store, request('mismatch')); const c = await evidence(store, directory, run); const before = store.getEvents();
+  await assert.rejects(store.completeCandidate({ ...c, checks: [{ ...c.checks[0]!, revisionId: 'wrong' }, ...c.checks.slice(1)] }), conflict);
+  await assert.rejects(store.completeCandidate({ ...c, artifacts: [{ ...c.artifacts[0]!, runId: 'wrong' }, ...c.artifacts.slice(1)] }), conflict);
+  assert.deepEqual(store.getEvents(), before); assert.equal(store.getRun(run.runId).status, 'running'); assert.equal(store.getCandidate(c.revisionId).checks.length, 0);
+  assert.equal((await store.completeCandidate(c)).status, 'reviewable');
+});
+test('fixture evidence is labeled and never becomes accepted', async () => {
+  const { directory, store } = setup(); const run = await start(store, request('fixture')); const c = await evidence(store, directory, run);
+  c.executionMode = 'fixture'; c.checks.forEach(c => c.executionMode = 'fixture'); c.artifacts.forEach(a => a.executionMode = 'fixture'); c.checkBundleHash = await computeCheckBundleHash(c);
+  // A live queue must fail closed on fixture evidence, rather than relabel the run.
+  await assert.rejects(store.completeCandidate(c)); assert.equal(store.getDesign()!.acceptedRevisionId, null);
+  assert.equal(new RunStore(directory, design, requirements).getDesign()!.acceptedRevisionId, null);
+});
+test('callers cannot mutate design, runs, candidates or event evidence through snapshots', async () => {
+  const { directory, store } = setup(); const run = await start(store, request('snapshots')); const c = await complete(store, directory, run);
+  c.checks[0]!.state = 'failed'; store.getDesign()!.acceptedRevisionId = 'injected'; store.getEvents(run.runId).at(-1)!.candidate!.artifacts[0]!.runId = 'injected';
+  store.getRun(run.runId).status = 'failed'; store.getRequirements()!.setup.dimensions.lengthMm = 100;
+  assert.equal(store.getCandidate(c.revisionId).checks[0]!.state, 'passed'); assert.equal(store.getCandidate(c.revisionId).artifacts[0]!.runId, run.runId);
+  assert.equal(store.getDesign()!.acceptedRevisionId, null); assert.equal(store.getRun(run.runId).status, 'completed'); assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 36);
+});
+test('corrupt state is reported and preserved instead of silently resetting history', () => {
+  const { directory } = setup(); writeFileSync(join(directory, 'state.json'), '{invalid');
+  assert.throws(() => new RunStore(directory, design, requirements), (e: unknown) => e instanceof StoreError && e.code === 'STORE_CORRUPT');
+  assert.equal(readFileSync(join(directory, 'state.json'), 'utf8'), '{invalid');
+});
+test('acceptance and update races serialize in both orders; retries do not restore older acceptance', async () => {
+  for (const acceptFirst of [true, false]) {
+    const { directory, store } = setup(); const c = await complete(store, directory, await start(store, request('race')));
+    const a = acceptance(store, c); const u = { contractVersion: CONTRACT_VERSION, requestId: 'update', expectedStateVersion: store.getDesign()!.stateVersion,
+      expectedRequirementsVersion: 1, setupId: 'resize_centered_v1' as const, confirmedIntent: { lengthMm: 30 }, userActionId: 'confirm' };
+    const results = await Promise.allSettled(acceptFirst ? [store.acceptRevision(a), store.updateRequirements(u)] : [store.updateRequirements(u), store.acceptRevision(a)]);
+    assert.equal(results[0]!.status, 'fulfilled'); assert.equal(results[1]!.status, 'rejected');
+    if (acceptFirst) {
+      const update = { ...u, expectedStateVersion: store.getDesign()!.stateVersion };
+      const original = await store.updateRequirements(update); const restarted = new RunStore(directory, design, requirements);
+      assert.deepEqual((await restarted.updateRequirements(update)).design, original.design);
+      await restarted.acceptRevision(a); assert.equal(restarted.getDesign()!.acceptedRequirementsMatch, false);
+    }
+    assert.equal(store.getRequirements()!.setup.dimensions.lengthMm, 30);
+  }
+});
+test('concurrent acceptance, input mutation, cross-operation collisions and failed CAS retries', async () => {
+  const { directory, store } = setup(); const c = await complete(store, directory, await start(store, request('concurrent')));
+  const a = acceptance(store, c); const mutable = structuredClone(a); const pending = store.acceptRevision(mutable); mutable.geometryHash = '0'.repeat(64);
+  const other = store.acceptRevision({ ...a, requestId: 'competing' }); const outcomes = await Promise.allSettled([pending, other]);
+  assert.equal(outcomes[0]!.status, 'fulfilled'); assert.equal(outcomes[1]!.status, 'rejected');
+  await assert.rejects(store.enqueueRun(request(a.requestId, c.revisionId)), conflict);
+  const retry = await store.acceptRevision({ ...a, requestId: 'competing', expectedStateVersion: store.getDesign()!.stateVersion, expectedAcceptedRevisionId: c.revisionId });
+  assert.equal(retry.reused, false);
+});
+test('acceptance verifies every artifact and export requires exact current acceptance and manifest', async () => {
+  const { directory, store } = setup(); const c = await complete(store, directory, await start(store, request('export')));
+  const accepted = await store.acceptRevision(acceptance(store, c)); const { manifest } = accepted;
+  const exportRequest = { contractVersion: CONTRACT_VERSION, requestId: 'export_request', acceptanceId: accepted.acceptance.acceptanceId, manifestId: manifest.manifestId, manifestHash: manifest.manifestHash };
+  assert.equal((await store.exportRevision(c.revisionId, exportRequest)).reused, false);
+  assert.equal((await new RunStore(directory, design, requirements).exportRevision(c.revisionId, exportRequest)).reused, true);
+  await assert.rejects(store.exportRevision(c.revisionId, { ...exportRequest, manifestHash: '0'.repeat(64) }), conflict);
+  const a = c.artifacts[0]!; const target = join(directory, 'artifacts', a.artifactId); const content = readFileSync(target);
+  writeFileSync(target, 'tampered'); await assert.rejects(store.exportRevision(c.revisionId, exportRequest), conflict);
+  writeFileSync(target, content); rmSync(target); writeFileSync(join(directory, 'target'), content); symlinkSync(join(directory, 'target'), target);
+  await assert.rejects(store.acceptRevision(acceptance(store, c)), conflict);
+  assert.equal(createHash('sha256').update(content).digest('hex'), a.sha256);
 });
 
-test('mismatched revision or run evidence is rejected without mutating the run', () => {
-  const { store } = setup();
-  const run = start(store, request('request_mismatch'));
-  const { checks, artifacts } = evidence(run);
-  const beforeEvents = store.getEvents(run.runId);
-  assert.throws(() => store.complete(run.runId, [{ ...checks[0]!, revisionId: 'revision_other' }], artifacts), hasError(409, 'EVIDENCE_REVISION_MISMATCH'));
-  assert.throws(() => store.complete(run.runId, checks, [{ ...artifacts[0]!, runId: 'run_other' }]), hasError(409, 'EVIDENCE_REVISION_MISMATCH'));
-  assert.deepEqual(store.getEvents(run.runId), beforeEvents);
-  assert.equal(store.getRun(run.runId).status, 'running');
-  assert.equal(store.getRun(run.runId).checks.length, 0);
-  assert.equal(complete(store, run).status, 'succeeded');
+test('complete evidence without a registered editable deliverable fails closed', async () => {
+  const { directory, store } = setup(); const c = await evidence(store, directory, await start(store, request('missing_editable')));
+  c.artifacts = c.artifacts.filter(a => a.kind !== 'editable');
+  await assert.rejects(store.completeCandidate(c), conflict);
+  await assert.rejects(store.acceptRevision(acceptance(store, c)), conflict);
+  assert.equal(store.getDesign()!.acceptedRevisionId, null);
 });
-
-test('fixture evidence is labeled and never advances the authoritative revision', () => {
-  const { directory, store } = setup();
-  const run = start(store, request('request_fixture'));
-  const { checks, artifacts } = evidence(run);
-  const result = store.complete(run.runId, checks, artifacts.map((artifact) => ({ ...artifact, executionMode: 'fixture' })));
-  assert.equal(result.executionMode, 'fixture');
-  assert.equal(result.evidenceApplicability, 'fixture');
-  assert.equal(store.getDesign()?.currentRevisionId, design.currentRevisionId);
-  assert.equal(new RunStore(directory, design).getRun(run.runId).evidenceApplicability, 'fixture');
+test('legitimate failed and unevaluated reports remain inspectable, preserving earlier acceptance', async () => {
+  for (const state of ['failed', 'not_evaluated'] as const) {
+    const { directory, store } = setup(); const first = await complete(store, directory, await start(store, request('first')));
+    await store.acceptRevision(acceptance(store, first));
+    const later = await evidence(store, directory, await start(store, request('later', first.revisionId)));
+    later.status = 'rejected'; later.checks[0]!.state = state; later.checkBundleHash = await computeCheckBundleHash(later);
+    await store.completeCandidate(later); await assert.rejects(store.acceptRevision(acceptance(store, later)), conflict);
+    assert.equal(store.getCandidate(later.revisionId).status, 'rejected'); assert.equal(store.getCandidate(later.revisionId).checks[0]!.state, state);
+    assert.equal(store.getDesign()!.acceptedRevisionId, first.revisionId); assert.equal(store.getDesign()!.acceptedRequirementsMatch, true);
+  }
 });
-
-test('callers cannot mutate authoritative design, runs, or event evidence through returned objects', () => {
-  const { store } = setup();
-  const run = start(store, request('request_snapshot'));
-  const finished = complete(store, run);
-  finished.checks[0]!.state = 'failed';
-  store.getDesign()!.currentRevisionId = 'revision_injected';
-  store.getEvents(run.runId).at(-1)!.run.artifacts[0]!.runId = 'run_injected';
-  assert.equal(store.getRun(run.runId).checks[0]!.state, 'passed');
-  assert.equal(store.getRun(run.runId).artifacts[0]!.runId, run.runId);
-  assert.equal(store.getDesign()?.currentRevisionId, run.outputRevisionId);
-});
-
-test('corrupt state is reported and preserved instead of silently resetting run history', () => {
-  const { directory } = setup();
-  const snapshotPath = join(directory, 'state.json');
-  writeFileSync(snapshotPath, '{invalid');
-  assert.throws(() => new RunStore(directory, design), hasError(500, 'STORE_CORRUPT'));
-  assert.equal(readFileSync(snapshotPath, 'utf8'), '{invalid');
+test('snapshot tampering cannot alter accepted manifests, evidence or request history', async () => {
+  const { directory, store } = setup(); const c = await complete(store, directory, await start(store, request('snapshot_integrity')));
+  await store.acceptRevision(acceptance(store, c)); const file = join(directory, 'state.json'); const original = readFileSync(file, 'utf8');
+  for (const mutation of ['manifest', 'check', 'request', 'accepted'] as const) {
+    const s = JSON.parse(original);
+    if (mutation === 'manifest') s.manifests[0].sourceSha256 = '0'.repeat(64);
+    if (mutation === 'check') s.candidates[0].checks[0].measured = { tampered: true };
+    if (mutation === 'request') s.requests = [];
+    if (mutation === 'accepted') s.design.acceptedRevisionId = null;
+    const tampered = JSON.stringify(s); writeFileSync(file, tampered);
+    assert.throws(() => new RunStore(directory, design, requirements)); assert.equal(readFileSync(file, 'utf8'), tampered);
+  }
+  writeFileSync(file, original);
 });

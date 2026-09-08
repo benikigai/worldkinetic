@@ -1,89 +1,63 @@
 # Prototype build plan
 
-Draft for review, September 8, 2026. Product direction is committed; runtime, consumer reference and live capability gates below still require evidence. This plan does not dispatch agents or mark the product integrated.
+September 8, 2026. PLAN-01 scope and semantics are released. Implementation observations and gate statuses throughout this plan describe the historical snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8`, around 13:14 PDT, not whichever commit includes this documentation. Newer accepted commits may supersede these snapshot statuses. At that snapshot, local API access and isolated CAD capability setup had passed separately; the first integrated CAD loop, executable v0.2 contract, functional viewer and integrated DEMO acceptance were pending. See [provenance](provenance.md#evidence-snapshot) for the exact evidence scope.
 
-## Success
+## Completion gates
 
-A user describes an adaptation, Astra generates real editable geometry, independent checks find a conflict, Astra repairs it, and the user accepts and downloads the exact checked revision. The screen shows a visible change, actual measurements and honest status. A mid-work requirement change demonstrates steering and correct treatment of older results if that API experiment succeeds.
+The core result is a real generated plate feature, independent measurements, bounded repair, explicit user acceptance and download of the exact checked source/STEP/STL. Preserve the original plate and landing design. The [architecture](architecture.md#reference-setups-and-exact-checks) defines the two separate setups and required checks.
 
-The plate is the first integration reference. The primary consumer story is a tactile controller key, conditional on measured attachment/neighbor/travel geometry. A stand fallback requires an actual measured reference and a recorded user decision; no measured stand package was found in the project files inspected during fleet planning. Do not spend the entire day solving unknown mechanics or replace the consumer story with a plate without saying so.
+| Gate | Status at the cited snapshot | Owners and dependencies | Concrete completion evidence |
+| --- | --- | --- | --- |
+| M0: Capability setup | Passed locally, packaging pending | PLAN semantics; BACKEND API access; TOOLS isolation | Separate one-shot Responses access and isolated plate generation/STEP verification with recorded image digest. These do not satisfy M1. |
+| M1: First integrated plate loop | Pending | BACKEND v0.2 schemas/state plus TOOLS runtime/adapter; FRONTEND viewer | A browser request generates real geometry through HTTP, then independent checks and trusted exports; the viewer shows that exact candidate. No fixture substitution. |
+| M2: Feature, repair and acceptance | Pending | M1; BACKEND orchestration/CAS; TOOLS full check registry; FRONTEND review controls | Newly generated fixed tactile feature; actual failed requirement and corrected candidate; explicit acceptance packages checked bytes; stale, missing, duplicate, unknown and unevaluated evidence blocks acceptance. |
+| M3: Integrated acceptance | Pending | M2; DEMO independent tests | Download hashes and reopened files match; original preserved; late completion cannot promote; timeout/cancellation and reset/repeat do not mix artifacts. Run twice from clean sessions. |
+| M4: Demonstration | Pending | M3; DEMO rehearsal and BACKEND access mode | Measured timings, visible checks, working links and exact demonstrated revision. Public access is tested or footage is clearly labeled as a recording of real local execution. |
 
-## Critical path and timeboxes
-
-The captured event deadline is 5:30 PM PDT, with a one-minute video. Work toward a 4:30 PM reliable build and 5:00 PM freeze. These are planning targets for the remaining day, not a fresh full-day schedule. Recalculate the early milestones when review finishes; protect the final recording/submission buffer.
-
-| Milestone | Target PDT | Evidence required |
-| --- | --- | --- |
-| M0: Resolve execution, reference and provider gates | 12:45 PM | 20-minute isolated CAD smoke test; API/image/steering capability receipts; measured consumer-reference decision or explicitly pending choice |
-| M1: One integrated plate revision | 1:30 PM | Browser request -> real candidate -> independent checks -> explicit acceptance -> reopened exports |
-| M2: Creative geometry and repair | 2:30 PM | A new feature beyond a prebuilt parameter edit; one failed fixed requirement and one corrected measured candidate |
-| M3: Consumer flow and changed requirement | 3:30 PM | Grounded accessory in the viewer, meaningful protected geometry, correction while pending, stale evidence rejected |
-| M4: Rehearsal and demo access | 4:30 PM | Repeat/reset succeeds; public demo access mode tested; clean repository, evidence and one-minute script ready |
-| Freeze and recording | 5:00 PM | No new features; exact demonstrated build recorded and artifact links checked |
-| Submission deadline | 5:30 PM | Required public repository, accessible demo, video and roster prepared/submitted only under the user's authorization |
-
-Native steering and isolation probes start before UI polish. Do not wait for every gate to let FRONTEND work against labeled fixtures and DEMO write acceptance cases. If M1 slips, cut optional features immediately. If M2 fails, do not spend M3 pretending a preset parameter editor demonstrates open-ended design.
+Images 2.5, consumer geometry and native steering are optional extensions and cannot block the core gates. A controller accessory needs measured attachment, neighbors and travel first; no measured stand fallback is established. A steering demo needs applied continuation evidence. Image concepts need separate requirement confirmation before CAD work. None substitutes for M2.
 
 ## Roles and exclusive paths
 
-Use the existing tasks. BUILD BACKEND is the sole code integrator; a separate integrator task would add another handoff at this size. PLAN owns scope and interface meaning. DEMO independently checks integrated behavior.
+All six roles are active. BACKEND is the sole code integrator and publisher. PLAN owns scope and architecture; DEMO independently evaluates integrated behavior.
 
-| Role | Owned paths | First bounded deliverable |
+| Role | Exclusive paths | Responsibility |
 | --- | --- | --- |
-| PLAN | `docs/architecture.md`, `docs/build-plan.md`, `docs/provenance.md`, `docs/development-evidence.md`; private planning/review artifacts outside this repository | Resolve named checks, reference identity, worker boundary and semantic migration |
-| BUILD FRONTEND | `src/client/**`, `tests/frontend/**` | Separate workspace, real mesh viewer, before/after, current checks and candidate acceptance controls |
-| BUILD BACKEND / integrator | `src/server/**`, `src/shared/**`, root manifests/config, `scripts/**`, `fixtures/api/**`, `tests/backend/**`, `README.md`, CI/deployment config | Publish `wk-prototype-0.2` schemas/fixtures, acceptance state and one connected tool operation |
-| TOOLS | `src/tools/**`, `fixtures/tools/**`, `tests/tools/**`, CAD example source | Isolated engine smoke test and independent geometry/clearance/export verification |
-| DEMO | `tests/e2e/**`, `docs/demo/**` | Executable success/failure/stale-result cases and a recorded evidence checklist |
-| IDEA | Product clarification notes outside this repository | Resolve requested product questions; do not expand features during integration |
+| PLAN | `docs/architecture.md`, `docs/build-plan.md`, `docs/provenance.md`, `docs/development-evidence.md` | Scope, check meaning, reference setup and documentation |
+| FRONTEND | `src/client/**`, `tests/frontend/**` | Preserve landing; build workspace, viewer and review controls |
+| BACKEND / integrator | `src/server/**`, `src/shared/**`, root manifests/config, `scripts/**` except the two TOOLS runtime packaging paths below, `fixtures/api/**`, `tests/backend/**`, `README.md`, CI/deployment config | Executable contracts, model orchestration, state, artifact registration and integration |
+| TOOLS | `src/tools/**`, `fixtures/tools/**`, `tests/tools/**`, CAD example source, `scripts/runtime/cad.Dockerfile`, `scripts/runtime/cad-requirements.txt` | Isolated generation, independent geometry checks and trusted exports |
+| DEMO | `tests/e2e/**`, `docs/demo/**` | Acceptance cases, rehearsal and honest demo evidence |
+| IDEA | Product clarification notes outside the public repository | Resolve product questions without expanding the integrated scope |
 
-The initial repository publication may add the planning docs and CAD example package. After that baseline, routine changes return to the owners above. Root README/config edits go through BACKEND. Every file has one owner; any transfer is explicit. No agent performs whole-repository formatting or edits another role's feature to make an integration test pass.
+TOOLS owns only `scripts/runtime/cad.Dockerfile` and `scripts/runtime/cad-requirements.txt` as an existing exception for runtime packaging; BACKEND owns all remaining scripts and integration. This ownership assignment does not assert that those files are integrated. README remains BACKEND owned. Every file has one owner; agree transfers before edits and avoid whole-repository formatting.
 
-Keep integration on BACKEND's controlled checkout. Once a committed baseline exists, use separate branches/worktrees for independent implementation and integrate small slices. Shared runtime state is not isolated by a branch: use port/runtime pairs 4310 + `.runtime/backend-4310`, 4311 + `.runtime/frontend-4311`, and 4313 + `.runtime/demo-4313`. TOOLS needs no listening port; allocate a private job directory per candidate. Only the assigned tool operator controls the existing FreeCAD session.
+Use a dedicated clean worktree per role from the agreed committed baseline. Branches do not isolate runtime state: assign private ports, runtime directories and per-candidate job directories. Keep one CAD job active, and never restart another owner's server or mutate their FreeCAD session. Integrate small, independently reviewable slices through BACKEND.
 
-All six roles follow the [Astra development workflow](development-evidence.md). Each window supervises bounded wrapper runs, retains its own handoff evidence and respects separate worktrees. BACKEND reviews branch evidence before integration and records checks on the combined revision separately. This is a development process, not proof that the product runtime works or that previous chats were captured.
+All roles follow the [Astra development workflow](development-evidence.md). Substantial deliverables use the prescribed wrapper and protected acceptance checks; an already-launched worker completes its assigned work directly. Each role retains its own receipt handoff. BACKEND checks ownership, revision/fingerprint, actual verifier scope and required manual review before integration, then validates the combined revision. Development receipts do not prove product behavior or retroactively cover earlier work.
 
-## Dependency-aware tasks
+## Implementation dependencies
 
-| ID | Owner | Task | Dependency | Done evidence |
-| --- | --- | --- | --- | --- |
-| P1 | PLAN | Publish v0.2 semantics, exact plate baseline and required check set | This review | Owners can implement without inventing acceptance rules |
-| T1 | TOOLS | Prove isolated build123d generation, STEP import and exports on actual host | P1 | Exact plate geometry/volume; host/reference/network boundary probes pass; image digest recorded |
-| B1 | BACKEND | Probe Responses text/image input and selected async/steering flow | Existing authentication metadata; intended event API access | Actual response IDs/events and clear supported/unavailable outcome; no secret values logged |
-| B2 | BACKEND | Separate candidate completion from human acceptance; migrate schema/fixtures | P1 | Failed/unknown checks block acceptance; obsolete evidence returns 409; old retries retain identity |
-| F1 | FRONTEND | Build workspace against B2's labeled fixtures | Draft fixture | Viewer, failed-region evidence, selected versus accepted state and errors rendered correctly |
-| D1 | DEMO | Write success, failure, stale and original-preservation cases | P1/B2 contract | Cases identify observable inputs/results and needed fixtures without weakening requirements |
-| T2 | TOOLS | Implement generator/verifier/preview interfaces and export package | T1 | Real candidate with trusted checks and reopened outputs; no self-reported pass accepted |
-| B3 | BACKEND | Connect one request to T2, artifact registration and acceptance | B2/T2 | One passing M1 run through actual HTTP, no fixture substitution |
-| F2 | FRONTEND | Replace fixture source with live B3; render/capture actual model for feedback | F1/B3 | Screenshot and dimensions match the selected revision; original remains accessible |
-| B4 | BACKEND | Add bounded candidate/feedback loop and API steering when B1 passes | B1/B3/F2 | New feature and actual repair; late responses cannot accept an obsolete design |
-| T3 | TOOLS + PLAN | Ground consumer reference and check its attachment/clearance/process profile | Reference gate | Sources, measurements, tolerances and supported checks are explicit |
-| D2 | DEMO | Run full acceptance, repeat/reset and one-minute rehearsal | B4/F2/T3 | Actual artifact hashes, measurements, attempt timings and visible failure/recovery |
-| B5 | BACKEND | Provide a tested demo access mode and documented launch/reset | M1; hosting decision | HTTPS live workspace or clearly labeled real-run replay; local live demo remains reproducible |
+The following dependencies describe the implementation work pending at the cited snapshot.
 
-No new dependencies are installed by this plan. Anticipated additions are the OpenAI SDK/WebSocket transport for the product API path, Three.js for geometry display, a trusted browser renderer if needed, and pinned build123d dependencies in the worker image. Each owner requests additions through BACKEND; omit any dependency whose selected feature is cut.
+1. BACKEND publishes the shared `wk-prototype-0.2` schemas, canonical encoding fixtures, candidate states and serialized requirements/acceptance rules from PLAN semantics. The draft routes observed at that snapshot were not evidence of that migration.
+2. TOOLS packages the proven isolated runtime and adapter, implements the full registry and source-regeneration check, and reruns boundary probes. BACKEND reviews the packaged engine identity and integrates it.
+3. FRONTEND can develop against explicitly labeled shared fixtures while TOOLS works. Connect the viewer to real registered artifacts before claiming M1; selected candidate and accepted history must remain distinct.
+4. BACKEND connects Responses generation, numerical feedback and bounded repair. The model cannot change requirements or validator code. DEMO tests success, actual failure, stale completions and export identity against the same contract.
 
-## What earns technicality evidence
+Three.js and esbuild were already wired at the cited snapshot. Any additional SDK, transport, renderer or CAD dependency must be announced and coordinated through BACKEND. Do not add a second app, CAD DSL, database or agent framework to deliver this prototype.
 
-| Rubric, 25% each | Demonstrable contribution | Evidence to retain |
-| --- | --- | --- |
-| Astra used during development | A concrete feature or bug developed with Astra, independently checked | Original task, meaningful code diff, actual failed/passed verification, available model/usage metadata |
-| Astra central to product | Generated CAD, interpretation of tool/image feedback, measured repair and live requirement update | Prompts, public tool actions, candidate source diffs, checks and API events |
-| Live demo | Familiar object changes visibly; a real conflict leads to a useful alternative | One-minute recording; clear first result; consistent before/after views and a complete handoff |
-| Technicality | Isolated generation, independent verification, revision-correct acceptance and export integrity | Boundary tests, numerical checks, stale-result test, reopened CAD and reproducible run |
+## One-minute demonstration
 
-These are evidence targets, not predicted scores. A larger integration count or extra simulation does not establish a stronger product. Judge-facing explanations should connect each technical component to the result it makes trustworthy or useful.
+Use one `tactile_feature_v1` sequence throughout the short demonstration:
 
-## One-minute narrative
+- Show the actual baseline plate and request a raised tactile feature while preserving its material and two open bores.
+- Show newly generated geometry with matching dimensions and independent checks. Include real failure/repair if observed in that run; never invent an error for pacing.
+- Review the corrected or first passing candidate, explicitly accept it and show the exact editable/STEP/STL package.
 
-- 0-8 seconds: show the actual controller/accessory and the request: make the command key easier to find by touch.
-- 8-22 seconds: show a real generated candidate and its protected attachment, with a concise explanation of what changed.
-- 22-40 seconds: request a conflicting change; show the measured failure, then Astra's alternative. If demonstrating pending-work steering, retain the actual event timing and show obsolete work as obsolete.
-- 40-52 seconds: show the corrected candidate, matching measurements and explicit acceptance.
-- 52-60 seconds: show the editable/export package and one concise statement of the event-built contribution.
+The longer demonstration adds the distinct `resize_centered_v1` conflict: 30 mm length produces 2 mm end material, then the user confirms 36 mm before a new checked candidate. This is a requirements change, not satisfaction of the original 30 mm request. Actual failure/repair evidence is still required for M2 even if it is not in the one-minute edit.
 
-The sequence may require an edited recording of a longer real run. Do not fabricate progress, conceal a failed live path with fixture geometry or misrepresent sped-up footage as latency. A three-minute live script includes reset and failure recovery. DEMO refines pacing after measuring the loop.
+Record actual latency and attempts. Label sped-up or edited footage and real-run replay; never hide an unavailable live path with cached geometry. Before handoff, verify public links, repeat/reset, downloaded hashes and the exact demonstrated commit. Physical printing, supplier upload, ordering, deployment, spending and submission require applicable user authorization.
 
-## Freeze checklist
+## Documentation validation
 
-Run the same task from a clean design session twice; reopen downloads; exercise a known failure and late completion; verify the public repository contains only relevant product material; identify event-built code versus dependencies; check the actual demo/video links. Record runtime versions, baseline hash and the demonstrated commit. Keep credentials and private execution logs out of the public package. Final submission and any new hosting costs require the user's applicable authorization.
+Run `python3 -B tests/docs/verify_public_docs.py` for the four public documents. It checks local links/anchors, npm script names, fences, Mermaid block structure, required terms, README length and selected privacy patterns. It does not render Mermaid, validate architectural claims, check remote-link reachability or prove runtime behavior. Source, diagram rendering and publication review remain separate.

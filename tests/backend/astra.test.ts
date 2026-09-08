@@ -7,10 +7,12 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { z } from 'zod';
 import { CodexAstraPlanner } from '../../src/server/astra.js';
 import { ExecutionError } from '../../src/server/errors.js';
-import { CONTRACT_VERSION, type Run } from '../../src/shared/contracts.js';
+import { CONTRACT_VERSION, createRequirements, type Run } from '../../src/shared/contracts.js';
 
 const directories: string[] = [];
-const operation = { name: 'synthetic_edit', parameters: { height: 20 } };
+const operation = { name: 'resize_plate', parameters: { lengthMm: 36 } };
+const proposal = { kind: 'numeric_operation', operation };
+const requirements = await createRequirements({ designId: 'synthetic_design', requirementsVersion: 1, setupId: 'resize_centered_v1', lengthMm: 36 });
 const successfulEvents = [
   { type: 'thread.started', thread_id: 'synthetic_thread' },
   { type: 'turn.started' },
@@ -19,10 +21,9 @@ const successfulEvents = [
 ];
 const run: Run = {
   contractVersion: CONTRACT_VERSION, runId: 'synthetic_run', requestId: 'synthetic_request',
-  designId: 'synthetic_design', inputRevisionId: 'synthetic_initial', outputRevisionId: 'synthetic_output',
+  designId: 'synthetic_design', inputRevisionId: 'synthetic_initial', requirementsVersion: 1, requirementsId: requirements.requirementsId, registryId: requirements.registryId, registryHash: requirements.registryHash, setupId: requirements.setupId, setupHash: requirements.setupHash, referenceHash: requirements.referenceHash, validatorVersion: requirements.validatorVersion,
   units: 'mm', instruction: 'Set height to 20 mm.', status: 'planning', executionMode: 'live',
-  createdAt: '2026-09-08T18:00:00Z', updatedAt: '2026-09-08T18:00:00Z', operation: null,
-  checks: [], artifacts: [], evidenceApplicability: 'pending', error: null, provider: null,
+  createdAt: '2026-09-08T18:00:00Z', updatedAt: '2026-09-08T18:00:00Z', attemptIds: ['attempt_test'], candidateRevisionIds: ['synthetic_output'], activeAttemptId: 'attempt_test', error: null,
 };
 
 afterEach(async () => {
@@ -39,7 +40,7 @@ async function setup(body: string) {
   const providerDir = path.join(directory, 'runs', run.runId, 'provider');
   const planner = new CodexAstraPlanner({
     runtimeDir: directory, operationName: operation.name,
-    parameters: z.object({ height: z.number().min(1).max(100) }).strict(),
+    parameters: z.object({ lengthMm: z.number().min(26).max(200) }).strict(),
     context: 'Synthetic test only. No CAD operation.', binary,
   });
   return { directory, providerDir, planner };
@@ -73,7 +74,7 @@ async function waitFor(file: string) {
 test('provider is spawned literally with bounded flags and request text only on stdin', async () => {
   const { providerDir, planner } = await setup(`fs.writeFileSync(path.join(process.cwd(), 'captured.json'), JSON.stringify({ args, prompt }));\n${emit()}`);
   const instruction = 'Set height to 20 mm; $(literal-design-text) `literal-design-text`';
-  assert.deepEqual(await planner.propose({ ...run, instruction }, AbortSignal.timeout(3000)), operation);
+  assert.deepEqual(await planner.propose({ ...run, instruction }, AbortSignal.timeout(3000), requirements), proposal);
   const captured = JSON.parse(await readFile(path.join(providerDir, 'captured.json'), 'utf8'));
   assert.ok(captured.prompt.includes(JSON.stringify(instruction)));
   assert.equal(captured.args.includes(instruction), false);
@@ -91,7 +92,7 @@ test('provider does not inherit unrelated server environment variables', async (
   process.env[key] = 'synthetic-private-server-value';
   try {
     const { providerDir, planner } = await setup(`fs.writeFileSync(path.join(process.cwd(), 'environment.json'), JSON.stringify({ leaked: Object.hasOwn(process.env, ${JSON.stringify(key)}) }));\n${emit()}`);
-    await planner.propose(run, AbortSignal.timeout(3000));
+    await planner.propose(run, AbortSignal.timeout(3000), requirements);
     assert.equal(JSON.parse(await readFile(path.join(providerDir, 'environment.json'), 'utf8')).leaked, false);
   } finally {
     if (previous === undefined) delete process.env[key];
@@ -103,7 +104,7 @@ test('already-aborted requests never start the provider', async () => {
   const { providerDir, planner } = await setup(`fs.writeFileSync(path.join(process.cwd(), 'started'), 'yes');\n${emit()}`);
   const controller = new AbortController();
   controller.abort();
-  await assert.rejects(planner.propose(run, controller.signal), hasCode('ASTRA_CANCELLED'));
+  await assert.rejects(planner.propose(run, controller.signal, requirements), hasCode('ASTRA_CANCELLED'));
   assert.equal(await exists(path.join(providerDir, 'started')), false);
 });
 
@@ -116,7 +117,7 @@ fs.writeFileSync(path.join(process.cwd(), 'child-pid'), String(child.pid));
 setInterval(() => {}, 1000);
 `);
   const controller = new AbortController();
-  const pending = planner.propose(run, controller.signal);
+  const pending = planner.propose(run, controller.signal, requirements);
   const rejected = assert.rejects(pending, (error: unknown) => error instanceof ExecutionError && error.retryable);
   let childPid: number | undefined;
   try {
@@ -146,26 +147,26 @@ for (const [name, events] of [
 ] as const) {
   test(`provider rejects ${name}`, async () => {
     const { providerDir, planner } = await setup(emit([...events]));
-    await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), hasCode('ASTRA_INVALID_RESPONSE'));
+    await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), hasCode('ASTRA_INVALID_RESPONSE'));
     assert.equal(await exists(path.join(providerDir, 'receipt.json')), false);
   });
 }
 
 test('provider rejects malformed event JSON', async () => {
   const { planner } = await setup(`${emit()}\nprocess.stdout.write('{malformed\\n');`);
-  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), hasCode('ASTRA_INVALID_RESPONSE'));
+  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), hasCode('ASTRA_INVALID_RESPONSE'));
 });
 
 for (const [name, output] of [
   ['malformed output JSON', '{malformed'],
-  ['wrong operation', JSON.stringify({ name: 'unapproved_edit', parameters: { height: 20 } })],
-  ['out-of-range parameter', JSON.stringify({ name: operation.name, parameters: { height: 1000 } })],
-  ['unexpected parameter', JSON.stringify({ ...operation, parameters: { height: 20, secret: 1 } })],
+  ['wrong operation', JSON.stringify({ name: 'unapproved_edit', parameters: { lengthMm: 36 } })],
+  ['out-of-range parameter', JSON.stringify({ name: operation.name, parameters: { lengthMm: 1000 } })],
+  ['unexpected parameter', JSON.stringify({ ...operation, parameters: { lengthMm: 36, secret: 1 } })],
   ['missing output file', null],
 ] as const) {
   test(`provider rejects ${name}`, async () => {
     const { planner } = await setup(emit(successfulEvents, output));
-    await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), hasCode('ASTRA_INVALID_OPERATION'));
+    await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), hasCode('ASTRA_INVALID_OPERATION'));
   });
 }
 
@@ -173,13 +174,13 @@ test('completed turn cannot reuse an output file from an earlier provider attemp
   const { providerDir, planner } = await setup(emit(successfulEvents, null));
   await mkdir(providerDir, { recursive: true });
   await writeFile(path.join(providerDir, 'response.json'), JSON.stringify(operation));
-  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), (error: unknown) => error instanceof ExecutionError);
+  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), (error: unknown) => error instanceof ExecutionError);
 });
 
 test('stderr secrets are absent from a failed provider error and public receipt', async () => {
   const secret = 'synthetic-private-stderr-value';
   const { providerDir, planner } = await setup(`process.stderr.write(${JSON.stringify(secret)}); process.exitCode = 2;`);
-  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), (error: unknown) => {
+  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), (error: unknown) => {
     assert.ok(error instanceof ExecutionError);
     assert.equal(error.code, 'ASTRA_FAILED');
     assert.equal(String(error).includes(secret), false);
@@ -192,11 +193,11 @@ test('stderr secrets are absent from a failed provider error and public receipt'
 test('stderr secrets are absent from a successful provider receipt', async () => {
   const secret = 'synthetic-private-stderr-value';
   const { providerDir, planner } = await setup(`process.stderr.write(${JSON.stringify(secret)});\n${emit()}`);
-  assert.deepEqual(await planner.propose(run, AbortSignal.timeout(3000)), operation);
+  assert.deepEqual(await planner.propose(run, AbortSignal.timeout(3000), requirements), proposal);
   assert.equal((await readFile(path.join(providerDir, 'receipt.json'), 'utf8')).includes(secret), false);
 });
 
 test('excessive provider output is stopped and rejected', async () => {
   const { planner } = await setup(`process.stdout.write('x'.repeat(1024 * 1024 + 1)); setInterval(() => {}, 1000);`);
-  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000)), hasCode('ASTRA_FAILED'));
+  await assert.rejects(planner.propose(run, AbortSignal.timeout(3000), requirements), hasCode('ASTRA_FAILED'));
 });
