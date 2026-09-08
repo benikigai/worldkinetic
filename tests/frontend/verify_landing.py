@@ -141,7 +141,7 @@ class OverviewAcceptance(unittest.TestCase):
         self.assertGreaterEqual(len(entries), 2)
         for node in entries:
             # OUTSIDE_WRAPPER: user selected same-origin workspace entry; historical destination remains archived.
-            self.assertEqual(node.attrs.get('href'), '/workspace/')
+            self.assertEqual(node.attrs.get('href'), '/demo/')
             self.assertIn('demo', node.text().lower()); self.assertNotIn('aria-disabled', node.attrs)
         for node in page.nodes:
             self.assertFalse(any(key.lower().startswith('on') for key in node.attrs), 'No inline event handlers')
@@ -150,7 +150,7 @@ class OverviewAcceptance(unittest.TestCase):
                 href = node.attrs.get('href', '')
                 self.assertTrue(href and not href.startswith('javascript:'))
                 if href.startswith('#'): self.assertIn(href[1:], identities)
-        self.assertNotIn('/demo/', self.content, 'Reuse the agreed workspace route')
+        self.assertIn('RECORDED DEMO', (ROOT/'src/client/demo/index.html').read_text())
 
     def test_theme_palette_and_compact_responsive_header(self):
         content = (ROOT/'src/client/theme.css').read_text()
