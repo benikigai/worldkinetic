@@ -177,3 +177,36 @@ node --import tsx scripts/build.ts
 ```
 
 The server migration preserves v0.1 history by requiring a fresh runtime, migrates owned server/CLI callers and supplies v2 routes for the frontend handoff. Frontend integration and live tool/provider wiring remain separate tasks. Old automatic revision advancement is not proof of prior human acceptance. Live isolated generation/verification, feature feasibility, real exports, browser downloads and physical testing remain outside this schema release.
+
+## Numeric plate application (BACKEND-04)
+
+The product entry point now calls `createPlateApplication` and uses `ResponsesAstraPlanner` with the existing `cadToolAdapter`. It sends one native fetch POST to `https://api.openai.com/v1/responses`, requesting `gpt-6-astra`, with `store: false`, `background: false`, no tools and a strict `text.format` JSON schema capped at 4096 output tokens. The schema fixes `resize_plate` and the exact confirmed length. The request includes the immutable requirements and run intent. Response parsing requires completed assistant text, rejects duplicate JSON keys, extra operations, refusals, tool calls and any other reported model, and caps response bytes at 1 MiB. The [official Responses create reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create) describes the API fields. Earlier API access proof does not establish this application flow.
+
+Export the server-only `OPENAI_API_KEY` using the operator's existing secret-management workflow before starting. No SDK dependency or browser credential is used. `fetchImpl` and `tool` factory arguments are test seams; no HTTP request can set them. Shell variables must be exported explicitly; `.env.example` is documentation, not an automatically loaded file.
+
+```sh
+npm run build
+PORT=4314 WORLDKINETICS_RUNTIME_DIR=.runtime/backend-v2-4314 npm start
+curl http://127.0.0.1:4314/api/bootstrap
+curl http://127.0.0.1:4314/api/reference
+```
+
+The server binds loopback only and holds an exclusive `instance.lock` for the runtime. The default directory is `.runtime/backend-v2-<port>`. Use a fresh directory for a new session. A legacy storageVersion 1 snapshot is rejected without replacement. On startup the selected plate has confirmed length 50, `baselineRevisionId: baseline_50` and no accepted revision. Without credentials it remains selected with execution unavailable; a new run returns 503. Configured adapters do not establish provider access or CAD readiness. A missing CAD runtime fails explicitly, with no fixture fallback.
+
+`GET /api/reference` uses the browser-safe schemas in `src/shared/reference-v2.ts`. It returns `{contractVersion, reference}` with the original reference ID `plate_revised_50x35x5`, revision `baseline_50`, units `mm`, provenance `saved_reference`, and STEP/STL descriptors containing only registered artifact ID, filename, MIME, byte count, SHA-256 and download URL. Downloads use `/api/reference/artifacts/<registered-id>` and recheck the stored file's hash and size. The descriptors have no filesystem paths or current run evidence. These are saved reference geometry, never checked candidate output.
+
+Registration reads the actual files under `examples/plate/revised`, verifies canonical hashes, and seals copies under the runtime's `references/baseline_50` without overwrites. Startup and downloads detect tampering. Canonical STEP SHA-256 is `9e5b44499ec44e06544d5a3be6a00e5659a0e74aea145afbb05f36ab3771d6a3`; STL SHA-256 is `be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a`. Execution supplies the sealed STEP as `kind: reference`, `revisionId: baseline_50`; original example files remain intact.
+
+This slice supports numeric resize from the baseline only. Confirm a length through the existing requirements PATCH before submitting a run with that requirements version. A length of 30 remains 30 and may fail checks. The planner cannot clamp it to 36 or change thresholds. After explicit acceptance, new runs report unavailable until a separate schema handoff supports later reference-artifact transport. Accepted input is never relabeled as baseline and no baseline fallback occurs. The frozen feature setup can still be represented but cannot execute through this numeric path.
+
+Provider planning and tool execution share one 180-second deadline and AbortSignal. The executor creates only the output directory's parent; TOOLS creates the output directory. Identical run request retries return the same stored run without another provider or tool call, including after failure. Registered output import, strict tool-result validation, acceptance CAS, exports and history use the existing stack.
+
+Private receipts are written under `<runtime>/runs/<runId>/provider/receipt.json` with actual `responseId`, requested/reported model, sanitized token usage, proposal hash and completion status. Unknown values remain null. Credentials, raw provider bodies and provider error text are not retained. `CodexAstraPlanner` and `npm run verify:astra` remain legacy optional probes and are not the product runtime.
+
+Validation for this slice uses injected Responses and tool implementations:
+
+```sh
+node --import tsx --test tests/backend/*.test.ts && node node_modules/typescript/bin/tsc --noEmit && node --import tsx scripts/build.ts
+```
+
+Real Responses/CAD integration, container isolation behavior, geometry measurements, browser review, explicit acceptance and downloaded candidate exports still require the parent's integration run. This worker does not perform real API, CAD or Docker execution or restart services.
