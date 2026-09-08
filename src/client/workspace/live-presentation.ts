@@ -34,6 +34,9 @@ export function createLivePresentation() {
     update(snapshot: Snapshot, comparison: 'baseline' | 'candidate', active = true): LivePresentationUpdate {
       const { bootstrap, reference } = snapshot;
       const candidate = bootstrap?.candidates.find(item => item.revisionId === snapshot.viewedRevisionId);
+      const r = bootstrap?.requirements;
+      const initial = r?.registryId === 'handle_sample_v1' && r.setup.acceptedInitial
+        ? snapshot.history?.acceptances.find(a => a.acceptanceId === r.setup.acceptedInitial?.acceptanceId)?.candidate : null;
       const evidence = candidate ? canonicalize({ revisionId: candidate.revisionId, requirements: candidate.requirements,
         geometryHash: candidate.geometryHash, checkBundleHash: candidate.checkBundleHash, checks: candidate.checks }) : null;
       const verified = snapshot.trusted && !snapshot.loading && !snapshot.error;
@@ -42,10 +45,11 @@ export function createLivePresentation() {
       evidenceInitialized = true;
       evidenceKey = nextEvidence;
 
-      const artifact = comparison === 'baseline' ? reference?.artifacts.find(item => item.mediaType === 'model/stl')
+      const artifact = comparison === 'baseline' ? (initial?.artifacts ?? reference?.artifacts)?.find(item => item.mediaType === 'model/stl')
         : candidate?.artifacts.find(item => item.mediaType === 'model/stl');
       const nextIdentity = artifact ? canonicalize(comparison === 'baseline'
-        ? { comparison, referenceId: reference!.referenceId, revisionId: reference!.revisionId, artifact }
+        ? { comparison, referenceId: reference?.referenceId, revisionId: initial?.revisionId ?? reference?.revisionId, artifact,
+          acceptedInitial: initial ? r?.setup : null }
         : { comparison, evidence, artifact, runId: candidate!.runId, executionMode: candidate!.executionMode,
           selectedRevisionId: bootstrap!.design?.selectedCandidateRevisionId ?? null, requirements: bootstrap!.requirements }) : null;
 

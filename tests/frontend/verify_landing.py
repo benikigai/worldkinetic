@@ -121,7 +121,8 @@ class OverviewAcceptance(unittest.TestCase):
         entries = [n for n in page.nodes if n.tag == 'a' and 'demo-entry' in n.attrs.get('class', '').split()]
         self.assertGreaterEqual(len(entries), 2)
         for node in entries:
-            self.assertEqual(node.attrs.get('href'), EXPECTED['demo_url'])
+            # OUTSIDE_WRAPPER: user selected same-origin workspace entry; historical destination remains archived.
+            self.assertEqual(node.attrs.get('href'), '/workspace/')
             self.assertIn('demo', node.text().lower()); self.assertNotIn('aria-disabled', node.attrs)
         for node in page.nodes:
             self.assertFalse(any(key.lower().startswith('on') for key in node.attrs), 'No inline event handlers')

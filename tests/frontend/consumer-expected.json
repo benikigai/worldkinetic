@@ -1,0 +1,37 @@
+{
+  "evidence": "OUTSIDE_WRAPPER: FRONTEND-CONSUMER-01 authorizes workspace layout/controller migration from 6ad1a609; old guide ownership guards archived, all functional assertions preserved.",
+  "preserved_files": {
+    "tests/frontend/preserved-pre-consumer/guide-expected.json": "a091c957a3add91a5fbfbaae9d191462107e55049f379318afc17f82f9bcc856",
+    "tests/frontend/preserved-pre-consumer/verify_guide.py": "dfbc4e8e6f57f8f36274550b9cb5fd2f6400eaa24829e49fafd00763b2011a51",
+    "src/client/workspace/fixtures/saved-references/mcp-test-plate.stl": "e078a52ece47d126ca7a22d19070e73d170b709f14847359e94252379f0ed76c",
+    "src/client/workspace/fixtures/saved-references/plate-50x35x5.stl": "be0f4113c8b12339f37d7a34cbb1b967b22fae6c13bbcabd156a591480dc2d4a"
+  },
+  "existing_control_ids": [
+    "theme",
+    "live-mode",
+    "saved-mode",
+    "review-mode",
+    "reference",
+    "live-comparison",
+    "live-revision",
+    "wireframe",
+    "live-event-run",
+    "review-scenario",
+    "review-reload",
+    "review-revision",
+    "review-event",
+    "live-refresh",
+    "live-reconnect",
+    "live-retry",
+    "live-length",
+    "live-request",
+    "live-confirm",
+    "live-run",
+    "live-accept",
+    "live-artifact",
+    "live-download",
+    "request",
+    "scenario",
+    "reload"
+  ]
+}

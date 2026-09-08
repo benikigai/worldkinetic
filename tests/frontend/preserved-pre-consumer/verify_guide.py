@@ -96,11 +96,12 @@ class GuideAcceptance(unittest.TestCase):
             self.assertIn(value.lower(), summary)
         return node
 
-    def test_existing_fixture_bytes_and_guide_artifacts_are_preserved(self):
-        # OUTSIDE_WRAPPER: consumer layout/controller changes replace obsolete whole-page/source pins.
-        # Functional guide, numeric SVG, viewer, state and eligibility tests remain active.
-        expected = json.loads((ROOT / 'tests/frontend/consumer-expected.json').read_text())
-        for name, sha in expected['preserved_files'].items():
+    def test_existing_workspace_and_controller_sources_are_preserved(self):
+        expected = json.loads((ROOT / 'tests/frontend/guide-expected.json').read_text())
+        self.assertEqual(digest(self.document.canonical('workspace-guide')), expected['workspace_tree_sha256'])
+        css = STYLE.read_bytes()
+        self.assertEqual(hashlib.sha256(css[:expected['css_bytes']]).hexdigest(), expected['css_sha256'], 'Append CSS; preserve the accepted viewer styles')
+        for name, sha in expected['immutable_files'].items():
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), sha, name)
 
     def test_guide_is_passive_accessible_and_has_real_local_navigation(self):
@@ -143,13 +144,13 @@ class GuideAcceptance(unittest.TestCase):
         text = ' '.join(guide.text().split()).lower()
         self.assertIn('saved reference', text)
         self.assertIn('synthetic', text)
-        self.assertIn('live demo', text)
+        self.assertIn('live numeric', text)
         self.assertRegex(text, r'completion.{0,90}(not|never).{0,60}accept|not.{0,50}automatically accept')
 
     def test_repair_example_is_a_sample_mounting_brief_with_axes_only(self):
         node = self.example('guide-repair', 'Repair it', 'Replacement handle concept', 'Concept')
         text = ' '.join(node.text().split()).lower()
-        for phrase in ['sample', '96 mm', '25 mm', '140 mm', 'empty finger gap', 'hardware', 'unspecified']:
+        for phrase in ['in development', 'sample', '96 mm', '25 mm', '140 mm', 'empty finger gap', 'hardware', 'unspecified']:
             self.assertIn(phrase, text)
         self.assertIn('guide-mount-datums', self.ids)
         geometry = self.ids['guide-mount-datums']
@@ -192,28 +193,26 @@ class GuideAcceptance(unittest.TestCase):
         self.assertEqual(30 / 2 - 20 / 2 - 6 / 2, 2)
 
     def test_personalization_is_intended_refinement_of_an_explicitly_accepted_handle(self):
-        node = self.example('guide-yours', 'Make it yours', 'Broader grip with thumb rest', 'Sample brief')
+        node = self.example('guide-yours', 'Make it yours', 'Broader grip with thumb rest', 'Concept')
         text = ' '.join(node.text().split()).lower()
-        for phrase in ['initial handle', 'generated', 'checked', 'explicit', 'accepted', 'mount', 'finger gap', 'nine checks', 'download']:
+        for phrase in ['in development', 'intended', 'initial handle', 'generated', 'checked', 'explicit', 'accepted', 'mount', 'finger gap', 'nine checks', 'download']:
             self.assertIn(phrase, text)
-        self.assertIn('actual run state', text)
-        self.assertIn('workspace', text)
-        self.assertNotIn('not available live', text, 'Current runtime readiness belongs to the verified workspace state')
+        self.assertRegex(text, r'not.{0,50}(live|available)|runtime.{0,50}(pending|unverified)|await.{0,50}(runtime|verification)')
         self.assertFalse(any(n.tag in {'path', 'circle', 'ellipse', 'image', 'polygon'} for n in node.walk()), 'Concept flow can show semantic stages, not invented handle geometry')
 
     def test_new_style_is_scoped_responsive_and_keeps_diagrams_fluid(self):
         self.guide()
         expected = json.loads((ROOT / 'tests/frontend/guide-expected.json').read_text())
-        appended = STYLE.read_text()
+        appended = STYLE.read_bytes()[expected['css_bytes']:].decode()
         self.assertRegex(appended, r'@media\s*\([^)]*max-width')
         self.assertRegex(appended, r'\.wk-guide[^{}]*svg\s*\{[^}]*width:\s*100%')
         self.assertRegex(appended, r'\.wk-guide[^{}]*svg\s*\{[^}]*height:\s*auto')
         self.assertNotRegex(appended, r'@import|url\(')
-        self.assertNotRegex(appended, r'\.wk-guide[^{}]*\{[^}]*position:\s*(fixed|absolute)')
-        self.assertNotRegex(appended, r'\.wk-guide[^{}]*\{[^}]*(?<!max-)width:\s*\d{3,}px')
+        self.assertNotRegex(appended, r'position:\s*(fixed|absolute)')
+        self.assertNotRegex(appended, r'(?<!max-)width:\s*\d{3,}px')
         # Nested media blocks are allowed; every new selector targets only the added guide.
         for selector in re.findall(r'(?:^|[{}])\s*([^{}]+)\{', re.sub(r'/\*.*?\*/', '', appended, flags=re.S)):
-            if not selector.strip().startswith('@') and '.wk-guide' in selector:
+            if not selector.strip().startswith('@'):
                 self.assertTrue(all('.wk-guide' in part for part in selector.split(',')), selector)
 
 

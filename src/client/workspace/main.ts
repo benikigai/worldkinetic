@@ -55,7 +55,7 @@ function setStatus(title: string, detail: string, ready = false) {
   element('preview-status').textContent = title;
   element('preview-detail').textContent = detail;
   message.hidden = ready;
-  viewport.setAttribute('aria-busy', String(title === 'Loading saved reference'));
+  viewport.setAttribute('aria-busy', String(title.startsWith('Loading')));
   for (const button of viewButtons) button.disabled = !ready;
   wireframe.disabled = !ready;
 }
@@ -166,16 +166,24 @@ async function loadLivePreview(token: number, signal: AbortSignal, previewKey: s
   const s = liveController.snapshot();
   const baseline = live.comparison() === 'baseline';
   const candidate = s.bootstrap?.candidates.find(item => item.revisionId === s.viewedRevisionId);
-  const label = baseline ? `Registered baseline · ${s.reference?.revisionId ?? 'unavailable'}`
+  const requirements = s.bootstrap?.requirements;
+  const initial = requirements?.registryId === 'handle_sample_v1' && requirements.setup.acceptedInitial
+    ? s.history?.acceptances.find(item => item.acceptanceId === requirements.setup.acceptedInitial?.acceptanceId)?.candidate : null;
+  const label = baseline ? (initial ? `Accepted starting design · ${initial.revisionId}` : `Two-pad mounting reference · ${s.reference?.revisionId ?? 'unavailable'}`)
     : `Inspected ${candidate?.revisionId === s.bootstrap?.design?.selectedCandidateRevisionId ? 'selected' : 'historical'} candidate · ${candidate?.revisionId ?? 'none'}`;
   element('live-mesh-identity').textContent = label;
-  element('model-title').textContent = baseline ? 'Baseline geometry' : 'Candidate geometry';
+  element('model-title').textContent = baseline ? (initial ? 'Before · starting design' : 'Before · mounting pads') : 'Your design';
   if (!s.trusted || s.loading || s.error) {
     setStatus(s.loading ? 'Loading live evidence' : 'Live preview unavailable', s.error ?? 'Verifying authoritative records and baseline bytes.');
     return;
   }
+  if (requirements?.registryId !== 'handle_sample_v1' || s.bootstrap?.executionMode === 'fixture') {
+    if (previewKey) live.failed(previewKey);
+    setStatus('Handle preview unavailable', 'This connection has no verified live handle workspace. Saved and synthetic examples remain explicitly labeled in Test data.');
+    return;
+  }
   if (!baseline && !candidate) {
-    setStatus('No candidate preview', 'Request a numeric run, then inspect its registered candidate.');
+    setStatus('No candidate preview', 'Confirm the sample sizes, create your handle, then review its shape here.');
     return;
   }
   if (!previewKey) {
@@ -189,7 +197,7 @@ async function loadLivePreview(token: number, signal: AbortSignal, previewKey: s
   }
   setStatus('Loading registered STL', `${label}. Verifying media type, byte count and SHA-256.`);
   try {
-    const preview = await liveController.preview(baseline ? null : candidate!.revisionId);
+    const preview = await liveController.preview(baseline ? initial?.revisionId ?? null : candidate!.revisionId);
     if (token !== selectionToken || signal.aborted) return;
     if (!preview) {
       live.failed(previewKey);
@@ -244,7 +252,7 @@ function switchMode(next: 'saved' | 'review' | 'live') {
   document.querySelectorAll<HTMLElement>('[data-live-only]').forEach(node => { node.hidden = mode !== 'live'; });
   document.querySelectorAll<HTMLElement>('[data-viewer-only]').forEach(node => { node.hidden = mode === 'review'; });
   document.querySelectorAll<HTMLElement>('[data-offline-only]').forEach(node => { node.hidden = mode === 'live'; });
-  element('model-title').textContent = mode === 'live' ? 'Baseline geometry' : 'Reference geometry';
+  element('model-title').textContent = mode === 'live' ? 'Handle mounting reference' : 'Reference geometry';
   element('live-mode').setAttribute('aria-pressed', String(mode === 'live'));
   element('saved-mode').setAttribute('aria-pressed', String(mode === 'saved'));
   element('review-mode').setAttribute('aria-pressed', String(mode === 'review'));
