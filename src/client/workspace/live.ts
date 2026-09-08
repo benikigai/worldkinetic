@@ -66,6 +66,10 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     if (length.value !== s.draft.lengthMm) length.value = s.draft.lengthMm;
     if (instruction.value !== s.draft.instruction) instruction.value = s.draft.instruction;
     const handle = requirements?.registryId === 'handle_sample_v1';
+    // Recovery can reconcile a committed final acceptance without revisiting the accept callback.
+    if (handle && requirements.setupId === 'handle_refine_v1' && s.canDownload) {
+      changing = false; sizesReviewed = false;
+    }
     const action = consumerAction(s, { sizesReviewed, changing, canAccept: display.canAccept });
     const step = consumerStep(s, { sizesReviewed, changing });
     Array.from(element('consumer-progress').children).forEach((item, index) => {

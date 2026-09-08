@@ -15,6 +15,7 @@ const fixture = JSON.parse(await readFile(new URL('../../fixtures/api/v2/handle-
 
 async function service() {
   let count = 0;
+  const responseFault = { loseAcceptance: false };
   const bodies = new Map<string, Uint8Array>();
   const referenceArtifacts = await Promise.all([
     ['step', 'model/step', bytes('DETERMINISTIC_FAKE_HTTP_ONLY mount STEP, invalid CAD')],
@@ -146,10 +147,14 @@ async function service() {
       value = { contractVersion: c.CONTRACT_VERSION, reused: false, acceptance, manifest };
     } else return fail();
     receipts.set(body.requestId, { key, value: copy(value) });
+    if (path.endsWith('/accept') && responseFault.loseAcceptance) {
+      responseFault.loseAcceptance = false;
+      throw new Error('Acceptance committed, response connection lost');
+    }
     return wire(value, path === '/api/runs' ? 202 : 200);
   };
   const { createLiveWorkspaceController } = await import(controllerPath);
-  return { controller: createLiveWorkspaceController({ fetch: fetcher }), state, history, reference, bodies, calls, overrides, complete, acceptedInitial };
+  return { controller: createLiveWorkspaceController({ fetch: fetcher }), state, history, reference, bodies, calls, overrides, complete, acceptedInitial, responseFault };
 }
 
 async function initial(accept = false) {
@@ -255,7 +260,7 @@ test('reference datum corruption and unavailable handle artifact never substitut
 
 // OUTSIDE_WRAPPER: real DOM event callbacks with deterministic fake HTTP and an explicit fake renderer.
 // This establishes UI action boundaries, not a browser/WebGL or live CAD result.
-test('public handle controls fill locally and traverse confirm, create, render, accept, refine and files explicitly', async () => {
+for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public handle controls preserve explicit actions and expose accepted files after ${recovery}`, async () => {
   class Element {
     children: Element[] = []; dataset: Record<string,string> = {}; textContent = ''; value = ''; className = '';
     disabled = false; hidden = false; open = false; listeners = new Map<string, Array<() => void>>();
@@ -273,7 +278,7 @@ test('public handle controls fill locally and traverse confirm, create, render, 
   const previous=Object.getOwnPropertyDescriptor(globalThis,'document');
   Object.defineProperty(globalThis,'document',{configurable:true,value:{getElementById:node,createElement:(tag:string)=>new Element(tag)}});
   const abort=new AbortController();
-  const settled=async()=>{for(let n=0;n<100 && (s.controller.snapshot().busy||s.controller.snapshot().loading);n++) await new Promise(resolve=>setTimeout(resolve,2)); assert.equal(s.controller.snapshot().error,null);};
+  const settled=async(allowError=false)=>{for(let n=0;n<100 && (s.controller.snapshot().busy||s.controller.snapshot().loading);n++) await new Promise(resolve=>setTimeout(resolve,2)); assert.equal(s.controller.snapshot().busy,false); assert.equal(s.controller.snapshot().loading,false); if(!allowError) assert.equal(s.controller.snapshot().error,null);};
   const {mountLive}=await import('../../src/client/workspace/live.js');
   let previewKey:string|null=null;
   try {
@@ -297,7 +302,20 @@ test('public handle controls fill locally and traverse confirm, create, render, 
     assert.equal(node('live-download').hidden,true); assert.equal(s.state.runs.length,1);
     node('live-run').click(); await settled(); assert.equal(s.state.runs.at(-1).inputRevisionId,initialId);
     await s.complete(); await s.controller.refresh(); assert.equal(node('live-accept').hidden,true);
-    assert.ok(previewKey); ui.rendered(previewKey); node('live-accept').click(); await settled();
+    assert.ok(previewKey); ui.rendered(previewKey);
+    if (recovery === 'refresh') s.overrides.set('GET /api/bootstrap', [() => { throw new Error('Refresh connection lost'); }]);
+    if (recovery === 'retry') s.responseFault.loseAcceptance = true;
+    node('live-accept').click(); await settled(recovery !== 'direct');
+    if (recovery !== 'direct') {
+      assert.equal(s.history.acceptances.length,2,'Final acceptance was actually committed before the response failure');
+      assert.ok(s.controller.snapshot().error);
+      assert.equal(node('live-files').hidden,true,'Unverified recovery cannot expose files');
+      const requestId=s.history.acceptances[1].request.requestId;
+      node(recovery === 'refresh' ? 'live-refresh' : 'live-retry').click(); await settled();
+      assert.equal(s.history.acceptances.length,2,'Recovery must not create another acceptance');
+      assert.equal(s.history.acceptances[1].request.requestId,requestId);
+      assert.equal(s.controller.snapshot().canDownload,true,'Controller reconciled exact final files');
+    }
     assert.equal(s.history.acceptances.length,2); assert.notEqual(s.state.design.acceptedRevisionId,initialId);
     assert.equal(node('live-files').hidden,false); assert.equal(node('live-download').disabled,false);
     assert.equal(node('live-change').hidden,true,'Only the accepted initial supports this refinement stage');
