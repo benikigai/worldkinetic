@@ -14,6 +14,7 @@ const usageSchema = z.object({ input_tokens: tokenCount, output_tokens: tokenCou
 });
 const messageSchema = z.object({
   type: z.literal('message'), id: z.string().optional(), role: z.literal('assistant'), status: z.literal('completed'),
+  phase: z.literal('final_answer').optional(),
   content: z.array(z.object({ type: z.literal('output_text'), text: z.string().min(1),
     annotations: z.array(z.never()), logprobs: z.array(z.unknown()).optional(),
   }).strict()).length(1),
