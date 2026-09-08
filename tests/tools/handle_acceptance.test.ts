@@ -50,7 +50,7 @@ function sourceFor(c: Case, refined: boolean): string {
 async function request(source: string, refined: boolean): Promise<ToolInput> {
   const id = ++counter;
   const ref = { referenceId: 'handle_mount_v1' as const, revisionId: 'handle_mount_reference_v1' as const,
-    stepSha256: reference.sha256, datumSpecSha256: HANDLE_DATUM_SHA256 };
+    stepSha256: reference.sha256, datumSpecSha256: HANDLE_DATUM_SHA256 } as const;
   const requirements = await createHandleRequirements(refined
     ? { designId: 'handle_tools_developer_test', requirementsVersion: 2, setupId: 'handle_refine_v1', reference: ref, acceptedInitial: accepted }
     : { designId: 'handle_tools_developer_test', requirementsVersion: 1, setupId: 'handle_initial_v1', reference: ref });
@@ -61,7 +61,7 @@ async function request(source: string, refined: boolean): Promise<ToolInput> {
     outputRevisionId: `handle_candidate_${id}`, attemptId: `handle_attempt_${id}`, units: 'mm', requirements,
     registryCanonicalJson: requirements.registryCanonicalJson, setupCanonicalJson: requirements.setupCanonicalJson,
     proposal: { kind: 'python_source', source, changeSummary: 'Fixed developer handle acceptance input' },
-    referenceArtifact: reference, inputArtifacts: artifact ? [{ artifactId: artifact.artifactId,
+    referenceArtifact: reference, inputArtifacts: artifact ? [{ artifactId: accepted.artifactId,
       revisionId: initial.outputRevisionId, kind: 'export', units: 'mm', path: artifact.path, sha256: artifact.sha256 }] : [],
     outputDir: path.join(scratch, `out-${id}`), remainingBudgetMs: 120000,
   });
@@ -122,7 +122,7 @@ for (const c of cases.initialCases) test(c.id, { timeout: 135000 }, async () => 
     const artifact = result.artifacts.find(a => a.kind === 'export')!;
     // Synthetic acceptance descriptor for adapter testing, not application/user acceptance.
     accepted = { acceptanceId: 'developer_initial_acceptance', revisionId: result.outputRevisionId,
-      artifactId: artifact.artifactId, sha256: artifact.sha256, requirementsId: result.requirementsId,
+      artifactId: 'developer_registered_initial_step', sha256: artifact.sha256, requirementsId: result.requirementsId,
       requirementsVersion: result.requirementsVersion, setupHash: result.setupHash,
       sourceSha256: result.sourceSha256!, checkBundleHash: result.checkBundleHash! };
     near(measured(result, 'handle.grip_clearance').minimumGapMm!, 25, 1e-6);
@@ -130,9 +130,16 @@ for (const c of cases.initialCases) test(c.id, { timeout: 135000 }, async () => 
     assert.deepEqual(stations.map(s => s.xMm), [-24,-12,0,12,24]);
     for (const s of stations) { near(s.widthMm, 10); near(s.areaMm2, 100); }
   }
-  if (c.id === 'rounded_initial') {
+  if (c.id === 'rounded_initial' || c.id === 'rotated_seam_initial') {
     assert.notEqual(result.geometryHash, initial.geometryHash);
     for (const s of measured(result, 'handle.grip_sections').stations) { near(s.widthMm, 12); near(s.areaMm2, 36 * Math.PI); }
+  }
+  if (c.id === 'rotated_seam_initial') {
+    const gap = measured(result, 'handle.grip_clearance').minimumGapMm!;
+    near(gap, 25, 1e-6);
+    const pairs = result.checks.find(c => c.checkId === 'handle.grip_clearance')?.diagnostics?.pointPairs;
+    assert.ok(pairs?.length, 'Gap diagnostics must contain actual nearest-surface points');
+    for (const [a,b] of pairs) near(Math.hypot(...a.map((value,i) => value-b[i]!)), gap, 1e-6);
   }
 });
 
@@ -149,6 +156,8 @@ for (const c of cases.refinementCases) test(c.id, { timeout: 135000 }, async () 
     for (const s of delta.stations) near(s.widthIncreaseMm!, 4);
   }
   if (c.id === 'tiny_rest_spike') { near(delta.protrusionMm, 2); assert.ok(delta.outboardAddedVolumeMm3 < 5); }
+  if (c.id === 'outboard_below_minimum') near(delta.outboardAddedVolumeMm3, 4.995, 1e-8);
+  if (c.id === 'outboard_at_minimum') near(delta.outboardAddedVolumeMm3, 5, 1e-8);
   if (c.id === 'removed_initial_material') assert.ok(delta.removedVolumeMm3 > 0.01);
 });
 

@@ -25,6 +25,12 @@
       "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [12,12,12,12,12]}
     },
     {
+      "id": "rotated_seam_initial",
+      "source": "from build123d import *\np = import_step('__MOUNT_REFERENCE__')\nfor x in (-48,48):\n    p += Pos(x,0,2) * Cylinder(5,29,align=(Align.CENTER,Align.CENTER,Align.MIN))\np += Pos(-54,0,31) * Rot(13,0,0) * Rot(0,90,0) * Cylinder(6,108,align=(Align.CENTER,Align.CENTER,Align.MIN))\n",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {"gapMm": 25, "stationWidthsMm": [12,12,12,12,12], "nearestPointPairDistanceMm": 25}
+    },
+    {
       "id": "shifted_mounts",
       "sourceBase": "initialSource",
       "append": "p = Pos(1,0,0) * p\n",
@@ -51,6 +57,18 @@
     }
   ],
   "refinementCases": [
+    {
+      "id": "outboard_below_minimum",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.4995,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": ["handle.refinement_delta"],
+      "expectedMeasurements": {"outboardAddedVolumeMm3": 4.995, "protrusionMm": 2}
+    },
+    {
+      "id": "outboard_at_minimum",
+      "source": "from build123d import *\np = import_step('__ACCEPTED_BASELINE__')\np += Pos(-32,-7,25) * Box(64,14,10,align=(Align.MIN,Align.MIN,Align.MIN))\np += Pos(-5,7,29) * Box(10,2,0.5,align=(Align.MIN,Align.MIN,Align.MIN))\n",
+      "expectedFailedChecks": [],
+      "expectedMeasurements": {"outboardAddedVolumeMm3": 5, "protrusionMm": 2}
+    },
     {
       "id": "valid_refinement",
       "sourceBase": "refinementSource",
