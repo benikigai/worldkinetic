@@ -49,8 +49,14 @@ cylinder axes, whole contact-layer symmetric difference, envelope, central-colum
 Boolean intrusion, connected central grip and five actual planar sections.
 Refinement measures all initial material removal, per-station width and added
 area, added thumb-box/outboard volume and actual protrusion. Initial width limits
-do not constrain refinement. The gap uses only the 1e-7 mm kernel inset, with no
-0.01 mm or volume allowance. Thumb addition must be strictly greater than 25 mm3.
+do not constrain refinement. The gap uses OCP nearest-shape distance from the
+central grip to the panel at Z=0, with actual closest points on both shapes.
+Unavailable or nonfinite distance/point evidence cannot pass. Curved surfaces are
+measured independently of their seam vertices. The whole central-column Boolean
+separately requires zero positive intersecting solids below 25-1e-7 mm, and minimum
+gap must be >=25-1e-7 mm, with no 0.01 mm or volume allowance. Thumb addition must
+be strictly greater than 25 mm3; outboard addition must be >=5-1e-7 mm3. The
+4.995 mm3 control fails and 5.000 mm3 passes without a 0.01 mm3 allowance.
 The panel's 4.5 mm holes are metadata, not handle bores or threads.
 
 The fresh export verifier reopens exact STEP bytes, compares isolated regeneration
@@ -82,21 +88,50 @@ recomputed bundle. It is transport conformance data, not a live run.
 
 ```sh
 node --import tsx src/tools/check_handle_cases.ts
-# Copy one completed private run into fresh saved-example directories:
-node --import tsx src/tools/save_handle_trials.ts /absolute/private-trial-directory
-node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts src/tools/check_handle_cases.ts src/tools/save_handle_trials.ts
+# Save four focused cases from a completed protected handle acceptance run:
+node --import tsx src/tools/save_handle_boundary_trials.ts /absolute/private-trial-directory
+node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts src/tools/check_handle_cases.ts src/tools/save_handle_trials.ts src/tools/save_handle_boundary_trials.ts
 ```
 
-The protected handle acceptance currently reports 8 passed and 7 failed. Its
-reference probe and all six initial cases pass, as does fixture validation. The
-seven failures occur before refinement CAD: protected lines 64 and 125 read
-`artifactId` from private `ToolResult.artifacts`, whose strict released schema has
-no artifact ID. The protected typecheck reports those two accesses and the widened
-`datumSpecSha256` at line 54. The parent must supply a synthetic registered ID in
-its harness and retain the datum literal type; these protected files were not
-changed. The supplemental developer driver exercises the real refinement and
-negative paths with that explicit synthetic registration step. It is not a
-replacement or passing receipt for the protected gate.
+The first worker's historical protected gate reported 8 passed and 7 failed:
+the harness read `artifactId` from private `ToolResult.artifacts`, whose strict
+schema has no artifact ID, and its typecheck also widened the datum hash literal.
+That worker finished naturally; parent run `TOOLS-HANDLE-01-3813cd3157d4` was
+INTERRUPTED at the idle CAD boundary, not passed. Its output was preserved in
+`cf18adb`. The supervisor corrected synthetic registration/typing and added three
+strict controls in `f1f6f430a6cdbe1727b387e938a91a443aba7013`. Those protected
+definitions and all historical v1/reference/plate bytes remain unchanged here.
+
+On that corrected baseline, the targeted five tests reported four passes and one
+failure. `rotated_seam_initial` reported a 25.000000000000004 mm gap but supplied a
+vertex-derived diagnostic distance of 25.153779611289004 mm. Reference and valid
+initial passed; measured outboard additions 4.995000000000011 and
+4.999999999999999 mm3 correctly failed and passed, respectively. The repair
+replaces the vertex diagnostic with actual OCP surface extrema and retains both
+strict thresholds. This followup does not rewrite the interrupted receipt.
+
+The repaired protected handle gate passes all 18 tests: 14 geometry cases,
+reference reopening, descriptor-byte mismatch rejection, timeout/cancellation
+cleanup and fixture conformance. The focused [v2 boundary package](../../examples/handle/trials/v2/)
+retains the actual corrected rounded geometry and closest points, 4.995-fail and
+5.000-pass artifacts, and their synthetic accepted initial baseline. Its manifest
+covers source/editable/STEP/STL/results/provenance and exact verifier hashes. These
+are fixed developer inputs, not provider generation or product acceptance.
+
+The parent-supplied complete regression command exited 0: handle 18/18, source
+7/7, adapter 6/6, numeric plate geometry/export/invalid/deadline checks and the
+focused TOOLS/shared typecheck passed. Numeric lengths 50 and 36 passed their
+margin checks; length 30 retained its expected measured margin failure. The
+boundary saver separately passed strict TypeScript checking, and all 28 saved
+files and ten source hashes were verified against the manifest. No whole-app UI,
+provider generation or physical testing is claimed.
+
+Exact complete regression command:
+
+```sh
+node --import tsx --test tests/tools/handle_acceptance.test.ts && node --import tsx --test tests/tools/source_acceptance.test.ts && node --import tsx --test tests/tools/adapter.test.ts && python3 -B tests/tools/plate_acceptance.py && node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop --resolveJsonModule src/tools/adapter.ts src/tools/handle_reference.ts tests/tools/handle_acceptance.test.ts
+```
+
 
 BACKEND still owns Responses generation, real acceptance/history resolution,
 registration, routes and downloads. UI integration and model repair are not

@@ -1,0 +1,129 @@
+{
+  "scope": "Actual protected followup boundary observations; unchanged v1 historical artifacts",
+  "verifierHashes": {
+    "src/tools/adapter.ts": "fca08a0416d7911839de331364fb926af01bc7909ae462919b26ab7500229a14",
+    "src/tools/cad_runner.py": "f0151dae92cc051369bd54ca9d5ca691b123391424267c23224f41dd844c33cc",
+    "src/tools/handle_binding.py": "1d46b8deacfaad81fe25c04092d9eb053f839dcf96af2f17f87103256da937b9",
+    "src/tools/handle_geometry.py": "9cde1fff568c04718ac09b36d7b7eb0ce05a545857bbcb6a2e7abea02c9be366",
+    "src/tools/handle_mesh.py": "a1c44cc523c34eeddd58ee1d9397612ab1b04bf38ef89c6b9230dc6cdca08c86",
+    "src/tools/handle_pipeline.py": "dbfc243ed6f050af78e12fec4b8bd1d67fccba402966e280d9a3074f0c6cbca3",
+    "src/tools/handle_reference.ts": "ad7574534a932ec9653940dfa108433a3a25df562eb6502d6d31ec6f0f40604e",
+    "src/tools/handle_verify.py": "44c565986cb999a5953b0e39a9aa313fa35f8bf1941e17985436e6bff75637e6",
+    "src/tools/requirements_binding.py": "8c8e37501dcc5ef9c12365a8bea3c4bba036d525dbaa7e75fc18f006df167cc8",
+    "src/tools/mesh_checks.py": "2cc630c67274376464396414313e0e51e3d9b1d847fee37e1a8a2fb0c2de1a58"
+  },
+  "files": {
+    "examples/handle/trials/v2/reference/reference.step": {
+      "sha256": "08fbaaabecdcfc3223460a06eb42f9144afca8348973b18b83c460e3036cf395",
+      "bytes": 12861
+    },
+    "examples/handle/trials/v2/reference/preview.stl": {
+      "sha256": "3e2c284fee68df261d3aaec51cd77d0c527502d4cdb3c6c42498e71e1f3755ca",
+      "bytes": 502484
+    },
+    "examples/handle/trials/v2/reference/datums.json": {
+      "sha256": "6e6f59bda904c34ea46f336f0e1be24a2ff2de824a63cb40426988d3ac30fa83",
+      "bytes": 478
+    },
+    "examples/handle/trials/v2/reference/provenance.json": {
+      "sha256": "fffb0faed71699dbd76dce261ecc62aecc26cb2ade0abbba80e3c83c5f6d490e",
+      "bytes": 3901
+    },
+    "examples/handle/trials/v2/valid_initial/source.py": {
+      "sha256": "54e96bae846ee88df3f934b0d2cd6882bbed6cd49c4fd7aadb65e755c65a724c",
+      "bytes": 662
+    },
+    "examples/handle/trials/v2/valid_initial/editable.py": {
+      "sha256": "54e96bae846ee88df3f934b0d2cd6882bbed6cd49c4fd7aadb65e755c65a724c",
+      "bytes": 662
+    },
+    "examples/handle/trials/v2/valid_initial/candidate.step": {
+      "sha256": "5daefb80973384ed88a418d9253b5c601535251c3decc0e4048dd636bfa532cc",
+      "bytes": 39675
+    },
+    "examples/handle/trials/v2/valid_initial/preview.stl": {
+      "sha256": "0b701057c3b473ab59048efdb0adfd386eb9f69761f2a1bacdf8cbfa0d48c1c9",
+      "bytes": 1006684
+    },
+    "examples/handle/trials/v2/valid_initial/result.json": {
+      "sha256": "e3966fafcbc090eb8ffdc5f9513b9684d6c8d8da2200c8f984853c14f9d87c88",
+      "bytes": 63390
+    },
+    "examples/handle/trials/v2/valid_initial/provenance.json": {
+      "sha256": "8156503a4216e09cce0d8e67fa2180b3530f347d8e1841f8f7108ec09727ec53",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/source.py": {
+      "sha256": "29edcf3b8a990e5694d13b05c27fd56f1abdc538d014545acd4d4ae3da0b552a",
+      "bytes": 696
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/editable.py": {
+      "sha256": "29edcf3b8a990e5694d13b05c27fd56f1abdc538d014545acd4d4ae3da0b552a",
+      "bytes": 696
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/candidate.step": {
+      "sha256": "6307552f53a82c904f8db12d89db34f857044737ed6be3651f12cee030ffb9ba",
+      "bytes": 101041
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/preview.stl": {
+      "sha256": "62fbee24686cb60f2ef461e00bf5874bc97f5a4625605958cb96877dd01b7c60",
+      "bytes": 1387484
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/result.json": {
+      "sha256": "a7f1e505b33a1733fc410737a7f29d77c11ff307d20a8f803a7fa96812156a5e",
+      "bytes": 65815
+    },
+    "examples/handle/trials/v2/rotated_seam_initial/provenance.json": {
+      "sha256": "486ff5f9ac3ed9476905ef6b754c70ef9a582182ac110f860406c5747d509a49",
+      "bytes": 1796
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/source.py": {
+      "sha256": "129858d127b6f6545247d824a098ea3382c08837b28a2432f0e34a0ba154f990",
+      "bytes": 830
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/editable.py": {
+      "sha256": "129858d127b6f6545247d824a098ea3382c08837b28a2432f0e34a0ba154f990",
+      "bytes": 830
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/candidate.step": {
+      "sha256": "dcd0278528499765a633c819f33a554005e2cc33e2a6c4d10c9f4960dff0a7e6",
+      "bytes": 82464
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/preview.stl": {
+      "sha256": "3cd204832ac1e4e996cfd0db28b4f6798f8fdbdb966b66cbec9159e6ec554d9e",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/result.json": {
+      "sha256": "d38255b658ce75ae10d3ac6133a7f2f959d966600a45d69c49b8248e19048b80",
+      "bytes": 113750
+    },
+    "examples/handle/trials/v2/outboard_below_minimum/provenance.json": {
+      "sha256": "1a01fe59bb2ebf898bb0c0b629e27e6fdf1cb7b74552305145151d9f49a2e8ca",
+      "bytes": 1795
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/source.py": {
+      "sha256": "6003b2b87019b3e824517aac943bc0272c8ebdb033fff548e292255f008d989e",
+      "bytes": 827
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/editable.py": {
+      "sha256": "6003b2b87019b3e824517aac943bc0272c8ebdb033fff548e292255f008d989e",
+      "bytes": 827
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/candidate.step": {
+      "sha256": "6c0dff3fac38f9395b5e19dbb282f988d186a31c9f533e1b2e92a46f18cdf376",
+      "bytes": 82425
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/preview.stl": {
+      "sha256": "e94244aa31b95ed15591add1c66c8cd92153a6650c83b7e2f3502f56acdf6358",
+      "bytes": 1009084
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/result.json": {
+      "sha256": "88c10b5dee598be1117c8e1c1fab586d911b0d881f62e226858e049a57e04994",
+      "bytes": 113718
+    },
+    "examples/handle/trials/v2/outboard_at_minimum/provenance.json": {
+      "sha256": "8ec91d236d7a0841c64a83927e37ab0abf3dcee6bd7fa3084d54fe03d78ce372",
+      "bytes": 1795
+    }
+  }
+}

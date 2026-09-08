@@ -2,7 +2,10 @@
 import math
 from build123d import Align, Box, Pos, Plane, section
 from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
+from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeFace
+from OCP.BRepExtrema import BRepExtrema_DistShapeShape
 from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Cylinder, GeomAbs_Plane
+from OCP.gp import gp_Dir, gp_Pln, gp_Pnt
 
 TOL = 0.01
 
@@ -32,6 +35,26 @@ def box(x, y, z):
 
 def xyz(p):
     return [p.X(), p.Y(), p.Z()]
+
+
+def panel_distance(central, cb):
+    if central is None or cb is None:
+        return None, []
+    # Extend past the grip footprint so panel edges cannot set the minimum.
+    panel = BRepBuilderAPI_MakeFace(gp_Pln(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)),
+                                   cb[0][0]-1, cb[1][0]+1, cb[0][1]-1, cb[1][1]+1).Face()
+    distance = BRepExtrema_DistShapeShape(central.wrapped, panel)
+    distance.Perform()
+    if not distance.IsDone() or distance.NbSolution() < 1:
+        return None, []
+    gap = distance.Value()
+    pairs = [[xyz(distance.PointOnShape1(i)), xyz(distance.PointOnShape2(i))]
+             for i in range(1, distance.NbSolution()+1)]
+    if (not math.isfinite(gap) or gap < 0
+            or any(not math.isfinite(v) for pair in pairs for point in pair for v in point)
+            or any(abs(math.dist(*pair)-gap) > 1e-7 for pair in pairs)):
+        return None, []
+    return gap, pairs
 
 
 def close_bounds(a, b, tolerance=TOL):
@@ -131,13 +154,9 @@ def inspect(shape, reference, g, baseline=None, initial=True):
     grip = g['grip']
     central = intersect(shape, box(grip['centralXRangeMm'], grip['centralYRangeMm'], grip['centralZRangeMm']))
     cb = bounds(central)
-    gap = cb[0][2] if cb else None
+    gap, pairs = panel_distance(central, cb)
     intrusion = intersect(shape, box(grip['centralXRangeMm'], grip['centralYRangeMm'], [0, 25-1e-7]))
     intruding = [] if intrusion is None else [s for s in intrusion.solids() if s.volume > 0]
-    pairs = []
-    if central is not None and central.vertices():
-        v = min(central.vertices(), key=lambda v: v.center().Z).center()
-        pairs = [[[v.X, v.Y, v.Z], [v.X, v.Y, 0]]]
     clearance = {'minimumGapMm': gap, 'intersectingSolids': len(intruding), 'intrusionVolumeMm3': volume(intrusion),
                  'diagnosticBounds': bounds(intrusion), 'closestPointPairs': pairs,
                  'passed': gap is not None and gap >= 25-1e-7 and not intruding}
