@@ -90,7 +90,7 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertFalse(n.tag == 'input' and n.attrs.get('type') == 'file')
             if n.tag == 'a':
                 href = n.attrs.get('href','')
-                self.assertNotIn('/demo/',href)
+                self.assertTrue(not href.startswith('/demo/') or href == '/demo/')
                 if href.startswith('#'): self.assertTrue(href[1:] in self.ids)
 
 

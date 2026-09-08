@@ -318,3 +318,10 @@
 .wk-supplier-links span { display: block; font-size: 14px; }
 .wk-fit-check { display: flex; align-items: start; gap: 10px; margin: 14px 0; }
 .wk-fit-check input { width: 20px; min-height: 20px; flex-shrink: 0; margin-top: 2px; }
+
+.wk-session-gate { max-width: 520px; margin: 48px auto; padding: 28px; }
+.wk-session-gate h1 { font-size: 30px; line-height: 1.2; }
+.wk-session-gate p { line-height: 1.6; }
+.wk-session-gate form { display: grid; gap: 12px; margin: 24px 0; }
+#session-bar { margin-bottom: 20px; }
+#session-budget { font-size: 14px; font-weight: 400; margin-left: 12px; }

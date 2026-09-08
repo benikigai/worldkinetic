@@ -1,3 +1,4 @@
+import { mountSession } from './session.js';
 import { MAX_PREVIEW_BYTES, parsePreviewGeometry } from './preview.js';
 import { PreviewViewer, type ViewName } from './viewer.js';
 import { mountReview } from './review.js';
@@ -277,5 +278,12 @@ window.addEventListener('pagehide', (event) => {
   viewer?.dispose();
 }, { signal: listeners.signal });
 const initialMode = new URLSearchParams(window.location.search).get('mode');
-if (initialMode === 'saved') void loadSelection();
-else switchMode(initialMode === 'review' ? 'review' : 'live');
+let sessionAllowed = false;
+mountSession(listeners.signal, allowed => {
+  if (allowed === sessionAllowed) return;
+  sessionAllowed = allowed;
+  if (!allowed) { live.close(); request?.abort(); selectionToken++; viewer?.clear(); return; }
+  if (initialMode === 'saved') void loadSelection();
+  else if (mode === 'live') live.open();
+  else switchMode(initialMode === 'review' ? 'review' : 'live');
+});
