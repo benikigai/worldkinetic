@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/theme.css">
   <link rel="stylesheet" href="/demo/demo.css">
   <script src="/theme.js" defer></script>
+  <script src="/demo/player.js" defer></script>
 </head>
 <body>
   <main class="recorded-demo">
@@ -23,7 +24,10 @@
       <p class="demo-label">RECORDED DEMO · 60 SECONDS</p>
       <h2 id="watch-title">Watch the demo</h2>
       <p>Follow a handle from its sample dimensions to an approved design and editable files.</p>
-      <video controls playsinline preload="metadata" aria-label="Recorded cabinet-handle workflow"><source src="/demo/handle-demo.mp4" type="video/mp4">Your browser cannot play this video. <a href="/demo/handle-demo.mp4">Download the recorded demo</a>.</video>
+      <label for="demo-audio">Audio version</label>
+      <select id="demo-audio"><option value="voiceover">Voiceover</option><option value="silent">No voiceover</option></select>
+      <p id="demo-playback-status" role="status">Voiceover selected. Press play to watch.</p>
+      <video id="demo-player" controls playsinline preload="metadata" aria-label="Recorded cabinet-handle workflow"><source src="/demo/handle-demo.mp4" type="video/mp4">Your browser cannot play this video. <a href="/demo/handle-demo.mp4">Download the recorded demo</a>.</video>
       <ol class="demo-steps" aria-label="Handle design workflow">
         <li><strong>Confirm the sizes</strong><span>Start with the sample dimension diagram and mounting points.</span></li>
         <li><strong>Shape the handle</strong><span>Create a curved handle, then broaden its grip and add a thumb rest.</span></li>
