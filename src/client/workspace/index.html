@@ -70,6 +70,17 @@
           <p id="live-keyboard-hint">Enter to submit · Shift+Enter for a new line.</p>
           <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
           <p id="live-submitted" hidden></p><p id="live-attempt" hidden></p>
+
+          </div>
+          <div id="live-review-request" hidden><h3>Your request</h3><p id="live-reviewed-idea"></p><p id="live-review-guidance">Check the shape and sizes, then approve this design.</p></div>
+          <div id="live-length-field" hidden><label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note"><p id="live-length-note">Confirm the exact length before creating a design.</p></div>
+          <details id="live-size-review" class="wk-size-review" hidden><summary>Sizes to keep</summary>
+            <h3 id="live-requirements">Sizes to keep</h3><p id="live-fixed"></p>
+          </details>
+          <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm sizes</button>
+          <button id="live-run" class="wk-primary" type="button" disabled>Create design</button>
+          <p id="live-run-gate"></p>
+          <details class="wk-details"><summary>Example handle and dimensions</summary>
           <figure class="wk-handle-reference" aria-labelledby="handle-reference-caption">
             <figcaption id="handle-reference-caption">Example handle · sample sizes</figcaption>
             <svg viewBox="0 0 340 210" role="img" aria-label="Illustrative cabinet handle. Sample requirements: mounting centers 96 millimeters apart, finger gap at least 25 millimeters, overall length at most 140 millimeters. Not a measured photograph or generated CAD.">
@@ -90,15 +101,7 @@
             </svg>
             <p>Illustration of the brief, not measured CAD. Mounting hardware is unspecified.</p>
           </figure>
-          </div>
-          <div id="live-review-request" hidden><h3>Your request</h3><p id="live-reviewed-idea"></p><p id="live-review-guidance">Check the shape and sizes, then approve this design.</p></div>
-          <div id="live-length-field" hidden><label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note"><p id="live-length-note">Confirm the exact length before creating a design.</p></div>
-          <details id="live-size-review" class="wk-size-review" hidden><summary>Sizes to keep</summary>
-            <h3 id="live-requirements">Sizes to keep</h3><p id="live-fixed"></p>
           </details>
-          <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm sizes</button>
-          <button id="live-run" class="wk-primary" type="button" disabled>Create design</button>
-          <p id="live-run-gate"></p>
           <button id="live-accept" class="wk-primary" type="button" disabled>Approve design</button><p id="live-accept-gate"></p>
           <button id="live-change" type="button" hidden>Make another change</button>
           <div class="wk-live-recovery"><button id="live-refresh" type="button">Check status</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Try again</button></div>

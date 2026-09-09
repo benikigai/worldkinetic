@@ -118,15 +118,16 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       element<HTMLButtonElement>(id).disabled = action !== name;
       element(id).hidden = action !== name;
     }
-    element('live-review-sizes').hidden = reviewing;
-    text('live-review-sizes', action === 'run' ? refining ? 'Create updated design' : 'Create design' : 'Submit idea');
+    element('live-review-sizes').hidden = reviewing || action === 'confirm';
+    text('live-review-sizes', b?.design?.activeRunId ? 'Creating your design…' : action === 'run' ? refining ? 'Create updated design' : 'Create design' : 'Submit idea');
     element<HTMLButtonElement>('live-review-sizes').disabled = action !== 'review' && action !== 'run';
     element('live-run').hidden = true;
     instruction.disabled = Boolean(reviewing || s.busy || s.pendingAction || b?.design?.activeRunId);
-    const submitted = currentRun?.instruction;
+    const showRunProgress = Boolean(b?.design?.activeRunId) || (!changing && currentRun?.instruction === s.draft.instruction && action !== 'review' && action !== 'confirm');
+    const submitted = showRunProgress ? currentRun?.instruction : undefined;
     element('live-submitted').hidden = !submitted;
     text('live-submitted', submitted ? `Submitted idea: ${submitted}` : '');
-    element('live-attempt').hidden = !currentRun?.attemptIds.length;
+    element('live-attempt').hidden = !showRunProgress || !currentRun?.attemptIds.length;
     text('live-attempt', currentRun?.attemptIds.length ? `Attempt ${currentRun.attemptIds.length} · ${currentRun.status === 'running' ? 'Building geometry and checking exports' : currentRun.status === 'planning' ? 'Sent to Astra' : currentRun.status === 'completed' ? 'Finished. Review the checks before approving.' : currentRun.status === 'failed' ? b?.design?.acceptedRevisionId ? 'Failed. Your approved design is unchanged.' : 'Could not finish this design. No new design was approved.' : currentRun.status === 'cancelled' ? 'Request canceled.' : currentRun.status === 'superseded' ? 'Replaced by a newer request.' : 'Request queued.'}` : '');
     element('live-download').hidden = !s.canDownload;
     element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
@@ -142,8 +143,8 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-retry').hidden = !s.pendingAction;
     element('live-refresh').hidden = filesReady && !s.error;
     element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
-    if (action === 'confirm') text('live-status', 'Confirm the sizes below before submitting your design request.');
-    if (action === 'run' && !failedRun) text('live-status', 'Sizes confirmed. Create your design when ready.');
+    if (action === 'confirm') text('live-status', 'Waiting for you: check the sizes below, then select Confirm sizes. Astra has not started yet.');
+    if (action === 'run' && !failedRun) text('live-status', 'Ready to start. Select Create design to send your idea to Astra.');
     text('live-confirm', 'Confirm sizes');
     text('live-run', refining ? 'Create updated design' : 'Create design');
     text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.'

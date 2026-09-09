@@ -294,9 +294,16 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     for (const modifier of ['shiftKey','altKey','ctrlKey','metaKey','isComposing']) { assert.equal(node('live-request').key({[modifier]:true}),false); assert.equal(node('live-size-review').open,false); }
     node('live-request').key({repeat:true}); assert.equal(node('live-size-review').open,false);
     assert.equal(node('live-request').key({}),true); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
+    assert.match(node('live-status').textContent,/Waiting for you/);
+    assert.equal(node('live-review-sizes').hidden,true);
+    assert.equal(node('live-confirm').hidden,false);
+    assert.equal(node('live-attempt').hidden,true);
     node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0); assert.equal(node('live-review-sizes').textContent,'Create design');
     node('live-request').key({}); node('live-request').key({}); await settled(); assert.equal(s.state.runs.length,1,'Repeated submission cannot create a second logical run');
     assert.equal(node('live-request').disabled,true,'Submitted idea is frozen while active');
+    assert.equal(node('live-review-sizes').textContent,'Creating your design…');
+    assert.match(node('live-status').textContent,/planning|Generating|queued/);
+    assert.equal(node('live-refresh').disabled,false,'Status refresh remains available during a run');
     assert.equal(node('live-review-sizes').disabled,true);
     assert.match(node('live-submitted').textContent,/Submitted idea: Create a cabinet handle/);
     await s.complete(); await s.controller.refresh();
