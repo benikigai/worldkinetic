@@ -142,12 +142,12 @@ footer span:nth-child(2) { font-family: "Helvetica Neue", Helvetica, Arial, sans
 .demo-entry { display: inline-flex; align-items: center; justify-content: center; gap: 16px; min-height: 48px; padding: 12px 20px; border: 1px solid var(--text); border-radius: 8px; background: var(--text); color: var(--bg); font-size: 13px; font-weight: 500; line-height: 1.5; white-space: nowrap; }
 .demo-entry span { font-size: 18px; line-height: 1; }
 .demo-entry:hover { text-decoration: underline; text-underline-offset: 4px; }
-.demo-entry-compact { min-height: 38px; gap: 10px; padding: 8px 13px; border-radius: 30px; font-size: 11px; }
+.demo-entry-compact { min-height: 38px; gap: 10px; padding: 8px 13px; border-radius: 30px; font-size: 14px; }
 .demo-entry-compact span { font-size: 15px; }
 .hero-actions .explore-link { margin-top: 0; gap: 12px; border-bottom-color: var(--line); color: var(--muted); }
 .hero-actions .explore-link:hover { color: var(--text); border-bottom-color: var(--text); }
 @media (max-width: 780px) { .hero-actions { margin-top: 20px; } }
-@media (max-width: 460px) { .hero-actions { align-items: flex-start; gap: 12px 20px; } .demo-entry-compact { gap: 7px; padding: 8px 10px; font-size: 10px; } }
+@media (max-width: 460px) { .hero-actions { align-items: flex-start; gap: 12px 20px; } .demo-entry-compact { gap: 7px; padding: 8px 10px; font-size: 14px; } }
 /* Public overview styles */
 .overview { display: grid; grid-template-columns: 1fr 1.07fr; gap: 4%; padding: 64px 0; border-top: 1px solid var(--line); }
 .overview h2, .section-intro h2 { max-width: 24ch; font-size: clamp(28px, 3vw, 40px); line-height: 1.15; letter-spacing: -1px; }
