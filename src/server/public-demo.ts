@@ -29,7 +29,7 @@ export interface PublicDemoOptions {
   upstreamKey: string;
   inviteCode: string;
   operatorCode?: string;
-  operatorRunLimit?: number;
+  operatorRunLimit?: number | null;
   initialPublicRuns?: number;
   referenceFiles: HandleOptions['referenceFiles'];
   apiKey?: string;
@@ -77,15 +77,15 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     || options.inviteCode.length > 128 || options.upstreamKey === options.inviteCode) {
     throw new Error('Public demo requires an exact HTTPS origin and distinct upstream and invitation secrets.');
   }
-  const operatorLimit = options.operatorRunLimit ?? 30;
+  const operatorLimit = options.operatorRunLimit === undefined ? 30 : options.operatorRunLimit;
   const initialPublicRuns = options.initialPublicRuns ?? 0;
   if (!Number.isInteger(initialPublicRuns) || initialPublicRuns < 0 || initialPublicRuns > limits.runsPerLaunch) {
     throw new Error('Invalid carried public run usage.');
   }
-  if (!Number.isInteger(operatorLimit) || operatorLimit < 1 || operatorLimit > 1000
+  if ((operatorLimit !== null && (!Number.isInteger(operatorLimit) || operatorLimit < 1 || operatorLimit > 1000))
     || (options.operatorCode !== undefined && (options.operatorCode.length < 32 || options.operatorCode.length > 128
       || options.operatorCode === options.inviteCode || options.operatorCode === options.upstreamKey))) {
-    throw new Error('Operator access requires a distinct private credential and a bounded run allowance.');
+    throw new Error('Operator access requires a distinct private credential and an explicit valid allowance.');
   }
   const upstreamHash = digest(options.upstreamKey), inviteHash = digest(options.inviteCode);
   const operatorHash = options.operatorCode ? digest(options.operatorCode) : null;
@@ -128,13 +128,13 @@ export async function createPublicDemo(options: PublicDemoOptions) {
   }
   const allowance = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorLimit : limits.runsPerSession;
   const used = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorRuns : runs;
-  const exhausted = (visitor: Visitor) => visitor.runs >= allowance(visitor) || used(visitor) >= allowance(visitor);
-  const designLimit = (visitor: Visitor) => visitor.role === 'operator' ? operatorLimit : limits.designsPerSession;
+  const exhausted = (visitor: Visitor) => { const cap = allowance(visitor); return cap !== null && (visitor.runs >= cap || used(visitor) >= cap); };
+  const designLimit = (visitor: Visitor) => visitor.role === 'operator' ? (operatorLimit ?? Number.POSITIVE_INFINITY) : limits.designsPerSession;
   const status = (visitor?: Visitor): SessionStatus => SessionStatusSchema.parse({
     contractVersion: CONTRACT_VERSION, accessMode: 'invite', runsPerSession: allowance(visitor), runsPerLaunch: allowance(visitor),
     ...(visitor ? { authenticated: true, ...(visitor.role === 'operator' ? { accessRole: 'operator' } : {}),
-      workspaceId: visitor.workspaceId, runsRemaining: allowance(visitor) - visitor.runs,
-      launchRunsRemaining: allowance(visitor) - used(visitor), busy: busy(), expiresAt: new Date(visitor.expiresAt).toISOString(),
+      workspaceId: visitor.workspaceId, runsRemaining: allowance(visitor) === null ? null : allowance(visitor)! - visitor.runs,
+      launchRunsRemaining: allowance(visitor) === null ? null : allowance(visitor)! - used(visitor), busy: busy(), expiresAt: new Date(visitor.expiresAt).toISOString(),
       canStartNewDesign: !visitorBusy(visitor) && !exhausted(visitor) && visitor.designs < designLimit(visitor),
     } : { authenticated: false }),
   });

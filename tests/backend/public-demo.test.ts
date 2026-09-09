@@ -359,3 +359,26 @@ test('an operator upgrade preserves the already-consumed public allowance', asyn
   const config = await options();
   for (const initialPublicRuns of [-1, 4, 0.5]) await assert.rejects(createPublicDemo({ ...config, initialPublicRuns }));
 });
+
+test('explicit unlimited operator access does not remove the public ceiling', async () => {
+  const code = 'synthetic-unlimited-operator-credential-only';
+  const app = await start({ operatorCode: code, operatorRunLimit: null, initialPublicRuns: 3 });
+  try {
+    const response = await app.call('/api/session', '', 'POST', { accessCode: code });
+    const status = c.SessionStatusSchema.parse(await response.json()); assert(status.authenticated);
+    assert.equal(status.accessRole, 'operator');
+    assert.equal(status.runsPerSession, null); assert.equal(status.runsPerLaunch, null);
+    assert.equal(status.runsRemaining, null); assert.equal(status.launchRunsRemaining, null);
+    const cookie = response.headers.get('set-cookie')!.split(';')[0]!; app.bind(cookie, status.workspaceId);
+    for (let i = 0; i < 4; i++) {
+      assert.equal((await app.call('/api/runs', cookie, 'POST', input('unlimited_' + i))).status, 202);
+      await app.idle(cookie);
+    }
+    const after = await app.idle(cookie); assert.equal(after.launchRunsRemaining, null);
+    const visitor = await app.login(); assert.equal(visitor.status.launchRunsRemaining, 0);
+    assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('public_still_blocked'))).status, 429);
+    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: 'visitor' }).success, false);
+    assert.equal(c.SessionStatusSchema.safeParse({ ...status, runsRemaining: 1000 }).success, false);
+    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: undefined }).success, false);
+  } finally { await app.close(); }
+});

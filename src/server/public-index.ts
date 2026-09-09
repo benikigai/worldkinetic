@@ -13,7 +13,7 @@ const app = await createPublicDemo({
   apiKey: process.env.OPENAI_API_KEY,
   operatorCode: process.env.WORLDKINETICS_OPERATOR_CODE,
   initialPublicRuns: process.env.WORLDKINETICS_PUBLIC_RUNS_USED === undefined ? undefined : Number(process.env.WORLDKINETICS_PUBLIC_RUNS_USED),
-  operatorRunLimit: process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === undefined ? undefined : Number(process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT),
+  operatorRunLimit: process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === 'unlimited' ? null : process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === undefined ? undefined : Number(process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT),
   referenceFiles: { stepPath: path.resolve(reference, 'reference.step'), previewPath: path.resolve(reference, 'preview.stl'),
     datumPath: path.resolve(reference, 'datums.json') },
 });
