@@ -5,6 +5,8 @@ const port = Number(process.env.PORT ?? 4330);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid public demo port.');
 const reference = process.env.WORLDKINETICS_HANDLE_REFERENCE_DIR;
 if (!reference) throw new Error('WORLDKINETICS_HANDLE_REFERENCE_DIR is required.');
+const publicLimit = process.env.WORLDKINETICS_PUBLIC_RUN_LIMIT;
+if (publicLimit !== undefined && publicLimit !== '3' && publicLimit !== 'unlimited') throw new Error('Invalid public run allowance.');
 const app = await createPublicDemo({
   runtimeDir: path.resolve(process.env.WORLDKINETICS_RUNTIME_DIR ?? `.runtime/public-demo-${port}`),
   publicOrigin: process.env.WORLDKINETICS_PUBLIC_ORIGIN ?? '',
@@ -12,6 +14,7 @@ const app = await createPublicDemo({
   inviteCode: process.env.WORLDKINETICS_INVITE_CODE ?? '',
   apiKey: process.env.OPENAI_API_KEY,
   operatorCode: process.env.WORLDKINETICS_OPERATOR_CODE,
+  publicRunLimit: publicLimit === 'unlimited' ? null : undefined,
   initialPublicRuns: process.env.WORLDKINETICS_PUBLIC_RUNS_USED === undefined ? undefined : Number(process.env.WORLDKINETICS_PUBLIC_RUNS_USED),
   operatorRunLimit: process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === 'unlimited' ? null : process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === undefined ? undefined : Number(process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT),
   referenceFiles: { stepPath: path.resolve(reference, 'reference.step'), previewPath: path.resolve(reference, 'preview.stl'),

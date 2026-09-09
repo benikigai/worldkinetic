@@ -31,6 +31,7 @@ export interface PublicDemoOptions {
   operatorCode?: string;
   operatorRunLimit?: number | null;
   initialPublicRuns?: number;
+  publicRunLimit?: 3 | null;
   referenceFiles: HandleOptions['referenceFiles'];
   apiKey?: string;
   fetchImpl?: typeof fetch;
@@ -78,8 +79,10 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     throw new Error('Public demo requires an exact HTTPS origin and distinct upstream and invitation secrets.');
   }
   const operatorLimit = options.operatorRunLimit === undefined ? 30 : options.operatorRunLimit;
+  const publicLimit = options.publicRunLimit === undefined ? limits.runsPerSession : options.publicRunLimit;
+  if (publicLimit !== null && publicLimit !== 3) throw new Error('Public allowance must be three or explicitly unlimited.');
   const initialPublicRuns = options.initialPublicRuns ?? 0;
-  if (!Number.isInteger(initialPublicRuns) || initialPublicRuns < 0 || initialPublicRuns > limits.runsPerLaunch) {
+  if (!Number.isSafeInteger(initialPublicRuns) || initialPublicRuns < 0 || (publicLimit !== null && initialPublicRuns > publicLimit)) {
     throw new Error('Invalid carried public run usage.');
   }
   if ((operatorLimit !== null && (!Number.isInteger(operatorLimit) || operatorLimit < 1 || operatorLimit > 1000))
@@ -126,10 +129,10 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     loginWindows.set(key, window);
     if (++window.count > 5) fail(429, 'DEMO_LIMIT');
   }
-  const allowance = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorLimit : limits.runsPerSession;
+  const allowance = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorLimit : publicLimit;
   const used = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorRuns : runs;
   const exhausted = (visitor: Visitor) => { const cap = allowance(visitor); return cap !== null && (visitor.runs >= cap || used(visitor) >= cap); };
-  const designLimit = (visitor: Visitor) => visitor.role === 'operator' ? (operatorLimit ?? Number.POSITIVE_INFINITY) : limits.designsPerSession;
+  const designLimit = (visitor: Visitor) => visitor.role === 'operator' ? (operatorLimit ?? Number.POSITIVE_INFINITY) : publicLimit === null ? Number.POSITIVE_INFINITY : limits.designsPerSession;
   const status = (visitor?: Visitor): SessionStatus => SessionStatusSchema.parse({
     contractVersion: CONTRACT_VERSION, accessMode: 'invite', runsPerSession: allowance(visitor), runsPerLaunch: allowance(visitor),
     ...(visitor ? { authenticated: true, ...(visitor.role === 'operator' ? { accessRole: 'operator' } : {}),

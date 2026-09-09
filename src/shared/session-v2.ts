@@ -17,15 +17,16 @@ export const SessionStatusSchema = z.discriminatedUnion('authenticated', [
     busy: z.boolean(), expiresAt: z.iso.datetime(), canStartNewDesign: z.boolean(),
   }).strict(),
 ]).superRefine((status, context) => {
-  if ((!status.authenticated || status.accessRole !== 'operator') && (status.runsPerSession !== 3 || status.runsPerLaunch !== 3)) {
-    context.addIssue({ code: 'custom', message: 'Public visitor limits must remain three runs.' });
+  const publicUnlimited = status.runsPerSession === null && status.runsPerLaunch === null;
+  if ((!status.authenticated || status.accessRole !== 'operator') && !publicUnlimited && (status.runsPerSession !== 3 || status.runsPerLaunch !== 3)) {
+    context.addIssue({ code: 'custom', message: 'Public visitor allowance must be three or explicitly unlimited.' });
   }
   if (status.authenticated) {
     const values = [status.runsPerSession, status.runsPerLaunch, status.runsRemaining, status.launchRunsRemaining];
-    const unlimited = status.accessRole === 'operator' && values.every(value => value === null);
+    const unlimited = values.every(value => value === null);
     if (!unlimited && (values.some(value => value === null)
       || status.runsRemaining! > status.runsPerSession! || status.launchRunsRemaining! > status.runsPerLaunch!)) {
-      context.addIssue({ code: 'custom', message: 'Allowance must be consistently bounded or explicitly unlimited for an operator.' });
+      context.addIssue({ code: 'custom', message: 'Allowance must be consistently bounded or explicitly unlimited.' });
     }
   }
 });

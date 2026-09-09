@@ -382,3 +382,46 @@ test('explicit unlimited operator access does not remove the public ceiling', as
     assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: undefined }).success, false);
   } finally { await app.close(); }
 });
+
+test('explicit unlimited visitor mode removes both run caps and design ceiling with normal invitation auth', async () => {
+  const app = await start({ publicRunLimit: null, initialPublicRuns: 9 });
+  try {
+    const anonymous = c.SessionStatusSchema.parse(await (await app.call('/api/session')).json());
+    assert.equal(anonymous.runsPerSession, null); assert.equal(anonymous.runsPerLaunch, null);
+    assert.equal((await app.call('/api/bootstrap')).status, 401);
+    const visitor = await app.login();
+    assert.equal(visitor.status.accessRole, undefined);
+    for (let i = 0; i < 4; i++) {
+      assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('public_unlimited_' + i))).status, 202);
+      await app.idle(visitor.cookie);
+    }
+    let status = await app.idle(visitor.cookie);
+    assert.equal(status.runsRemaining, null); assert.equal(status.launchRunsRemaining, null);
+    for (let i = 0; i < 6; i++) {
+      const response = await app.call('/api/session/new', visitor.cookie, 'POST', {
+        contractVersion: c.CONTRACT_VERSION, requestId: 'unlimited_new_' + i, expectedWorkspaceId: status.workspaceId,
+      });
+      assert.equal(response.status, 200);
+      const next = c.SessionStatusSchema.parse(await response.json()); assert(next.authenticated);
+      assert.notEqual(next.workspaceId, status.workspaceId); assert.equal(next.canStartNewDesign, true);
+      status = next; app.bind(visitor.cookie, status.workspaceId);
+    }
+    const other = await app.login('192.0.2.12');
+    assert.equal((await app.call('/api/runs', other.cookie, 'POST', input('other_unlimited'))).status, 202);
+    await app.idle(other.cookie);
+    assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('fresh_unlimited'))).status, 202);
+    await app.idle(visitor.cookie);
+  } finally { await app.close(); }
+});
+
+test('public unlimited status rejects mixed limits and startup rejects ambiguous allowances', async () => {
+  const config = await options();
+  for (const publicRunLimit of [0, 4, NaN]) {
+    await assert.rejects(createPublicDemo({ ...config, publicRunLimit } as unknown as PublicDemoOptions));
+  }
+  const base = { contractVersion: c.CONTRACT_VERSION, accessMode: 'invite', authenticated: false };
+  assert(c.SessionStatusSchema.safeParse({ ...base, runsPerSession: null, runsPerLaunch: null }).success);
+  for (const pair of [[null, 3], [3, null], [30, 30]]) {
+    assert(!c.SessionStatusSchema.safeParse({ ...base, runsPerSession: pair[0], runsPerLaunch: pair[1] }).success);
+  }
+});
