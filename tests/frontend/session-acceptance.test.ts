@@ -87,3 +87,14 @@ test('operator allowance is accepted only with the verified server role and boun
     await assert.rejects(createSessionClient(async () => wire(invalid), 'worldkinetics.app').status());
   }
 });
+
+
+test('unlimited allowance requires an operator and four consistent null counters', async () => {
+  const unlimited = { ...status(), accessRole: 'operator', runsPerSession: null, runsPerLaunch: null, runsRemaining: null, launchRunsRemaining: null };
+  const result = await createSessionClient(async () => wire(unlimited), 'worldkinetics.app').status();
+  assert.ok(result?.authenticated);
+  if (result?.authenticated) assert.equal(result.runsRemaining, null);
+  for (const invalid of [{ ...unlimited, accessRole: 'visitor' }, { ...unlimited, runsRemaining: 3 }]) {
+    await assert.rejects(createSessionClient(async () => wire(invalid), 'worldkinetics.app').status());
+  }
+});

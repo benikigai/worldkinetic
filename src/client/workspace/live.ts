@@ -119,7 +119,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-submitted').hidden = !submitted;
     text('live-submitted', submitted ? `Submitted idea: ${submitted}` : '');
     element('live-attempt').hidden = !currentRun?.attemptIds.length;
-    text('live-attempt', currentRun?.attemptIds.length ? `Attempt ${currentRun.attemptIds.length} · ${currentRun.status === 'running' ? 'Building geometry and checking exports' : currentRun.status === 'planning' ? 'Sent to Astra' : currentRun.status === 'completed' ? 'Finished. Review the checks before approving.' : currentRun.status === 'failed' ? 'Failed. Your approved design is unchanged.' : currentRun.status}` : '');
+    text('live-attempt', currentRun?.attemptIds.length ? `Attempt ${currentRun.attemptIds.length} · ${currentRun.status === 'running' ? 'Building geometry and checking exports' : currentRun.status === 'planning' ? 'Sent to Astra' : currentRun.status === 'completed' ? 'Finished. Review the checks before approving.' : currentRun.status === 'failed' ? b?.design?.acceptedRevisionId ? 'Failed. Your approved design is unchanged.' : 'Could not finish this design. No new design was approved.' : currentRun.status === 'cancelled' ? 'Request canceled.' : currentRun.status === 'superseded' ? 'Replaced by a newer request.' : 'Request queued.'}` : '');
     element('live-download').hidden = !s.canDownload;
     element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
     element('live-download').className = '';
