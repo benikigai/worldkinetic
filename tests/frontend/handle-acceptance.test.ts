@@ -285,6 +285,9 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     const ui=mountLive(s.controller,abort.signal,update=>{previewKey=update.previewKey;}); ui.open(); await settled();
     assert.equal(node('live-results').hidden,true,'No empty results before generation');
     assert.equal(node('live-earlier-designs').hidden,true,'No empty history before generation');
+    assert.equal(node('live-review-sizes').hidden,false,'Empty idea keeps a visible next action');
+    assert.equal(node('live-review-sizes').disabled,true,'Empty idea cannot continue');
+    assert.match(node('live-run-gate').textContent,/Enter your idea/);
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
     node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
@@ -302,6 +305,8 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     node('make-fit-notes').value='Initial handle note';
     const initialId=s.state.design.acceptedRevisionId;
     node('live-change').click(); assert.equal(node('live-inputs').hidden,false,'Explicit new change restores the request'); assert.equal(s.history.acceptances.length,1); assert.equal(s.state.requirements.setupId,'handle_initial_v1');
+    assert.equal(node('live-review-sizes').hidden,false,'Refinement keeps its next step visible before typing');
+    assert.equal(node('live-review-sizes').disabled,true);
     node('live-sample').click(); assert.match(node('live-request').value,/thumb rest/);
     node('live-review-sizes').click(); node('live-confirm').click(); await settled();
     assert.equal(s.state.requirements.setupId,'handle_refine_v1'); assert.equal(s.state.requirements.setup.acceptedInitial.revisionId,initialId);

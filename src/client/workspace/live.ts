@@ -111,12 +111,16 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       element<HTMLButtonElement>(id).disabled = action !== name;
       element(id).hidden = action !== name;
     }
+    // Keep the next step discoverable before an idea is entered.
+    if (action === null && !filesReady && !s.canAccept && !b?.design?.activeRunId) {
+      element('live-review-sizes').hidden = false;
+    }
     element('live-download').hidden = !s.canDownload;
     element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
     element('live-download').className = '';
     element('live-change').hidden = !s.canRefine || changing || !s.canDownload;
     element<HTMLButtonElement>('live-change').disabled = !s.canRefine || s.busy || s.loading || Boolean(s.error);
-    element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || Boolean(s.pendingAction);
+    element<HTMLButtonElement>('live-sample').disabled = !handle || !s.trusted || s.busy || s.loading || Boolean(s.error || s.pendingAction || b?.design?.activeRunId);
     element('live-size-review').hidden = filesReady || (!sizesReviewed && !s.canRun);
     if (b?.design?.activeRunId || s.canAccept || filesReady) element<HTMLDetailsElement>('live-size-review').open = false;
     element('live-files').hidden = !filesReady;
@@ -127,7 +131,8 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
     text('live-confirm', 'Confirm sizes');
     text('live-run', refining ? 'Create updated design' : 'Create design');
-    text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.' : '');
+    text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.'
+      : !filesReady && !s.draft.instruction.trim() && !b?.design?.activeRunId && !s.canAccept ? 'Enter your idea above, then continue to sizes.' : '');
     text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for it to load.' : '');
     text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
       : 'Files become available after you explicitly use a checked design with the current sizes.');
@@ -253,7 +258,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       ? 'Broaden the grip and add a localized thumb rest while preserving the accepted starting design, mounting pads and empty finger gap.'
       : 'Create a cabinet handle joining the two mounting pads, with a comfortable grip and the confirmed sample sizes.' });
   }, { signal });
-  element('live-review-sizes').addEventListener('click', () => { sizesReviewed = true; element<HTMLDetailsElement>('live-size-review').open = true; render(); }, { signal });
+  element('live-review-sizes').addEventListener('click', () => { if (consumerAction(controller.snapshot(), { sizesReviewed, changing, canAccept: false }) !== 'review') return; sizesReviewed = true; element<HTMLDetailsElement>('live-size-review').open = true; render(); }, { signal });
   element('live-change').addEventListener('click', () => {
     if (!controller.snapshot().canRefine) return;
     changing = true; sizesReviewed = false; controller.setDraft({ instruction: '' });

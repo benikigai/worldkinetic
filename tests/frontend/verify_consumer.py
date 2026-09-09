@@ -35,7 +35,7 @@ class ConsumerPageAcceptance(unittest.TestCase):
         text = self.page.text().lower()
         self.assertIn('what would you like to change?', text)
         self.assertIn('handle', self.node('consumer-title').text().lower())
-        for identity, label in [('live-sample', 'try a sample'), ('live-review-sizes', 'review sizes'), ('live-change', 'make another change')]:
+        for identity, label in [('live-sample', 'try a sample'), ('live-review-sizes', 'continue to sizes'), ('live-change', 'make another change')]:
             node = self.node(identity)
             self.assertEqual(node.tag, 'button')
             self.assertEqual(node.attrs.get('type'), 'button')
