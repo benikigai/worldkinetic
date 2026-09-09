@@ -45,6 +45,6 @@ Before claiming public live success, verify the configured edge and dedicated ru
 
 ## Canonical hostname and HTTPS
 
-The Worker serves both `worldkinetics.app` and `www.worldkinetics.app` as Custom Domains. It returns308 from www or HTTP apex to `https://worldkinetics.app`, preserving the path and query before assets or API forwarding. HTTPS apex and the existing workers.dev preview retain their normal handling. `assets.run_worker_first: true` ensures static pages also reach the redirect check. All requests therefore invoke the Worker before asset delivery.
+The Worker serves both `worldkinetics.app` and `www.worldkinetics.app` as Custom Domains. It returns 308 from www or HTTP apex to `https://worldkinetics.app`, preserving the path and query before assets or API forwarding. HTTPS apex and the existing workers.dev preview retain their normal handling. `assets.run_worker_first: true` ensures static pages also reach the redirect check. All requests therefore invoke the Worker before asset delivery.
 
 Deploy only the tested combined build using `wrangler deploy --keep-vars --config deployment/cloudflare/wrangler.jsonc` with server-side credentials. Preserve the existing API_ORIGIN and UPSTREAM_KEY bindings. Creating the www Custom Domain provisions DNS and its certificate through Cloudflare; configuration and offline tests alone do not prove DNS or TLS is active. Verify HTTP/HTTPS apex/www paths and queries, canonical API session status, and current client/video hashes after deployment. No local gateway restart is needed.
