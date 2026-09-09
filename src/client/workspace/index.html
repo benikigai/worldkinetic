@@ -57,13 +57,15 @@
         </section>
         <section class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-title">
           <h2 id="live-title">What would you like to change?</h2>
-          <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
           <div id="live-inputs">
           <label for="live-request">Your idea</label><textarea id="live-request" rows="4" maxlength="2000" placeholder="Describe how you would like your handle to look and feel"></textarea>
+          <button id="live-review-sizes" class="wk-primary" type="button" disabled>Submit idea</button>
+          <p id="live-keyboard-hint">Enter to submit · Shift+Enter for a new line.</p>
+          <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
+          <p id="live-submitted" hidden></p><p id="live-attempt" hidden></p>
           <button id="live-sample" class="wk-sample" type="button">Try a sample</button>
           </div>
           <div id="live-length-field" hidden><label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note"><p id="live-length-note">Confirm the exact length before creating a design.</p></div>
-          <button id="live-review-sizes" class="wk-primary" type="button" disabled>Continue to sizes</button>
           <details id="live-size-review" class="wk-size-review" hidden><summary>Sizes to keep</summary>
             <h3 id="live-requirements">Sizes to keep</h3><p id="live-fixed"></p>
             <figure class="wk-mount-brief"><figcaption>Sample mounting brief</figcaption><svg viewBox="0 0 280 95" role="img" aria-label="Two mounting axes, 96 millimeters apart. Sample brief, not measured generated geometry."><g fill="none" stroke="currentColor"><path d="M32 10v48M248 10v48" stroke-dasharray="4 3"/><path d="M32 67h216M32 61v12M248 61v12"/></g><text x="140" y="89" text-anchor="middle">96 mm between mounts</text></svg></figure>

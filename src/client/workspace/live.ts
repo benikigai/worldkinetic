@@ -111,10 +111,15 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       element<HTMLButtonElement>(id).disabled = action !== name;
       element(id).hidden = action !== name;
     }
-    // Keep the next step discoverable before an idea is entered.
-    if (action === null && !filesReady && !s.canAccept && !b?.design?.activeRunId) {
-      element('live-review-sizes').hidden = false;
-    }
+    element('live-review-sizes').hidden = false;
+    element<HTMLButtonElement>('live-review-sizes').disabled = action !== 'review' && action !== 'run';
+    element('live-run').hidden = true;
+    instruction.disabled = Boolean(s.busy || s.pendingAction || b?.design?.activeRunId);
+    const submitted = currentRun?.instruction;
+    element('live-submitted').hidden = !submitted;
+    text('live-submitted', submitted ? `Submitted idea: ${submitted}` : '');
+    element('live-attempt').hidden = !currentRun?.attemptIds.length;
+    text('live-attempt', currentRun?.attemptIds.length ? `Attempt ${currentRun.attemptIds.length} · ${currentRun.status === 'running' ? 'Building geometry and checking exports' : currentRun.status === 'planning' ? 'Sent to Astra' : currentRun.status === 'completed' ? 'Finished. Review the checks before approving.' : currentRun.status === 'failed' ? 'Failed. Your approved design is unchanged.' : currentRun.status}` : '');
     element('live-download').hidden = !s.canDownload;
     element<HTMLButtonElement>('live-download').disabled = !s.canDownload;
     element('live-download').className = '';
@@ -129,10 +134,12 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-retry').hidden = !s.pendingAction;
     element('live-refresh').hidden = filesReady && !s.error;
     element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
+    if (action === 'confirm') text('live-status', 'Confirm the sizes below before submitting your design request.');
+    if (action === 'run' && !failedRun) text('live-status', 'Sizes confirmed. Submit your idea to start creating.');
     text('live-confirm', 'Confirm sizes');
     text('live-run', refining ? 'Create updated design' : 'Create design');
     text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.'
-      : !filesReady && !s.draft.instruction.trim() && !b?.design?.activeRunId && !s.canAccept ? 'Enter your idea above, then continue to sizes.' : '');
+      : !filesReady && !s.draft.instruction.trim() && !b?.design?.activeRunId && !s.canAccept ? 'Enter your idea, then select Submit idea.' : '');
     text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for it to load.' : '');
     text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
       : 'Files become available after you explicitly use a checked design with the current sizes.');
@@ -258,7 +265,17 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       ? 'Broaden the grip and add a localized thumb rest while preserving the accepted starting design, mounting pads and empty finger gap.'
       : 'Create a cabinet handle joining the two mounting pads, with a comfortable grip and the confirmed sample sizes.' });
   }, { signal });
-  element('live-review-sizes').addEventListener('click', () => { if (consumerAction(controller.snapshot(), { sizesReviewed, changing, canAccept: false }) !== 'review') return; sizesReviewed = true; element<HTMLDetailsElement>('live-size-review').open = true; render(); }, { signal });
+  function submitIdea() {
+    const action = consumerAction(controller.snapshot(), { sizesReviewed, changing, canAccept: false });
+    if (action === 'review') { sizesReviewed = true; element<HTMLDetailsElement>('live-size-review').open = true; render(); }
+    else if (action === 'run') void controller.requestRun();
+  }
+  element('live-review-sizes').addEventListener('click', submitIdea, { signal });
+  instruction.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    if (!event.repeat) submitIdea();
+  }, { signal });
   element('live-change').addEventListener('click', () => {
     if (!controller.snapshot().canRefine) return;
     changing = true; sizesReviewed = false; controller.setDraft({ instruction: '' });

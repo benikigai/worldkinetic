@@ -271,6 +271,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     querySelectorAll() { return []; }
     addEventListener(name: string, callback: () => void) { this.listeners.set(name,[...(this.listeners.get(name)??[]),callback]); }
     click() { assert.equal(this.disabled,false, `${this.tag} disabled`); assert.equal(this.hidden,false,`${this.tag} hidden`); for(const callback of this.listeners.get('click')??[]) callback(); }
+    key(options: Record<string,unknown>) { let prevented=false; for(const callback of this.listeners.get('keydown')??[]) (callback as (event: unknown)=>void)({key:'Enter',preventDefault:()=>{prevented=true;},...options}); return prevented; }
   }
   const s=await service(); await s.controller.load();
   const nodes=new Map<string,Element>(); const node=(id:string)=>{if(!nodes.has(id))nodes.set(id,new Element(id));return nodes.get(id)!;};
@@ -290,9 +291,15 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.match(node('live-run-gate').textContent,/Enter your idea/);
     const mutations=()=>s.calls.filter(call=>call.method!=='GET').length;
     node('live-sample').click(); assert.match(node('live-request').value,/cabinet handle/); assert.equal(mutations(),0);
-    node('live-review-sizes').click(); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
+    for (const modifier of ['shiftKey','altKey','ctrlKey','metaKey','isComposing']) { assert.equal(node('live-request').key({[modifier]:true}),false); assert.equal(node('live-size-review').open,false); }
+    node('live-request').key({repeat:true}); assert.equal(node('live-size-review').open,false);
+    assert.equal(node('live-request').key({}),true); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
     node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0);
-    node('live-run').click(); await settled(); assert.equal(s.state.runs.length,1); await s.complete(); await s.controller.refresh();
+    node('live-request').key({}); node('live-request').key({}); await settled(); assert.equal(s.state.runs.length,1,'Repeated submission cannot create a second logical run');
+    assert.equal(node('live-request').disabled,true,'Submitted idea is frozen while active');
+    assert.equal(node('live-review-sizes').disabled,true);
+    assert.match(node('live-submitted').textContent,/Submitted idea: Create a cabinet handle/);
+    await s.complete(); await s.controller.refresh();
     assert.equal(node('live-accept').hidden,true,'Completion cannot accept an unseen design');
     assert.ok(previewKey); ui.rendered(previewKey); assert.equal(node('live-accept').hidden,false);
     node('live-accept').click(); await settled(); assert.equal(s.history.acceptances.length,1);
@@ -312,7 +319,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.equal(s.state.requirements.setupId,'handle_refine_v1'); assert.equal(s.state.requirements.setup.acceptedInitial.revisionId,initialId);
     assert.equal(node('live-comparison').value,'baseline','Refinement starts with the accepted initial visible as Before');
     assert.equal(node('live-download').hidden,true); assert.equal(s.state.runs.length,1);
-    node('live-run').click(); await settled(); assert.equal(s.state.runs.at(-1).inputRevisionId,initialId);
+    node('live-review-sizes').click(); await settled(); assert.equal(s.state.runs.at(-1).inputRevisionId,initialId);
     await s.complete(); await s.controller.refresh(); assert.equal(node('live-accept').hidden,true);
     assert.ok(previewKey); ui.rendered(previewKey);
     if (recovery === 'refresh') s.overrides.set('GET /api/bootstrap', [() => { throw new Error('Refresh connection lost'); }]);
