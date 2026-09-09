@@ -20,9 +20,14 @@ test('three everyday examples are illustrative, not claimed completed workflows'
   assert.match(body, /(?:not all|not yet|planned).*?(?:implemented|workflows|available)/i);
 });
 
-test('website is linked but nonexistent public demo is not offered', () => {
+test('public saved demo is linked without claiming live generation', () => {
   assert.match(body, /\[[^\]]+\]\(https:\/\/worldkinetics\.app\/?\)/);
-  assert.match(body, /(?:public|interactive) demo[^\n]*(?:not yet live|coming soon|not yet available)/i);
+  assert.match(body, /\[[^\]]+\]\(https:\/\/worldkinetics\.app\/demo\/\)/);
+  assert.match(body, /\[[^\]]+\]\(https:\/\/worldkinetics\.app\/workspace\/\?mode=handle-demo\)/);
+  assert.match(body, /public saved demo/i);
+  assert.match(body, /without generating a new design/i);
+  assert.match(body, /public live generation is not yet available/i);
+  assert.match(body, /download approved files/i);
   assert.doesNotMatch(body, /\]\(https?:\/\/demo\.worldkinetics\.app[^)]*\)/);
   assert.doesNotMatch(body, /\[(?:try|launch|open|live)[^\]]*demo[^\]]*\]\(http:\/\/(?:localhost|127\.0\.0\.1)/i);
 });

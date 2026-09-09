@@ -1,85 +1,84 @@
 # WorldKinetics
 
-**Prompt to product.**
-
-Design and customize physical products without learning CAD.
+**Prompt to product.** Customize everyday physical products without learning CAD.
 
 **Repair it. Make it fit. Make it yours.**
 
-Start with a reference or photo plus confirmed measurements. Refine, independently check, approve the exact revision, and download for prototyping or manufacturer review. Photos alone cannot establish accurate dimensions.
+Keep the cabinet you love. Replace or personalize its handle using confirmed measurements, review the changes, and prepare a prototype. Photos alone cannot establish accurate dimensions.
 
-[worldkinetics.app](https://worldkinetics.app) is the live design preview. The public interactive demo is not yet live.
+[Website](https://worldkinetics.app/) · [Watch the demo](https://worldkinetics.app/demo/) · [Explore the approved 3D example](https://worldkinetics.app/workspace/?mode=handle-demo)
 
-![WorldKinetics homepage with Prompt to product headline and design artwork](docs/images/worldkinetics-homepage-2026-09-08.png)
+The public saved demo lets you compare Before and Your design, rotate the actual geometry and download approved files. It replays a real local result without generating a new design. Public live generation is not yet available.
 
-*Current prototype interface, captured September 8, 2026. Design preview, not evidence of a completed CAD workflow.*
+![WorldKinetics homepage](docs/images/worldkinetics-homepage-2026-09-08.png)
 
-## Recorded handle demo
+*Earlier September 8 homepage capture. The live site has since gained the recorded demo and saved 3D workspace.*
 
-Actual local workspace, September 8, 2026. Astra broadened the grip and added a thumb rest while preserving 96 mm mounting pitch and 26 mm finger clearance.
+## Cabinet handle demo
 
-| Before: accepted handle | After: refinement under review |
+The completed September 8 curved-handle demonstration at [`5be4b7a`](https://github.com/benikigai/worldkinetic/commit/5be4b7a5c8211a8eb4b537c20bc60766378cce32) uses actual Astra-authored build123d Python. Initial generation passed eight checks; grip/thumb-rest refinement passed nine. Both revisions were explicitly approved. The final design retained 96 mm mounting pitch, measured 29.568 mm finger clearance and 110 mm overall length. Browser-downloaded STEP, STL and editable Python matched the accepted manifest.
+
+The public saved workspace includes this curved result and its complete prototype ZIP. These earlier screenshots show the previous straight-handle demonstration, not the latest curved design:
+
+| Earlier accepted handle | Earlier refinement under review |
 | --- | --- |
 | ![Initial handle](docs/images/handle-initial-2026-09-08.png) | ![Refined handle](docs/images/handle-refined-2026-09-08.png) |
 
-Initial: eight checks passed. Refinement: nine passed, subsequently explicitly approved; downloaded STEP, STL and editable Python matched its manifest. Bounded demonstration, not physical-fit validation.
-
-## Everyday possibilities
-
-These are three illustrative planned workflows, not all implemented:
-
-- **Repair a cabinet handle:** confirm mounting and fastener dimensions, then reshape the grip while preserving its interface.
-- **Make a vacuum adapter fit:** measure both ends, insertion depths and clearance, then design their connection.
-- **Make a tactile keyboard or control grip yours:** customize texture or shape. First measure its attachment, neighboring geometry and moving-part clearance.
-
-![Cabinet handle illustration with sample dimensions](docs/images/cabinet-handle-sample-dimensions-v1.png)
-
-*Sample design brief: AI-generated illustration, not a measured, manufactured or tested part. Panel clearance holes do not specify handle threads or fasteners.*
-
-## Intended workflow
-
-The broader intended product path:
-
-```mermaid
-flowchart TB
-    R["Reference or photo + confirmed measurements"] --> D["Refine editable design"]
-    D --> C["Generate CAD and seal exact geometry"]
-    C --> V["Independently check requirements and exports"]
-    V --> F["Measured failure: revise design or confirm new requirements"]
-    F --> D
-    V --> U["Review eligible candidate"]
-    U --> A["Approve exact revision"]
-    A --> E["Download for prototyping or manufacturer review"]
-```
-
-The model cannot change checks, lower thresholds or accept a candidate. Failed or incomplete evidence blocks acceptance. Generated, checked, accepted, exported and physically tested are separate states. Downloads preserve checked bytes and revision identity.
+*The pictured refinement was subsequently approved. These checks do not establish physical fit or strength.*
 
 ## Why WorldKinetics?
 
 **More than a model. A design you can check.**
 
-Astra proposes designs. WorldKinetics is building toward a guided, checkable workflow around those proposals:
+Astra proposes the design; WorldKinetics manages the requirements, evidence and approval:
 
-- **Keep what fits:** preserve confirmed measurements and requirements.
-- **See what changed:** review targeted edits in a before-and-after comparison.
-- **Check before you make:** review independent checks, approve the exact revision, and export its checked files.
+- **Keep what fits:** preserve confirmed dimensions and protected geometry.
+- **See what changed:** inspect actual exports in a before-and-after comparison.
+- **Check before you make:** review independent measurements, approve the exact revision and download its checked files.
 
-The intended experience extends beyond the bounded demonstrations recorded here.
+The model cannot change checks, lower thresholds or accept a candidate. Missing, failed or stale evidence blocks acceptance. The broader consumer experience remains planned beyond this bounded handle workflow.
+
+```mermaid
+flowchart TB
+    R["Request + confirmed measurements"] --> G["Astra writes build123d Python"]
+    G --> C["Isolated CAD generation"]
+    C --> V["Independent geometry and export checks"]
+    V --> F["Failure: revise or clarify requirements"]
+    F --> R
+    V --> U["Review actual 3D candidate"]
+    U --> A["Approve exact revision"]
+    A --> P["Prototype package + sourcing guidance"]
+```
+
+## From approved design to physical part
+
+The handoff ZIP contains exact approved STEP/STL, editable Python with its reference dependency, requirements, check results, a hash manifest and a prototype brief. The Make your part workflow adds self-printing guidance or supplier-quote preparation for manufacturer review.
+
+Supplier references include Craftcloud, Xometry and Protolabs. Prices and lead times require a quote. There is no automatic supplier upload, order or fabrication. Printing requires printer-specific slicing; no generic G-code is supplied. Mounting hardware, threads, material suitability and physical testing still need review.
+
+## Everyday possibilities
+
+These illustrative workflows are not all implemented:
+
+- **Repair:** replace a cabinet handle while retaining its mounting interface.
+- **Make it fit:** design a vacuum adapter from measured ends, insertion depths and clearance.
+- **Make it yours:** add a tactile keyboard/control grip after measuring attachment, neighboring geometry and travel.
+
+![Cabinet handle sample dimensions](docs/images/cabinet-handle-sample-dimensions-v1.png)
+
+*AI-generated sample brief, not a measured part. Panel clearance holes do not specify handle threads.*
 
 ## Current evidence and limits
 
-Earlier numeric plate evidence: [`0311706879b29810cb4bca56ece32a10bdea294e`](https://github.com/benikigai/worldkinetic/commit/0311706879b29810cb4bca56ece32a10bdea294e), September 8, 2026, around 14:00 PDT:
+The working stack is Astra Responses API, build123d/Open CASCADE, isolated Docker jobs, TypeScript/Zod and a Three.js viewer. Astra also assisted development through Codex; [development evidence](docs/development-evidence.md) distinguishes earlier wrapper runs from subsequent direct work.
 
-- A local API run used actual `gpt-6-astra` Responses numeric planning plus real CAD. This was not model-authored Python.
-- A 30 mm plate was rejected because its measured 2 mm end margin fell below the unchanged 5 mm requirement.
-- After confirming a 36 mm requirement, the new candidate passed seven required checks with a 5 mm end margin. This did not satisfy the original 30 mm request.
-- API acceptance and exact source, editable Python, STEP and STL downloads were verified in that local run.
+Successful recorded runs do not establish repeatability for arbitrary requests. A subsequent fresh local refinement hit the STL triangle cap before checks completed; it did not produce an approved revision. Photo reconstruction, voice interaction, FEA, manufacturing certification and general-purpose CAD are not demonstrated.
 
-The plate evidence is local API evidence, not browser or physical fit proof. Arbitrary-product CAD and public interactive access remain unverified. Neither demonstration establishes strength, printing, simulation or manufacturing certification. Supplier upload, ordering, fabrication and submission require separate authorization.
+Historical local API evidence at `0311706` used numeric planning, not model-authored Python: a 30 mm plate failed its margin check; a separately confirmed 36 mm requirement passed. The scaffold snapshot `4090c8166a2e52eb3e16e094d42c7bd1423407a8` predates the connected handle workflow. See [provenance](docs/provenance.md#evidence-snapshot) and [plate examples](examples/plate/README.md).
 
 ## Run locally
 
-Requires Node.js 22 or newer:
+Requires Node.js 22+:
 
 ```sh
 npm ci
@@ -87,27 +86,15 @@ npm run build
 npm start
 ```
 
-Open [localhost:4310](http://127.0.0.1:4310) for the local design preview. `/api/bootstrap` reports configured scope and readiness. The current server selects the plate baseline; numeric execution also requires a server-side `OPENAI_API_KEY`, Python 3.9+, Docker and the expected local CAD image. See [CAD runtime prerequisites and limits](src/tools/README.md). The npm commands do not provision that image.
+Open [localhost:4310](http://127.0.0.1:4310); `/workspace/?mode=handle-demo` opens the saved example. New generation additionally requires a server-side `OPENAI_API_KEY`, Python, Docker and the expected [CAD runtime](src/tools/README.md). The default backend selects the plate; handle mode needs `WORLDKINETICS_DESIGN=handle` and a valid `WORLDKINETICS_HANDLE_REFERENCE_DIR` containing `reference.step`, `preview.stl` and `datums.json`.
 
 ```sh
 npm run typecheck
 npm test
 ```
 
-`npm test` exercises backend behavior with synthetic adapters and provider responses; it does not establish the complete CAD or browser workflow. `npm run dev` watches server changes; rebuild static assets with `npm run build`.
+These tests do not establish complete live CAD/browser behavior. Use separate `PORT` and `WORLDKINETICS_RUNTIME_DIR` values per instance. Export [.env.example](.env.example) settings in the shell; `.env` is not automatically loaded. Keep credentials and raw logs private.
 
-Use a private `PORT` and `WORLDKINETICS_RUNTIME_DIR` for each development instance. [.env.example](.env.example) lists settings; export variables in your shell because the server does not automatically load `.env`. Keep credentials and raw provider/runtime logs private.
+[Architecture](docs/architecture.md) · [Build plan and ownership](docs/build-plan.md#roles-and-exclusive-paths) · [Backend notes](docs/backend-scaffold.md)
 
-## Historical snapshot and documentation
-
-The older snapshot at `4090c8166a2e52eb3e16e094d42c7bd1423407a8`, September 8, 2026, around 13:14 PDT, contained a tested scaffold and separate local capability proofs. Integrated CAD, workspace review and explicit acceptance were pending at that time. Those historical statuses do not describe the newer owner-reported run above.
-
-- [Architecture and diagrams](docs/architecture.md): intended trust boundaries, requirements and acceptance.
-- [Build plan](docs/build-plan.md): milestones and [contributor ownership](docs/build-plan.md#roles-and-exclusive-paths).
-- [Backend scaffold](docs/backend-scaffold.md): transport and adapter notes with historical planning statuses.
-- [Plate examples](examples/plate/README.md): preserved FreeCAD files, STEP/STL exports and sanitized measurements.
-- [Provenance and historical evidence](docs/provenance.md#evidence-snapshot): attribution and revision-specific limits.
-
-Document checks cover structure and links, not factual or runtime claims; source and product review remain separate.
-
-Project source is [MIT licensed](LICENSE). External dependencies and services retain their own terms.
+Project source is [MIT licensed](LICENSE). Dependencies retain their own terms.
