@@ -1,3 +1,4 @@
+import { quoteTotal } from './quote-total.js';
 import { loadRecordedDemo, recordedBytes, recordedView } from './recorded-files.js';
 import type { SavedHandleDemo } from '../../shared/saved-handle-v2.js';
 import { createWorkspaceTransport, mountSession } from './session.js';
@@ -379,3 +380,14 @@ element('copy-supplier-prompt').addEventListener('click', async () => {
     element('supplier-copy-status').textContent = 'Select and copy the request above. Clipboard access was unavailable.';
   }
 }, { signal: listeners.signal });
+
+function updateQuoteComparison() {
+  const totals = ['A', 'B'].map(offer => {
+    const total = quoteTotal(['parts', 'shipping', 'fees'].map(field => element<HTMLInputElement>(`quote-${offer}-${field}`).value));
+    element(`quote-${offer}-total`).textContent = total === null ? 'Total unknown: enter all three amounts.' : `Total: $${total.toFixed(2)} USD`;
+    return total;
+  });
+  const [a, b] = totals;
+  element('quote-comparison').textContent = a === null || b === null ? 'Complete both offers to compare totals.' : a === b ? 'Both offers have the same total.' : `Offer ${a < b ? 'A' : 'B'} is $${Math.abs(a - b).toFixed(2)} USD lower. Compare production and transit times separately.`;
+}
+for (const offer of ['A', 'B']) for (const field of ['parts', 'shipping', 'fees']) element(`quote-${offer}-${field}`).addEventListener('input', updateQuoteComparison, { signal: listeners.signal });

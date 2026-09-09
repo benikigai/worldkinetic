@@ -394,7 +394,7 @@
         <li><strong>Get a quote.</strong> Confirm material, quantity, finish and delivery location. Compare part cost, setup fees, shipping and taxes, plus production time and transit time separately.</li>
         <li><strong>Order a prototype on the supplier’s site.</strong> Check its fit before ordering more. Mounting hardware is unspecified; geometry checks do not establish physical strength or manufacturing readiness.</li>
       </ol>
-      <details class="wk-details" open><summary>What’s inside the complete ZIP</summary>
+      <details class="wk-details"><summary>What’s inside the complete ZIP</summary>
         <dl class="wk-package-contents">
           <dt>candidate.step</dt><dd>Editable solid CAD. Send to a supplier or open in a compatible CAD application.</dd>
           <dt>preview.stl</dt><dd>Triangle mesh. Open in a slicer or upload for a print quote, using millimeters.</dd>
@@ -410,7 +410,7 @@
       <h3>Copy a supplier request</h3>
       <p>Attach the CAD, PROTOTYPE-BRIEF.txt and RFQ.txt from the same ZIP. This template asks for a quote; it does not place an order.</p>
       <label for="supplier-prompt">Request template</label>
-      <textarea id="supplier-prompt" rows="8" readonly>Please review the attached WorldKinetics CAD for one shape-and-fit prototype. Use the exact revision and millimeter units in PROTOTYPE-BRIEF.txt and RFQ.txt. Follow any quantity, material, finish and delivery preferences in RFQ.txt; ask me about missing details rather than assuming.
+      <textarea id="supplier-prompt" rows="8" readonly>Please review the attached WorldKinetics CAD for a shape-and-fit prototype quote. If quantity is unspecified, quote one prototype. Use the exact revision and millimeter units in PROTOTYPE-BRIEF.txt and RFQ.txt. Follow any quantity, material, finish and delivery preferences in RFQ.txt; ask me about missing details rather than assuming.
 Please recommend a suitable process and material and flag printability, mounting hardware, tolerance or strength concerns. Do not change the protected mounting interface or required finger clearance without my approval.
 Please quote parts, setup fees, shipping and taxes separately, and distinguish production time from transit time. This is an untested physical prototype. Please obtain my approval before modifying the CAD or placing an order.</textarea>
       <button id="copy-supplier-prompt" type="button">Copy request</button><p id="supplier-copy-status" role="status"></p>
@@ -421,6 +421,9 @@ Please quote parts, setup fees, shipping and taxes separately, and distinguish p
         <li><a href="https://www.protolabs.com/services/3d-printing/" target="_blank" rel="noopener noreferrer">Protolabs</a><span>Request a prototype quote and confirm the available turnaround for your part.</span></li>
       </ul>
       <p>Actual cost and delivery require a supplier quote. Nothing is uploaded or sent automatically.</p>
+      <details class="wk-details"><summary>Cost and turnaround: what to expect</summary><p>Most prices and lead times appear after uploading your CAD and choosing material, process and quantity. Production time and shipping time are different.</p><p>Protolabs publishes a general starting price around US$95 and 3D printing as fast as one day. These are provider starting claims, not a quote or delivery promise for this handle. Eligibility, material, quantity and shipping affect the result.</p><p>Sources checked September 8, 2026: <a href="https://www.protolabs.com/resources/faqs/" target="_blank" rel="noopener noreferrer">Protolabs pricing FAQ</a> · <a href="https://www.protolabs.com/services/3d-printing/" target="_blank" rel="noopener noreferrer">Production timing</a>.</p></details>
+      <details class="wk-details"><summary>Compare quotes you receive</summary><p>Enter two supplier offers for the same quantity, material and finish, in USD. These are your entries, not retrieved quotes, and stay in this tab. Blank means unknown; enter 0 only if a fee is included or waived.</p>
+        <div class="wk-quote-compare"><fieldset><legend>Offer A</legend><label>Parts subtotal (USD)<input id="quote-A-parts" type="number" min="0" step="0.01"></label><label>Shipping (USD)<input id="quote-A-shipping" type="number" min="0" step="0.01"></label><label>Setup, taxes and other fees (USD)<input id="quote-A-fees" type="number" min="0" step="0.01"></label><label>Quoted production time<input type="text" placeholder="For example: 5 business days"></label><label>Quoted transit time<input type="text" placeholder="For example: 2 business days"></label><p id="quote-A-total" role="status">Total unknown</p></fieldset><fieldset><legend>Offer B</legend><label>Parts subtotal (USD)<input id="quote-B-parts" type="number" min="0" step="0.01"></label><label>Shipping (USD)<input id="quote-B-shipping" type="number" min="0" step="0.01"></label><label>Setup, taxes and other fees (USD)<input id="quote-B-fees" type="number" min="0" step="0.01"></label><label>Quoted production time<input type="text" placeholder="For example: 5 business days"></label><label>Quoted transit time<input type="text" placeholder="For example: 2 business days"></label><p id="quote-B-total" role="status">Total unknown</p></fieldset></div><p id="quote-comparison" role="status">Complete both offers to compare totals.</p></details>
     </section>
     <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect 3D designs.</p></noscript>
   </main>

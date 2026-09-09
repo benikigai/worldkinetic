@@ -355,3 +355,6 @@
 #get-it-made { margin-top: 32px; max-width: 960px; scroll-margin-top: 24px; }
 .wk-package-contents dt { font-weight: 600; margin-top: 16px; }
 .wk-package-contents dd { margin: 4px 0 0; line-height: 1.6; }
+
+.wk-quote-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.wk-quote-compare fieldset { border: 1px solid var(--line); padding: 16px; min-width: 0; }
