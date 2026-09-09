@@ -139,7 +139,7 @@ test('one admitted run across visitors; identical concurrent retries reuse it wi
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', { ...input('same'), instruction: 'Changed payload' })).status, 409);
     assert.equal((await app.call('/api/session/new', a.cookie, 'POST', { contractVersion: c.CONTRACT_VERSION, requestId: 'reset', expectedWorkspaceId: a.status.workspaceId })).status, 409);
     assert.equal((await app.call('/api/runs/' + bodies[0].run.runId, b.cookie)).status, 404);
-    release(); const status = await app.idle(a.cookie); assert.equal(status.runsRemaining, 3); assert.equal(status.launchRunsRemaining, 11);
+    release(); const status = await app.idle(a.cookie); assert.equal(status.runsRemaining, 2); assert.equal(status.launchRunsRemaining, 2);
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('same'))).status, 200); assert.equal(calls, 1);
   } finally { release(); await app.close(); }
 });
@@ -151,33 +151,33 @@ test('fresh design is isolated, explicit and idempotent without resetting the vi
     const before = await (await app.call('/api/bootstrap', a.cookie)).json() as any;
     const reset = { contractVersion: c.CONTRACT_VERSION, requestId: 'fresh', expectedWorkspaceId: a.status.workspaceId };
     const first = c.SessionStatusSchema.parse(await (await app.call('/api/session/new', a.cookie, 'POST', reset)).json()); assert(first.authenticated);
-    assert.notEqual(first.workspaceId, a.status.workspaceId); assert.equal(first.runsRemaining, 3);
+    assert.notEqual(first.workspaceId, a.status.workspaceId); assert.equal(first.runsRemaining, 2);
     const retry = c.SessionStatusSchema.parse(await (await app.call('/api/session/new', a.cookie, 'POST', reset)).json()); assert(retry.authenticated); assert.equal(first.workspaceId, retry.workspaceId);
     const after = await (await app.call('/api/bootstrap', a.cookie)).json() as any; assert.equal(after.runs.length, 0);
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('first'))).status, 409);
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('new_from_old_tab'))).status, 409);
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('no_binding'), { [c.PUBLIC_WORKSPACE_HEADER]: '' })).status, 409);
-    const unchanged = await app.idle(a.cookie); assert.equal(unchanged.runsRemaining, 3);
+    const unchanged = await app.idle(a.cookie); assert.equal(unchanged.runsRemaining, 2);
     assert.equal((await (await app.call('/api/bootstrap', a.cookie)).json() as any).runs.length, 0);
     app.bind(a.cookie, first.workspaceId);
     assert.equal((await app.call('/api/runs/' + before.runs[0].runId, a.cookie)).status, 404);
     assert.equal((await app.call('/api/session/new', a.cookie, 'POST', { ...reset, requestId: 'stale' })).status, 409);
-    for (let i = 0; i < 3; i++) { assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('next_' + i))).status, 202); await app.idle(a.cookie); }
+    for (let i = 0; i < 2; i++) { assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('next_' + i))).status, 202); await app.idle(a.cookie); }
     assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('over_limit'))).status, 429);
-    assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('next_2'))).status, 200);
+    assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('next_1'))).status, 200);
     assert.equal((await app.call('/api/session/new', a.cookie, 'POST', { ...reset, requestId: 'another', expectedWorkspaceId: first.workspaceId })).status, 429);
   } finally { await app.close(); }
 });
 
-test('launch budget is shared and login cannot bypass twelve admitted runs', async () => {
+test('launch budget is shared and login cannot bypass three admitted runs', async () => {
   const app = await start();
   try {
     for (let visitor = 0; visitor < 3; visitor++) {
       const a = await app.login();
-      for (let run = 0; run < 4; run++) { assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('run_' + run))).status, 202); await app.idle(a.cookie); }
+      for (let run = 0; run < 1; run++) { assert.equal((await app.call('/api/runs', a.cookie, 'POST', input('run_' + run))).status, 202); await app.idle(a.cookie); }
     }
     const last = await app.login();
-    assert.equal(last.status.launchRunsRemaining, 0); assert.equal(last.status.runsRemaining, 4);
+    assert.equal(last.status.launchRunsRemaining, 0); assert.equal(last.status.runsRemaining, 3);
     assert.equal((await app.call('/api/runs', last.cookie, 'POST', input('bypass'))).status, 429);
   } finally { await app.close(); }
 });
@@ -276,7 +276,7 @@ test('combined edge, frontend session client and backend preserve a custom reque
     assert.equal(await c.sha256(bytes), packageResponse.headers.get(c.PACKAGE_HEADERS.sha256));
     assert.equal(packageResponse.headers.get(c.PACKAGE_HEADERS.revisionId), candidate.revisionId);
     assert.equal(packageResponse.headers.get('Content-Type'), 'application/zip'); assert.equal(packageResponse.headers.get('Cache-Control'), 'no-store');
-    const fresh = await client.newDesign(session.workspaceId); assert(fresh.authenticated); assert.equal(fresh.runsRemaining, 3);
+    const fresh = await client.newDesign(session.workspaceId); assert(fresh.authenticated); assert.equal(fresh.runsRemaining, 2);
     assert.equal((await browserPost('/api/runs', request)).status, 409);
     assert.equal((await (await browserFetch('/api/bootstrap')).json() as any).runs.length, 0);
     assert.equal((await client.logout())?.authenticated, false);
@@ -293,7 +293,7 @@ test('operator-selected short invitation authenticates without changing run budg
     assert.equal(response.status, 200);
     const session = c.SessionStatusSchema.parse(await response.json());
     assert(session.authenticated);
-    assert.equal(session.runsPerSession, 4);
-    assert.equal(session.runsPerLaunch, 12);
+    assert.equal(session.runsPerSession, 3);
+    assert.equal(session.runsPerLaunch, 3);
   } finally { await app.close(); }
 });
