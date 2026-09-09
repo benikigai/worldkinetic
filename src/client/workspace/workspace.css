@@ -321,7 +321,7 @@
 .wk-session-gate p { line-height: 1.6; }
 .wk-session-gate form { display: grid; gap: 12px; margin: 24px 0; }
 #session-bar { margin-bottom: 20px; }
-#session-budget { font-size: 14px; font-weight: 400; margin-left: 12px; }
+#session-budget { font-size: 14px; font-weight: 400; }
 
 .wk-entry-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 28px; }
 .wk-entry-choices a { display: block; padding: 20px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); text-decoration: none; background: var(--panel); }
@@ -342,3 +342,8 @@
 .wk-handle-reference figcaption { font-size: 14px; font-weight: 500; }
 .wk-handle-reference svg { display: block; width: 100%; height: auto; margin: 6px 0; }
 .wk-handle-reference p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+.wk-session-bar { padding: 14px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.wk-session-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wk-session-bar > p, .wk-session-bar details { color: var(--muted); font-size: 14px; margin-top: 8px; }
+.wk-session-bar #session-action-status:empty { display: none; }

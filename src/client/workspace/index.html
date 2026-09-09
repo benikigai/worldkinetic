@@ -37,7 +37,12 @@
       <p id="session-message" role="status">Checking access…</p><button id="session-check" type="button" disabled>Check access</button>
       <p><a href="/demo/">Watch the recorded demo</a></p>
     </section>
-    <details id="session-bar" class="wk-disclosure" hidden><summary>Demo session <span id="session-budget"></span></summary><div class="wk-disclosure-body"><p>Start a fresh design within the same run budget. This does not modify your previous design. Sign out before using a different access code.</p><button id="session-new" type="button" disabled>Start a new design</button><button id="session-logout" type="button" disabled>Sign out</button><p id="session-action-status" role="status"></p></div></details>
+    <section id="session-bar" class="wk-session-bar" hidden aria-label="Demo session">
+      <div class="wk-session-actions"><span id="session-budget"></span><button id="session-new" type="button" disabled>New design</button></div>
+      <p>Start fresh. Your previous design stays saved; your run allowance stays the same.</p>
+      <p id="session-action-status" role="status"></p>
+      <details><summary>Session options</summary><p>Sign out before using a different access code.</p><button id="session-logout" type="button" disabled>Sign out</button></details>
+    </section>
     <div id="workspace-content" hidden>
     <div class="wk-consumer-heading">
       <div><p class="wk-kicker">WorldKinetics demo</p><h1 id="consumer-title">Make a cabinet handle your own</h1></div>
