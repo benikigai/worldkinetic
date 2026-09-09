@@ -154,8 +154,10 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for it to load.' : '');
     text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
       : 'Approve a checked design to get its files.');
+    element('live-controlled-sizes').hidden = !handle || !s.trusted || Boolean(s.error);
     if (handle) {
       const brief = requirements.setup.geometry.sampleRequirements;
+      text('live-controlled-values', `${brief.mountPitchMm} mm mount spacing · ${brief.minimumFingerGapMm} mm minimum finger gap · ${brief.maximumOverallLengthMm} mm maximum length`);
       text('live-requirements', 'Sample brief');
       text('live-fixed', `Mount spacing: ${brief.mountPitchMm} mm. Finger gap: at least ${brief.minimumFingerGapMm} mm. Maximum length: ${brief.maximumOverallLengthMm} mm. Hardware unspecified.`);
     } else {
