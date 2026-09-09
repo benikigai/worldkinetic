@@ -76,8 +76,8 @@ export function mountSession(signal: AbortSignal, access: (allowed: boolean, wor
     get('workspace-content').hidden = !allowed;
     for (const id of ['session-login', 'session-check', 'session-logout']) get<HTMLButtonElement>(id).disabled = busy;
     get<HTMLButtonElement>('session-new').disabled = busy || !status?.authenticated || !status.canStartNewDesign || status.busy;
-    if (status?.authenticated) get('session-budget').textContent = status.accessRole === 'operator' && status.runsPerSession === null
-      ? `Admin · Unlimited runs${status.busy ? ' · Demo busy' : ''}`
+    if (status?.authenticated) get('session-budget').textContent = status.runsPerSession === null
+      ? `${status.accessRole === 'operator' ? 'Admin' : 'Public'} · Unlimited runs${status.busy ? ' · Demo busy' : ''}`
       : `${status.accessRole === 'operator' ? 'Admin allowance' : 'Public allowance'} · ${status.runsRemaining} session runs left · ${status.launchRunsRemaining} total runs available${status.busy ? ' · Demo busy' : ''}`;
     access(allowed, status?.authenticated ? status.workspaceId : null);
   }
