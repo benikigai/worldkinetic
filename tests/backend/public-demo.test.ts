@@ -283,3 +283,17 @@ test('combined edge, frontend session client and backend preserve a custom reque
     assert.equal((await browserFetch('/api/bootstrap')).status, 401); assert.equal(providerCalls, 1);
   } finally { await app.close(); }
 });
+
+// A deliberately short operator-selected code still uses the same admission checks.
+test('operator-selected short invitation authenticates without changing run budgets', async () => {
+  const app = await start({ inviteCode: 'test' });
+  try {
+    assert.equal((await app.call('/api/session', '', 'POST', { accessCode: 'wrong' })).status, 403);
+    const response = await app.call('/api/session', '', 'POST', { accessCode: 'test' });
+    assert.equal(response.status, 200);
+    const session = c.SessionStatusSchema.parse(await response.json());
+    assert(session.authenticated);
+    assert.equal(session.runsPerSession, 4);
+    assert.equal(session.runsPerLaunch, 12);
+  } finally { await app.close(); }
+});

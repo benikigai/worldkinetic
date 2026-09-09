@@ -12,7 +12,7 @@ Supply these variables through the existing secret-management workflow, without 
 
 - `WORLDKINETICS_PUBLIC_ORIGIN`: exact `https://worldkinetics.app`, without a trailing slash.
 - `WORLDKINETICS_UPSTREAM_KEY`: distinct random secret of at least32 characters, shared only with the Worker binding.
-- `WORLDKINETICS_INVITE_CODE`: separate invitation secret of16 to128 characters.
+- `WORLDKINETICS_INVITE_CODE`: separate invitation code of1 to128 characters, selected by the operator.
 - `OPENAI_API_KEY`: server-only API/project credential. Product generation uses API billing, separately from Codex login. An absent key leaves generation unavailable.
 - `WORLDKINETICS_HANDLE_REFERENCE_DIR`: trusted directory containing `reference.step`, `preview.stl` and canonical `datums.json`.
 - `PORT=4330` and `WORLDKINETICS_RUNTIME_DIR`: an isolated private writable directory.

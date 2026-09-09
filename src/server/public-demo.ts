@@ -69,7 +69,7 @@ export async function createPublicDemo(options: PublicDemoOptions) {
   let origin: URL;
   try { origin = new URL(options.publicOrigin); } catch { throw new Error('An exact HTTPS public origin is required.'); }
   if (origin.protocol !== 'https:' || origin.origin !== options.publicOrigin
-    || options.upstreamKey?.length < 32 || !options.upstreamKey || options.inviteCode?.length < 16 || !options.inviteCode
+    || options.upstreamKey?.length < 32 || !options.upstreamKey || options.inviteCode?.length < 1 || !options.inviteCode
     || options.inviteCode.length > 128 || options.upstreamKey === options.inviteCode) {
     throw new Error('Public demo requires an exact HTTPS origin and distinct upstream and invitation secrets.');
   }
