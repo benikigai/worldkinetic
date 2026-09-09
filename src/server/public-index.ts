@@ -11,6 +11,8 @@ const app = await createPublicDemo({
   upstreamKey: process.env.WORLDKINETICS_UPSTREAM_KEY ?? '',
   inviteCode: process.env.WORLDKINETICS_INVITE_CODE ?? '',
   apiKey: process.env.OPENAI_API_KEY,
+  operatorCode: process.env.WORLDKINETICS_OPERATOR_CODE,
+  operatorRunLimit: process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT === undefined ? undefined : Number(process.env.WORLDKINETICS_OPERATOR_RUN_LIMIT),
   referenceFiles: { stepPath: path.resolve(reference, 'reference.step'), previewPath: path.resolve(reference, 'preview.stl'),
     datumPath: path.resolve(reference, 'datums.json') },
 });

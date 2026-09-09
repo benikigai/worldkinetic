@@ -297,3 +297,54 @@ test('operator-selected short invitation authenticates without changing run budg
     assert.equal(session.runsPerLaunch, 3);
   } finally { await app.close(); }
 });
+
+test('operator access has a separate bounded budget and cannot be selected by a visitor payload', async () => {
+  const operatorCode = 'synthetic-operator-credential-for-tests-only';
+  const app = await start({ operatorCode, operatorRunLimit: 5 });
+  try {
+    const visitor = await app.login();
+    assert.equal((await app.call('/api/session', '', 'POST', { accessCode: invite, accessRole: 'operator' })).status, 400);
+    assert.equal((await app.call('/api/session', visitor.cookie, 'POST', { accessCode: operatorCode })).status, 409);
+    for (let i = 0; i < 3; i++) {
+      assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('visitor_' + i))).status, 202);
+      await app.idle(visitor.cookie);
+    }
+    const response = await app.call('/api/session', '', 'POST', { accessCode: operatorCode });
+    assert.equal(response.status, 200);
+    const status = c.SessionStatusSchema.parse(await response.json()); assert(status.authenticated);
+    assert.equal(status.accessRole, 'operator'); assert.equal(status.runsRemaining, 5); assert.equal(status.launchRunsRemaining, 5);
+    const cookie = response.headers.get('set-cookie')!.split(';')[0]!; app.bind(cookie, status.workspaceId);
+    for (let i = 0; i < 5; i++) {
+      assert.equal((await app.call('/api/runs', cookie, 'POST', input('operator_' + i))).status, 202);
+      await app.idle(cookie);
+    }
+    assert.equal((await app.call('/api/runs', cookie, 'POST', input('operator_over'))).status, 429);
+    assert.equal((await app.call('/api/runs', cookie, 'POST', input('operator_4'))).status, 200);
+    assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('visitor_over'))).status, 429);
+    const visitorStatus = await app.idle(visitor.cookie); assert.equal(visitorStatus.launchRunsRemaining, 0);
+    await app.call('/api/session', cookie, 'DELETE');
+    const relogin = await app.call('/api/session', '', 'POST', { accessCode: operatorCode }, { 'X-WorldKinetics-Client-IP': '192.0.2.12' });
+    const later = c.SessionStatusSchema.parse(await relogin.json()); assert(later.authenticated);
+    assert.equal(later.launchRunsRemaining, 0); assert.equal(later.canStartNewDesign, false);
+    const newCookie = relogin.headers.get('set-cookie')!.split(';')[0]!; app.bind(newCookie, later.workspaceId);
+    assert.equal((await app.call('/api/runs', newCookie, 'POST', input('new_cookie_bypass'))).status, 429);
+  } finally { await app.close(); }
+});
+
+test('operator credential is optional, distinct and strong; default operator allowance is thirty', async () => {
+  const config = await options();
+  for (const override of [{ operatorCode: 'short' }, { operatorCode: upstream }, { operatorCode: '' }, { operatorRunLimit: 0 }, { operatorRunLimit: 1001 }]) {
+    await assert.rejects(createPublicDemo({ ...config, ...override }));
+  }
+  const code = 'synthetic-operator-credential-for-tests-only';
+  const disabled = await start();
+  try { assert.equal((await disabled.call('/api/session', '', 'POST', { accessCode: code })).status, 403); }
+  finally { await disabled.close(); }
+  const app = await start({ operatorCode: code });
+  try {
+    const r = await app.call('/api/session', '', 'POST', { accessCode: code });
+    const status = c.SessionStatusSchema.parse(await r.json()); assert(status.authenticated);
+    assert.equal(status.runsPerSession, 30); assert.equal(status.runsPerLaunch, 30);
+    assert.equal((await (await app.call('/api/session')).json() as any).runsPerLaunch, 3);
+  } finally { await app.close(); }
+});

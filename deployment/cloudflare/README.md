@@ -13,6 +13,8 @@ Supply these variables through the existing secret-management workflow, without 
 - `WORLDKINETICS_PUBLIC_ORIGIN`: exact `https://worldkinetics.app`, without a trailing slash.
 - `WORLDKINETICS_UPSTREAM_KEY`: distinct random secret of at least32 characters, shared only with the Worker binding.
 - `WORLDKINETICS_INVITE_CODE`: separate invitation code of1 to128 characters, selected by the operator.
+- `WORLDKINETICS_OPERATOR_CODE`: optional distinct private credential of32 to128 characters. Omit to disable operator access. Never reuse or publish the shared invitation as this credential.
+- `WORLDKINETICS_OPERATOR_RUN_LIMIT`: optional operator allowance, default30, bounded1 to1000. It applies per operator session and across all operator sessions for this launch. Operator runs use a separate pool and do not replenish or consume the public three-run pool.
 - `OPENAI_API_KEY`: server-only API/project credential. Product generation uses API billing, separately from Codex login. An absent key leaves generation unavailable.
 - `WORLDKINETICS_HANDLE_REFERENCE_DIR`: trusted directory containing `reference.step`, `preview.stl` and canonical `datums.json`.
 - `PORT=4330` and `WORLDKINETICS_RUNTIME_DIR`: an isolated private writable directory.
@@ -24,6 +26,8 @@ After access authorization and secret provisioning, `npm run start:public` binds
 `GET /api/session` reports authentication. `POST /api/session` takes `{accessCode}`. `DELETE /api/session` signs out. All return the shared `SessionStatusSchema`. The HttpOnly, Secure, SameSite=Strict, host-only cookie lasts8hours. Every API route requires the upstream secret; other than session status/login, each also requires a valid cookie. Mutations require the exact configured public Origin.
 
 Each browser session owns separate state, run records, references and artifacts. `POST /api/session/new` takes `{contractVersion,requestId,expectedWorkspaceId}` and creates a fresh design without replenishing runs. Repeating the same request reuses its result. Older work remains on disk but is no longer accessible through that session after reset. Sign out and restart similarly make old session artifacts inaccessible, so download before leaving a completed design.
+
+Operator access uses the same login endpoint with the private credential. Sign out before changing between public and operator access. It grants extra run allowance only; it does not grant access to another workspace or bypass geometry checks, acceptance, the three-minute timeout, or the global CAD job lock. Remaining allowance comes from the authenticated server response.
 
 Every child API mutation also requires `X-WorldKinetics-Workspace`, captured by the browser controller from its initial session response and preserved through the edge. After reset, old-tab mutations and exact run retries return409 instead of targeting the new workspace. Session operations use their own authentication and reset CAS body. The client reloads before using a new workspace binding.
 

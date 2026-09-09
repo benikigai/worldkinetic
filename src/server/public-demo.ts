@@ -14,6 +14,7 @@ import { StoreError } from './store.js';
 type HandleApp = Awaited<ReturnType<typeof createHandleApplication>>;
 type HandleOptions = Parameters<typeof createHandleApplication>[0];
 interface Visitor {
+  role: 'visitor' | 'operator';
   token: string;
   expiresAt: number;
   runs: number;
@@ -27,6 +28,8 @@ export interface PublicDemoOptions {
   publicOrigin: string;
   upstreamKey: string;
   inviteCode: string;
+  operatorCode?: string;
+  operatorRunLimit?: number;
   referenceFiles: HandleOptions['referenceFiles'];
   apiKey?: string;
   fetchImpl?: typeof fetch;
@@ -73,7 +76,14 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     || options.inviteCode.length > 128 || options.upstreamKey === options.inviteCode) {
     throw new Error('Public demo requires an exact HTTPS origin and distinct upstream and invitation secrets.');
   }
+  const operatorLimit = options.operatorRunLimit ?? 30;
+  if (!Number.isInteger(operatorLimit) || operatorLimit < 1 || operatorLimit > 1000
+    || (options.operatorCode !== undefined && (options.operatorCode.length < 32 || options.operatorCode.length > 128
+      || options.operatorCode === options.inviteCode || options.operatorCode === options.upstreamKey))) {
+    throw new Error('Operator access requires a distinct private credential and a bounded run allowance.');
+  }
   const upstreamHash = digest(options.upstreamKey), inviteHash = digest(options.inviteCode);
+  const operatorHash = options.operatorCode ? digest(options.operatorCode) : null;
   await mkdir(options.runtimeDir, { recursive: true, mode: 0o700 });
   if ((await lstat(options.runtimeDir)).isSymbolicLink()) throw new Error('Runtime directory cannot be a symlink.');
   const runtimeDir = await realpath(options.runtimeDir);
@@ -88,7 +98,7 @@ export async function createPublicDemo(options: PublicDemoOptions) {
   process.once('exit', release);
   const visitors = new Map<string, Visitor>(), apps = new Set<HandleApp>();
   const jobs = new Map<Promise<unknown>, Visitor>(), tools = new Map<Promise<unknown>, Visitor>();
-  let runs = 0, poisoned = false, closing = false;
+  let runs = 0, operatorRuns = 0, poisoned = false, closing = false;
   const packageGate = { busy: false };
   let boundary = Promise.resolve();
   function serialize<T>(operation: () => Promise<T>): Promise<T> {
@@ -111,11 +121,16 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     loginWindows.set(key, window);
     if (++window.count > 5) fail(429, 'DEMO_LIMIT');
   }
+  const allowance = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorLimit : limits.runsPerSession;
+  const used = (visitor?: Visitor) => visitor?.role === 'operator' ? operatorRuns : runs;
+  const exhausted = (visitor: Visitor) => visitor.runs >= allowance(visitor) || used(visitor) >= allowance(visitor);
+  const designLimit = (visitor: Visitor) => visitor.role === 'operator' ? operatorLimit : limits.designsPerSession;
   const status = (visitor?: Visitor): SessionStatus => SessionStatusSchema.parse({
-    contractVersion: CONTRACT_VERSION, accessMode: 'invite', runsPerSession: limits.runsPerSession, runsPerLaunch: limits.runsPerLaunch,
-    ...(visitor ? { authenticated: true, workspaceId: visitor.workspaceId, runsRemaining: limits.runsPerSession - visitor.runs,
-      launchRunsRemaining: limits.runsPerLaunch - runs, busy: busy(), expiresAt: new Date(visitor.expiresAt).toISOString(),
-      canStartNewDesign: !visitorBusy(visitor) && visitor.runs < limits.runsPerSession && runs < limits.runsPerLaunch && visitor.designs < limits.designsPerSession,
+    contractVersion: CONTRACT_VERSION, accessMode: 'invite', runsPerSession: allowance(visitor), runsPerLaunch: allowance(visitor),
+    ...(visitor ? { authenticated: true, ...(visitor.role === 'operator' ? { accessRole: 'operator' } : {}),
+      workspaceId: visitor.workspaceId, runsRemaining: allowance(visitor) - visitor.runs,
+      launchRunsRemaining: allowance(visitor) - used(visitor), busy: busy(), expiresAt: new Date(visitor.expiresAt).toISOString(),
+      canStartNewDesign: !visitorBusy(visitor) && !exhausted(visitor) && visitor.designs < designLimit(visitor),
     } : { authenticated: false }),
   });
   async function newApp(visitor: Visitor, workspaceId: string): Promise<HandleApp> {
@@ -134,10 +149,11 @@ export async function createPublicDemo(options: PublicDemoOptions) {
           const retry = store.getRunRetry(input);
           if (retry) return retry;
           if (busy()) fail(409, 'DEMO_BUSY');
-          if (visitor.runs >= limits.runsPerSession || runs >= limits.runsPerLaunch) fail(429, 'DEMO_LIMIT');
+          if (exhausted(visitor)) fail(429, 'DEMO_LIMIT');
           const result = await store.enqueueRun(input);
           if (!result.reused) {
-            visitor.runs++; runs++;
+            visitor.runs++;
+            if (visitor.role === 'operator') operatorRuns++; else runs++;
             const job = Promise.resolve().then(() => execute(result.run.runId));
             jobs.set(job, visitor);
             void job.catch(() => { poisoned = true; }).finally(() => jobs.delete(job));
@@ -166,12 +182,17 @@ export async function createPublicDemo(options: PublicDemoOptions) {
           checkLoginRate(request);
           const parsed = SessionLoginSchema.safeParse(await body(request));
           if (!parsed.success) fail(400, 'INVALID_REQUEST');
-          if (!sameSecret(parsed.data.accessCode, inviteHash)) fail(403, 'ACCESS_DENIED');
+          const operator = operatorHash !== null && sameSecret(parsed.data.accessCode, operatorHash);
+          if (!operator && !sameSecret(parsed.data.accessCode, inviteHash)) fail(403, 'ACCESS_DENIED');
+          const role = operator ? 'operator' : 'visitor';
           return await serialize(async () => {
-            if (visitor) return json(response, 200, status(visitor));
+            if (visitor) {
+              if (visitor.role !== role) fail(409, 'STATE_CONFLICT');
+              return json(response, 200, status(visitor));
+            }
             if (visitors.size >= limits.sessionsPerLaunch) fail(429, 'DEMO_LIMIT');
             const token = randomBytes(32).toString('hex'), workspaceId = 'workspace_' + randomUUID();
-            const created = { token, workspaceId, expiresAt: Date.now() + limits.sessionHours * 3600_000,
+            const created = { role, token, workspaceId, expiresAt: Date.now() + limits.sessionHours * 3600_000,
               runs: 0, designs: 1, resets: new Map() } as Visitor;
             created.app = await newApp(created, workspaceId);
             visitors.set(token, created);
@@ -199,7 +220,7 @@ export async function createPublicDemo(options: PublicDemoOptions) {
           }
           if (visitor.workspaceId !== parsed.data.expectedWorkspaceId || visitor.expiresAt <= Date.now()) fail(409, 'STATE_CONFLICT');
           if (visitorBusy(visitor)) fail(409, 'DEMO_BUSY');
-          if (visitor.runs >= limits.runsPerSession || runs >= limits.runsPerLaunch || visitor.designs >= limits.designsPerSession) fail(429, 'DEMO_LIMIT');
+          if (exhausted(visitor) || visitor.designs >= designLimit(visitor)) fail(429, 'DEMO_LIMIT');
           const workspaceId = 'workspace_' + randomUUID();
           const app = await newApp(visitor, workspaceId);
           visitor.resets.set(parsed.data.requestId, { from: visitor.workspaceId, to: workspaceId });
