@@ -30,6 +30,7 @@ export interface PublicDemoOptions {
   inviteCode: string;
   operatorCode?: string;
   operatorRunLimit?: number;
+  initialPublicRuns?: number;
   referenceFiles: HandleOptions['referenceFiles'];
   apiKey?: string;
   fetchImpl?: typeof fetch;
@@ -77,6 +78,10 @@ export async function createPublicDemo(options: PublicDemoOptions) {
     throw new Error('Public demo requires an exact HTTPS origin and distinct upstream and invitation secrets.');
   }
   const operatorLimit = options.operatorRunLimit ?? 30;
+  const initialPublicRuns = options.initialPublicRuns ?? 0;
+  if (!Number.isInteger(initialPublicRuns) || initialPublicRuns < 0 || initialPublicRuns > limits.runsPerLaunch) {
+    throw new Error('Invalid carried public run usage.');
+  }
   if (!Number.isInteger(operatorLimit) || operatorLimit < 1 || operatorLimit > 1000
     || (options.operatorCode !== undefined && (options.operatorCode.length < 32 || options.operatorCode.length > 128
       || options.operatorCode === options.inviteCode || options.operatorCode === options.upstreamKey))) {
@@ -98,7 +103,7 @@ export async function createPublicDemo(options: PublicDemoOptions) {
   process.once('exit', release);
   const visitors = new Map<string, Visitor>(), apps = new Set<HandleApp>();
   const jobs = new Map<Promise<unknown>, Visitor>(), tools = new Map<Promise<unknown>, Visitor>();
-  let runs = 0, operatorRuns = 0, poisoned = false, closing = false;
+  let runs = initialPublicRuns, operatorRuns = 0, poisoned = false, closing = false;
   const packageGate = { busy: false };
   let boundary = Promise.resolve();
   function serialize<T>(operation: () => Promise<T>): Promise<T> {

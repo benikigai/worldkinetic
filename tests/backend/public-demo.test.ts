@@ -348,3 +348,14 @@ test('operator credential is optional, distinct and strong; default operator all
     assert.equal((await (await app.call('/api/session')).json() as any).runsPerLaunch, 3);
   } finally { await app.close(); }
 });
+
+test('an operator upgrade preserves the already-consumed public allowance', async () => {
+  const app = await start({ initialPublicRuns: 1 });
+  try {
+    const visitor = await app.login(); assert.equal(visitor.status.launchRunsRemaining, 2);
+    for (let i = 0; i < 2; i++) { await app.call('/api/runs', visitor.cookie, 'POST', input('remaining_' + i)); await app.idle(visitor.cookie); }
+    assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('must_not_refill'))).status, 429);
+  } finally { await app.close(); }
+  const config = await options();
+  for (const initialPublicRuns of [-1, 4, 0.5]) await assert.rejects(createPublicDemo({ ...config, initialPublicRuns }));
+});

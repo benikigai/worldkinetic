@@ -13,6 +13,7 @@ Supply these variables through the existing secret-management workflow, without 
 - `WORLDKINETICS_PUBLIC_ORIGIN`: exact `https://worldkinetics.app`, without a trailing slash.
 - `WORLDKINETICS_UPSTREAM_KEY`: distinct random secret of at least32 characters, shared only with the Worker binding.
 - `WORLDKINETICS_INVITE_CODE`: separate invitation code of1 to128 characters, selected by the operator.
+- `WORLDKINETICS_PUBLIC_RUNS_USED`: carried public run count when upgrading the same demo launch. Set it from verified existing run records so an upgrade cannot replenish public allowance. Fresh launches default to0; do not restart automatically to reset budgets.
 - `WORLDKINETICS_OPERATOR_CODE`: optional distinct private credential of32 to128 characters. Omit to disable operator access. Never reuse or publish the shared invitation as this credential.
 - `WORLDKINETICS_OPERATOR_RUN_LIMIT`: optional operator allowance, default30, bounded1 to1000. It applies per operator session and across all operator sessions for this launch. Operator runs use a separate pool and do not replenish or consume the public three-run pool.
 - `OPENAI_API_KEY`: server-only API/project credential. Product generation uses API billing, separately from Codex login. An absent key leaves generation unavailable.
