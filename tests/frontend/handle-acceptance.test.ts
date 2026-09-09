@@ -352,7 +352,7 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     assert.equal(node('make-fit-notes').value,'','Notes cannot silently carry to a different accepted revision');
     assert.equal(node('live-files').hidden,false); assert.equal(node('live-download').disabled,false);
     assert.equal(node('live-inputs').hidden,true,'Verified final recovery keeps the completed prompt out of the download flow');
-    assert.equal(node('live-check-details').open,false,'Passed checks are summarized and can be expanded');
+    assert.equal(node('live-check-details').open,true,'Revision checks are expanded so users can inspect the enforced controls');
     assert.equal(node('live-results').hidden,false,'Actual revision evidence remains available');
     assert.equal(node('live-earlier-designs').hidden,false,'History appears when there are earlier designs');
     assert.equal(node('live-change').hidden,true,'Only the accepted initial supports this refinement stage');

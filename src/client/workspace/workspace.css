@@ -358,3 +358,8 @@
 
 .wk-quote-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
 .wk-quote-compare fieldset { border: 1px solid var(--line); padding: 16px; min-width: 0; }
+
+#design-controls { margin-top: 32px; }
+.wk-control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding-left: 24px; }
+.wk-control-grid li { padding: 8px 12px; line-height: 1.5; }
+.wk-control-grid span { display: block; margin-top: 6px; color: var(--muted); }

@@ -186,7 +186,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     revision.disabled = s.loading || !b?.candidates.length;
     text('live-candidate-status', candidate ? `${candidate.revisionId === b?.design?.acceptedRevisionId ? 'Approved design' : candidate.status === 'reviewable' ? 'Ready to review' : candidate.status === 'rejected' ? 'Needs changes' : candidate.status}${candidate.revisionId !== b?.design?.selectedCandidateRevisionId ? ' · earlier design' : ''}${comparison.value === 'baseline' ? ' · comparing with Before' : ''}` : 'No design to review yet.');
     if (s.trusted && !s.loading && candidate && checkedRevision !== candidate.revisionId) {
-      element<HTMLDetailsElement>('live-check-details').open = candidate.status === 'rejected' || candidate.status === 'failed';
+      element<HTMLDetailsElement>('live-check-details').open = true;
       checkedRevision = candidate.revisionId;
     }
     const r = s.trusted && !s.error ? candidate?.requirements : undefined;
