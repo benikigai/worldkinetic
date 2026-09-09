@@ -1,7 +1,25 @@
 """Bounded OCP tessellation; independent mesh acceptance remains mandatory."""
 import struct
+import json
 from pathlib import Path
 from mesh_checks import cross, sub, dot
+
+
+class MeshTriangleLimitError(ValueError):
+    def __init__(self, triangles):
+        super().__init__('Exported mesh exceeds triangle limit')
+        self.triangles = triangles
+
+
+def export_handle_stl_or_exit(shape, path, measurement_path):
+    try:
+        return export_handle_stl(shape, path)
+    except MeshTriangleLimitError as exc:
+        # Only the trusted verifier calls this boundary. No partial checks escape.
+        failure = {'phase': 'stl_tessellation', 'reason': 'triangle_limit',
+                   'triangles': exc.triangles, 'limit': 100000}
+        Path(measurement_path).write_text(json.dumps({'exportFailure': failure}))
+        raise SystemExit(86) from exc
 
 
 def strip_zero_area_triangles(path):
@@ -22,8 +40,10 @@ def strip_zero_area_triangles(path):
         # Remove only zero area, retaining every nonzero triangle for validation.
         if dot(normal, normal) != 0:
             kept.append(record)
-    if not 0 < len(kept) <= 100000:
-        raise ValueError('Exported mesh exceeds triangle limit')
+    if len(kept) > 100000:
+        raise MeshTriangleLimitError(len(kept))
+    if not kept:
+        raise ValueError('Exported mesh has no nonzero triangles')
     if len(kept) != count:
         path.write_bytes(data[:80] + struct.pack('<I', len(kept)) + b''.join(kept))
     return {'triangles': len(kept), 'zeroAreaTrianglesRemoved': count-len(kept)}

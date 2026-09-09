@@ -73,6 +73,29 @@ def audit(directory, allowed, complete=True):
         raise CoreError("EXPORT_FAILED", "Output exceeds 25 MiB")
 
 
+def trusted_export_failure(role, exit_code, output):
+    # Generated source cannot select this classification by printing a message
+    # or exiting with the reserved code: only the trusted verifier is eligible.
+    if role != 'verifier' or exit_code != 86:
+        return None
+    try:
+        value = json.loads(read_regular(output / 'measurement.json', limit=4096))
+        if set(value) != {'exportFailure'}:
+            return None
+        failure = value['exportFailure']
+        if (set(failure) != {'phase', 'reason', 'triangles', 'limit'}
+                or failure['phase'] != 'stl_tessellation'
+                or failure['reason'] != 'triangle_limit'
+                or type(failure['triangles']) is not int
+                or type(failure['limit']) is not int
+                or failure['limit'] != 100000
+                or not failure['limit'] < failure['triangles'] <= 500000):
+            return None
+        return failure
+    except (OSError, ValueError, TypeError, CoreError):
+        return None
+
+
 class Runtime:
     def __init__(self, deadline):
         self.end = time.monotonic() + deadline
@@ -161,7 +184,11 @@ class Runtime:
                 trace["exitCode"] = process.returncode
                 if process.returncode:
                     code = "EXECUTION_FAILED" if role in ("generator", "regenerator") else "CHECK_FAILED"
-                    if role == "export_verifier":
+                    failure = trusted_export_failure(role, process.returncode, out)
+                    if failure is not None:
+                        trace["failure"] = failure
+                        (root / "failure.json").write_text(json.dumps(failure))
+                    if role == "export_verifier" or failure is not None:
                         code = "EXPORT_FAILED"
                     raise CoreError(code, "CAD stage failed; raw diagnostics retained privately")
         finally:

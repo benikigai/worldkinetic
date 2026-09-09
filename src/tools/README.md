@@ -69,7 +69,10 @@ STL tessellation first caches protected pad faces at absolute boundary deflectio
 boundaries. Interior deflection stays 0.003 mm and angular limits stay 0.1 rad,
 with meshing parallelism disabled. Exact
 zero-area float32 pole triangles are removed before the unchanged independent
-topology, volume, section and clearance checks. Memory and triangle caps remain.
+topology, volume, section and clearance checks. Memory and triangle caps remain. A trusted
+mesh-limit failure records its phase, retained triangle count and fixed limit
+privately and returns `EXPORT_FAILED`, with no public checks or artifacts.
+Generated code cannot select that classification via stderr or an exit code.
 It does not reuse the plate bore assumptions. Unsupported or unestablished
 geometry cannot produce a passing export. Missing section contours and
 geometric conflicts retain failed records; malformed files or failed execution

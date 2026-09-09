@@ -3,7 +3,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 from build123d import import_step
-from handle_export import export_handle_stl
+from handle_export import export_handle_stl_or_exit
 from handle_binding import DATUM_HASH, digest, validate
 from handle_geometry import reference_measurement, inspect, compare, record, solid_measurement
 from handle_mesh import inspect_mesh
@@ -24,7 +24,7 @@ if config.get('referenceOnly'):
     if (ROOT / 'preview.stl').exists():
         result['mesh'] = inspect_mesh(ROOT / 'preview.stl', ref, reference_only=True)
     else:
-        result['meshing'] = export_handle_stl(reference, '/out/preview.stl')
+        result['meshing'] = export_handle_stl_or_exit(reference, '/out/preview.stl', '/out/measurement.json')
 else:
     baseline_bytes = (ROOT / 'baseline.step').read_bytes() if (ROOT / 'baseline.step').exists() else None
     r = validate((ROOT / 'requirements.json').read_bytes(), ref_bytes, datums, baseline_bytes)
@@ -38,7 +38,7 @@ else:
     checks = inspect(shape, reference, g, baseline, initial)
     if not (ROOT / 'checked.step').exists():
         result['checks'] = checks
-        result['meshing'] = export_handle_stl(shape, '/out/preview.stl')
+        result['meshing'] = export_handle_stl_or_exit(shape, '/out/preview.stl', '/out/measurement.json')
     else:
         if digest((ROOT / 'checked.step').read_bytes()) != config['geometryHash']:
             raise ValueError('Export byte identity mismatch')
