@@ -347,3 +347,7 @@
 .wk-session-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .wk-session-bar > p, .wk-session-bar details { color: var(--muted); font-size: 14px; margin-top: 8px; }
 .wk-session-bar #session-action-status:empty { display: none; }
+
+.wk-making-overview { max-width: 72ch; margin: -8px 0 24px; font-size: 16px; line-height: 1.6; }
+.wk-making-steps { padding-left: 22px; line-height: 1.6; }
+.wk-making-steps li { margin-bottom: 12px; }

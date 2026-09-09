@@ -49,6 +49,7 @@
       <span id="live-stage" class="wk-badge" role="status">Connecting</span>
     </div>
     <ol id="consumer-progress" class="wk-progress" aria-label="Design steps"><li>Describe</li><li>Confirm sizes</li><li>Review</li><li>Make your part</li></ol>
+    <p id="making-overview" class="wk-making-overview">Design → Review → Approve → Get it made. After approval, download your CAD package and choose a supplier to quote a prototype.</p>
     <div class="wk-layout wk-consumer-layout">
       <aside class="wk-sidebar" aria-label="Create your design">
         <section id="recorded-panel" class="wk-panel wk-request" data-recorded-only hidden aria-labelledby="recorded-title">
@@ -103,8 +104,8 @@
           <div class="wk-live-recovery"><button id="live-refresh" type="button">Check status</button><button id="live-reconnect" type="button">Reconnect</button><button id="live-retry" type="button" disabled>Try again</button></div>
         </section>
         <section id="live-files" class="wk-panel wk-request" data-live-only hidden aria-labelledby="live-accepted-title">
-          <h2 id="live-accepted-title">Make your part</h2>
-          <p>Start with a prototype to check the shape and fit.</p>
+          <h2 id="live-accepted-title">Get your part made</h2>
+          <ol class="wk-making-steps"><li><strong>Get your files.</strong> Download the approved CAD and brief.</li><li><strong>Choose a supplier.</strong> Upload the CAD on their site and request a quote.</li><li><strong>Make a prototype.</strong> Agree on material, price and delivery, then check its fit.</li></ol>
           <button id="make-package" class="wk-primary" type="button" disabled>Download handoff package</button>
           <p>One ZIP: CAD files, source, checks and a prototype brief.</p>
           <p id="make-package-status" role="status" aria-live="polite"></p>
@@ -134,14 +135,14 @@
 
             <p>Includes accepted CAD, source dependencies, checks, a prototype brief and your quote preferences. No drawing or printer-ready G-code. Hardware, material and manufacturing details still need review.</p>
           </details>
-          <details class="wk-details"><summary>Find a supplier</summary>
+          <section id="making-suppliers" aria-labelledby="making-suppliers-title"><h3 id="making-suppliers-title">Choose a supplier</h3>
             <p>Download your files, then open a supplier site. You choose whether to upload. No automatic upload or order.</p>
             <ul class="wk-supplier-links">
               <li><a href="https://craftcloud3d.com/upload" target="_blank" rel="noopener noreferrer">Craftcloud ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
               <li><a href="https://www.xometry.com/how-xometry-works/" target="_blank" rel="noopener noreferrer">Xometry ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
               <li><a href="https://www.protolabs.com/services/3d-printing/" target="_blank" rel="noopener noreferrer">Protolabs ↗</a><span>Cost: Quote required · Lead time: Quote required</span></li>
             </ul>
-          </details>
+          </section>
           <details class="wk-details"><summary>When your prototype arrives</summary>
             <p>Check it against your real cabinet without forcing or loading it.</p>
             <label class="wk-fit-check"><input id="make-check-size" type="checkbox"> Compare mounting positions and dimensions.</label>

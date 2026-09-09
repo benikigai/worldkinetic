@@ -64,6 +64,8 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertIn(label, text)
         links = [n for n in files.walk() if n.tag == 'a']
         self.assertEqual(len(links), 3)
+        self.assertFalse(self.collapsed_ancestor(self.node('making-suppliers')))
+        self.assertIn('choose a supplier', self.node('making-overview').text().lower())
         self.assertEqual(text.count('quote required'), 6)
         for link in links:
             self.assertEqual(link.attrs.get('target'), '_blank')
