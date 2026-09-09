@@ -76,7 +76,7 @@ export function mountSession(signal: AbortSignal, access: (allowed: boolean, wor
     get('workspace-content').hidden = !allowed;
     for (const id of ['session-login', 'session-check', 'session-logout']) get<HTMLButtonElement>(id).disabled = busy;
     get<HTMLButtonElement>('session-new').disabled = busy || !status?.authenticated || !status.canStartNewDesign || status.busy;
-    if (status?.authenticated) get('session-budget').textContent = `${status.runsRemaining} runs left · ${status.launchRunsRemaining} shared runs available${status.busy ? ' · Demo busy' : ''}`;
+    if (status?.authenticated) get('session-budget').textContent = `${status.accessRole === 'operator' ? 'Admin allowance' : 'Public allowance'} · ${status.runsRemaining} session runs left · ${status.launchRunsRemaining} total runs available${status.busy ? ' · Demo busy' : ''}`;
     access(allowed, status?.authenticated ? status.workspaceId : null);
   }
   async function run(action: () => Promise<SessionStatus | null>, reset = false) {

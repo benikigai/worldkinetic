@@ -75,3 +75,15 @@ test('legacy loopback controller omits workspace mutation binding', async () => 
   const transport = createWorkspaceTransport(async (_input, init) => { assert.equal(new Headers(init?.headers).get('X-WorldKinetics-Workspace'), null); return wire({}); });
   transport.bind(null); await transport.fetch('/api/runs', { method: 'POST', headers: { 'X-WorldKinetics-Workspace': 'forged' } });
 });
+
+
+test('operator allowance is accepted only with the verified server role and bounded remaining counts', async () => {
+  const operator = { ...status(), accessRole: 'operator', runsPerSession: 30, runsPerLaunch: 30, runsRemaining: 29, launchRunsRemaining: 29 };
+  const client = createSessionClient(async () => wire(operator), 'worldkinetics.app');
+  const result = await client.status();
+  assert.ok(result?.authenticated);
+  if (result?.authenticated) { assert.equal(result.accessRole, 'operator'); assert.equal(result.runsRemaining, 29); }
+  for (const invalid of [{ ...operator, accessRole: undefined }, { ...operator, runsRemaining: 31 }]) {
+    await assert.rejects(createSessionClient(async () => wire(invalid), 'worldkinetics.app').status());
+  }
+});
