@@ -42,3 +42,9 @@ The supported flow is a custom initial handle, explicit acceptance, one guided d
 Run `npm run typecheck`, `npm test`, and `node --test deployment/cloudflare/worker.test.mjs`. Backend tests exercise actual loopback HTTP with synthetic provider/CAD responses: authentication, origin rejection, isolation, exact acceptance/download identity, reset retry, quotas, and cleanup admission. Proxy tests preserve custom text and download/session headers. Frontend checks and actual browser observations are recorded separately by their owner.
 
 Before claiming public live success, verify the configured edge and dedicated runtime, then perform the separately authorized real website request, checked 3D review, explicit acceptance and matching downloads. No tunnel, public generation, provider-credit verification, or deployment is established by these offline checks.
+
+## Canonical hostname and HTTPS
+
+The Worker serves both `worldkinetics.app` and `www.worldkinetics.app` as Custom Domains. It returns308 from www or HTTP apex to `https://worldkinetics.app`, preserving the path and query before assets or API forwarding. HTTPS apex and the existing workers.dev preview retain their normal handling. `assets.run_worker_first: true` ensures static pages also reach the redirect check. All requests therefore invoke the Worker before asset delivery.
+
+Deploy only the tested combined build using `wrangler deploy --keep-vars --config deployment/cloudflare/wrangler.jsonc` with server-side credentials. Preserve the existing API_ORIGIN and UPSTREAM_KEY bindings. Creating the www Custom Domain provisions DNS and its certificate through Cloudflare; configuration and offline tests alone do not prove DNS or TLS is active. Verify HTTP/HTTPS apex/www paths and queries, canonical API session status, and current client/video hashes after deployment. No local gateway restart is needed.

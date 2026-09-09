@@ -4,15 +4,16 @@
   "assets": {
     "directory": "../../dist/client",
     "binding": "ASSETS",
-    "run_worker_first": [
-      "/api",
-      "/api/*"
-    ]
+    "run_worker_first": true
   },
   "workers_dev": true,
   "routes": [
     {
       "pattern": "worldkinetics.app",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.worldkinetics.app",
       "custom_domain": true
     }
   ],

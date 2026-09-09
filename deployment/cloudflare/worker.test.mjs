@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import worker from './worker.mjs';
 const env = { API_ORIGIN: 'https://dedicated.example', UPSTREAM_KEY: 'test-only-key', ASSETS: { fetch: async () => new Response('static') } };
 
@@ -49,4 +50,39 @@ test('upstream auth errors pass through, redirects and failures fail closed', as
   call.mock.mockImplementation(async () => { throw new Error('private origin detail'); });
   const failure = await worker.fetch(new Request('https://worldkinetics.app/api/session'), env);
   assert.equal(await failure.text(), 'Demo service unavailable.');
+});
+
+test('www and HTTP apex redirect paths and queries before assets or API forwarding', async t => {
+  const network = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Redirect must not reach API'); });
+  let assets = 0;
+  const config = { ...env, ASSETS: { fetch: async () => { assets++; throw new Error('Redirect must precede assets'); } } };
+  for (const base of ['http://worldkinetics.app', 'http://www.worldkinetics.app', 'https://www.worldkinetics.app']) {
+    for (const suffix of ['/', '/workspace/?mode=live&idea=curved%20handle', '/demo/handle-demo.mp4', '/api/session?return=%2Fworkspace%2F']) {
+      for (const method of ['GET', 'HEAD', 'POST']) {
+        const response = await worker.fetch(new Request(base + suffix, { method }), config);
+        assert.equal(response.status, 308);
+        assert.equal(response.headers.get('Location'), 'https://worldkinetics.app' + suffix);
+        assert.equal(response.headers.get('Set-Cookie'), null);
+      }
+    }
+  }
+  assert.equal(network.mock.callCount(), 0); assert.equal(assets, 0);
+});
+
+test('canonical HTTPS and unrelated preview hosts do not acquire redirect loops', async () => {
+  for (const base of ['https://worldkinetics.app', 'https://worldkinetics-placeholder.benjamin-shyong.workers.dev', 'http://localhost:8787', 'https://www.worldkinetics.app.example']) {
+    const response = await worker.fetch(new Request(base + '/workspace/?mode=live'), env);
+    assert.equal(response.status, 200); assert.equal(response.headers.get('Location'), null);
+    assert.equal(await response.text(), 'static');
+  }
+});
+
+test('deployed routes cover both hosts and all assets pass the redirect check', () => {
+  const config = JSON.parse(readFileSync(new URL('./wrangler.jsonc', import.meta.url), 'utf8'));
+  assert.equal(config.assets.run_worker_first, true);
+  assert.equal(config.assets.binding, 'ASSETS');
+  assert.deepEqual(config.routes, [
+    { pattern: 'worldkinetics.app', custom_domain: true },
+    { pattern: 'www.worldkinetics.app', custom_domain: true },
+  ]);
 });

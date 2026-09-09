@@ -3,6 +3,12 @@ const unavailable = () => new Response('Demo service unavailable.', { status: 50
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if (incoming.hostname === 'www.worldkinetics.app'
+      || (incoming.hostname === 'worldkinetics.app' && incoming.protocol === 'http:')) {
+      const canonical = new URL(incoming);
+      canonical.protocol = 'https:'; canonical.host = 'worldkinetics.app'; canonical.port = '';
+      return Response.redirect(canonical.href, 308);
+    }
     if (incoming.pathname !== '/api' && !incoming.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
     if (!env.API_ORIGIN || !env.UPSTREAM_KEY) return unavailable();
     let origin;
