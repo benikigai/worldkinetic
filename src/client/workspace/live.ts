@@ -64,7 +64,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     const progress = currentRun?.status === 'queued' ? 'Your request is queued.'
       : currentRun?.status === 'planning' ? 'Astra is planning the handle change.'
         : currentRun?.status === 'running' ? 'Generating geometry and checking the result.' : '';
-    const failedRun = currentRun?.status === 'failed' || currentRun?.status === 'cancelled';
+    const failedRun = !s.canAccept && (currentRun?.status === 'failed' || currentRun?.status === 'cancelled');
     const latest = s.history && [...s.history.acceptances].sort((a, z) => z.stateVersion - a.stateVersion)[0];
     const manifest = latest && s.history?.manifests.find(item => item.acceptanceId === latest.acceptanceId);
     if (length.value !== s.draft.lengthMm) length.value = s.draft.lengthMm;
@@ -96,12 +96,14 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
           : !s.trusted || !handle ? 'The handle demo is unavailable. Try Check status.'
             : b?.executionMode === 'fixture' ? 'Test data only. Live design is unavailable.'
               : b?.design?.activeRunId ? progress || 'Creating your design…'
-                : failedRun ? 'The design could not be completed. See Technical details.'
+                : failedRun ? currentRun?.error?.code === 'EXPORT_FAILED'
+                  ? 'Astra created a design, but its 3D export did not pass the checks. No new design was approved.'
+                  : 'This request could not be completed. No new design was approved.'
                   : filesReady ? 'Approved and ready to download.'
                     : candidate?.status === 'rejected' ? 'Some checks failed. Review them below.'
                       : s.canAccept ? 'Compare the shape and checks, then use this design.'
                         : b?.executionMode !== 'live' ? 'New designs are unavailable. You can view saved results.'
-                          : 'Describe your idea or try a sample.';
+                          : 'Describe your idea or use Sample prompt.';
     text('live-status', status);
     text('live-error-detail', s.error ?? (currentRun?.error ? pretty(currentRun.error) : b?.unavailableReason) ?? 'No connection error.');
     text('live-stage', filesReady ? 'Approved' : !handle ? 'Unavailable' : b?.design?.activeRunId ? 'Creating' : s.canAccept ? 'Review' : refining ? 'Refine' : 'Start');
