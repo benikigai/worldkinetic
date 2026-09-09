@@ -19,7 +19,6 @@
 :root[data-theme="graphite"] .wk-mark-light { display: none; }
 :root[data-theme="graphite"] .wk-mark-dark { display: block; }
 .wk-header-label { color: var(--muted); font-size: 12px; border-left: 1px solid var(--line); padding-left: 24px; }
-.wk-theme-label { margin-left: auto; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
 .wk-main { max-width: 1920px; margin: auto; padding: 20px 28px 24px; }
 .wk-notice { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 18px; }
 .wk-notice strong { color: var(--wk-accent); font-size: 13px; font-weight: 600; }
@@ -77,8 +76,6 @@
   .wk-brand { gap: 7px; }
   .wk-brand span { font-size: 18px; }
   .wk-brand img { width: 28px; height: 28px; }
-  .wk-theme-label { font-size: 0; gap: 0; }
-  .wk-theme-label select { font-size: 12px; max-width: 92px; }
   .wk-main { padding: 16px 12px 24px; }
   .wk-notice { gap: 4px; }
   .wk-model-heading { padding: 12px; }
@@ -335,3 +332,8 @@
 @media (max-width: 700px) { .wk-entry-choices { grid-template-columns: 1fr; } }
 
 @media (max-width: 900px) { [data-workspace-mode="recorded"] .wk-model { order: -1; } }
+
+.wk-theme-options { margin-left: auto; }
+.wk-workspace .theme-option { width: 32px; height: 32px; min-height: 32px; padding: 3px; border-radius: 50%; background: transparent; }
+.wk-workspace .theme-option[aria-pressed="true"] { border-color: var(--accent); background: var(--panel); }
+@media (max-width: 460px) { .wk-workspace .theme-option { width: 28px; height: 28px; min-height: 28px; padding: 2px; } }

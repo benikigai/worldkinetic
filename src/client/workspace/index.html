@@ -19,9 +19,11 @@
       <span>WorldKinetics</span>
     </a>
     <span class="wk-header-label">Cabinet handle</span>
-    <label class="wk-theme-label">Theme
-      <select id="theme" aria-label="Workspace theme"><option value="frost">Frost</option><option value="graphite">Graphite</option><option value="canvas">Canvas</option></select>
-    </label>
+    <div id="theme" class="theme-options wk-theme-options" role="group" aria-label="Choose a visual theme">
+      <button type="button" class="theme-option" data-set-theme="frost" aria-pressed="true" aria-label="Frost theme" title="Frost"><span class="theme-swatch swatch-frost" aria-hidden="true"></span></button>
+      <button type="button" class="theme-option" data-set-theme="graphite" aria-pressed="false" aria-label="Graphite theme" title="Graphite"><span class="theme-swatch swatch-graphite" aria-hidden="true"></span></button>
+      <button type="button" class="theme-option" data-set-theme="canvas" aria-pressed="false" aria-label="Canvas theme" title="Canvas"><span class="theme-swatch swatch-canvas" aria-hidden="true"></span></button>
+    </div>
   </header>
   <main id="workspace" class="wk-main">
     <nav class="wk-entry-choices" aria-label="Choose a workspace">

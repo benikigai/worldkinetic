@@ -32,7 +32,7 @@ const scenario = element<HTMLSelectElement>('scenario');
 const recordedComparison = element<HTMLSelectElement>('recorded-comparison');
 const recordedFile = element<HTMLSelectElement>('recorded-file');
 let recordedDemo: SavedHandleDemo | null = null;
-const theme = element<HTMLSelectElement>('theme');
+const themeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-set-theme]'));
 const wireframe = element<HTMLInputElement>('wireframe');
 const viewport = element<HTMLDivElement>('viewport');
 const message = element<HTMLDivElement>('preview-message');
@@ -266,16 +266,20 @@ async function loadLivePreview(token: number, signal: AbortSignal, previewKey: s
   }
 }
 
-function applyTheme() {
-  const selected = ['frost', 'graphite', 'canvas'].includes(theme.value) ? theme.value : 'frost';
+function applyTheme(name: string, updateUrl = false) {
+  const selected = ['frost', 'graphite', 'canvas'].includes(name) ? name : 'frost';
   document.documentElement.dataset.theme = selected;
+  for (const button of themeButtons) button.setAttribute('aria-pressed', String(button.dataset.setTheme === selected));
   document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
   viewer?.setTheme();
+  if (updateUrl) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('theme', selected);
+    window.history.replaceState(null, '', url);
+  }
 }
 
-const requestedTheme = new URLSearchParams(window.location.search).get('theme');
-if (requestedTheme && ['frost', 'graphite', 'canvas'].includes(requestedTheme)) theme.value = requestedTheme;
-applyTheme();
+applyTheme(new URLSearchParams(window.location.search).get('theme') || 'frost');
 try {
   viewer = new PreviewViewer(viewport, graphicsUnavailable, () => {
     webglError = '';
@@ -334,7 +338,8 @@ element('recorded-download').addEventListener('click', () => {
 }, { signal: listeners.signal });
 scenario.addEventListener('change', () => { void loadSelection(); }, { signal: listeners.signal });
 element('reload').addEventListener('click', () => { scenario.value = 'saved'; void loadSelection(); }, { signal: listeners.signal });
-theme.addEventListener('change', applyTheme, { signal: listeners.signal });
+for (const button of themeButtons) button.addEventListener('click', () => applyTheme(button.dataset.setTheme || 'frost', true), { signal: listeners.signal });
+window.addEventListener('popstate', () => applyTheme(new URLSearchParams(window.location.search).get('theme') || 'frost'), { signal: listeners.signal });
 wireframe.addEventListener('change', () => viewer?.setWireframe(wireframe.checked), { signal: listeners.signal });
 for (const button of viewButtons) button.addEventListener('click', () => viewer?.setView(button.dataset.view as ViewName), { signal: listeners.signal });
 window.addEventListener('pagehide', (event) => {
