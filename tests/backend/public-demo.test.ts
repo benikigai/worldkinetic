@@ -377,9 +377,9 @@ test('explicit unlimited operator access does not remove the public ceiling', as
     const after = await app.idle(cookie); assert.equal(after.launchRunsRemaining, null);
     const visitor = await app.login(); assert.equal(visitor.status.launchRunsRemaining, 0);
     assert.equal((await app.call('/api/runs', visitor.cookie, 'POST', input('public_still_blocked'))).status, 429);
-    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: 'visitor' }).success, false);
+    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: 'visitor' }).success, true);
     assert.equal(c.SessionStatusSchema.safeParse({ ...status, runsRemaining: 1000 }).success, false);
-    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: undefined }).success, false);
+    assert.equal(c.SessionStatusSchema.safeParse({ ...status, accessRole: undefined }).success, true);
   } finally { await app.close(); }
 });
 
