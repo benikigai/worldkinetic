@@ -57,6 +57,7 @@
           <p>The original supplier is gone. Explore a replacement handle and its broader grip with a thumb rest.</p>
           <p id="recorded-summary" role="status">Loading the approved example…</p>
           <label for="recorded-file">Approved files for this version</label><select id="recorded-file" disabled></select>
+          <p><a href="#get-it-made">What’s in the ZIP? Get it made</a></p>
           <button id="recorded-download" class="wk-primary" type="button" disabled>Download file</button><p id="recorded-download-status" role="status"></p>
           <p class="wk-review-note">Previously generated and approved. Nothing is being generated now. Sample dimensions; physical fit and strength are untested.</p>
           <p>For editable source and its references, choose the complete After package.</p><a href="/demo/">Watch the 60-second story</a>
@@ -112,6 +113,7 @@
           <ol class="wk-making-steps"><li><strong>Get your files.</strong> Download the approved CAD and brief.</li><li><strong>Choose a supplier.</strong> Upload the CAD on their site and request a quote.</li><li><strong>Make a prototype.</strong> Agree on material, price and delivery, then check its fit.</li></ol>
           <button id="make-package" class="wk-primary" type="button" disabled>Download handoff package</button>
           <p>One ZIP: CAD files, source, checks and a prototype brief.</p>
+          <p><a href="#get-it-made">What’s in the ZIP? Get it made</a></p>
           <p id="make-package-status" role="status" aria-live="polite"></p>
           <div class="wk-making-routes">
             <details class="wk-details"><summary>Print it myself</summary>
@@ -383,6 +385,43 @@
       </div></details>
     </div>
     </div>
+    <section id="get-it-made" class="wk-panel wk-request" aria-labelledby="get-it-made-title">
+      <h2 id="get-it-made-title">Get it made</h2>
+      <p>Your next steps after downloading. Supplier guidance is available before approval; CAD downloads still require an approved version.</p>
+      <ol class="wk-making-steps">
+        <li><strong>Download the complete package.</strong> In the recorded demo, select After and Complete approved package · ZIP. In live mode, approve your design, then choose Download handoff package.</li>
+        <li><strong>Unzip and upload the CAD.</strong> Use candidate.step for a CAD quote or preview.stl for a 3D-print quote. Units are millimeters. Share PROTOTYPE-BRIEF.txt and RFQ.txt with the supplier.</li>
+        <li><strong>Get a quote.</strong> Confirm material, quantity, finish and delivery location. Compare part cost, setup fees, shipping and taxes, plus production time and transit time separately.</li>
+        <li><strong>Order a prototype on the supplier’s site.</strong> Check its fit before ordering more. Mounting hardware is unspecified; geometry checks do not establish physical strength or manufacturing readiness.</li>
+      </ol>
+      <details class="wk-details" open><summary>What’s inside the complete ZIP</summary>
+        <dl class="wk-package-contents">
+          <dt>candidate.step</dt><dd>Editable solid CAD. Send to a supplier or open in a compatible CAD application.</dd>
+          <dt>preview.stl</dt><dd>Triangle mesh. Open in a slicer or upload for a print quote, using millimeters.</dd>
+          <dt>source.py and editable.py</dt><dd>Python CAD source for editing and recreating the model. Requires the recorded build123d environment and input files; not printer instructions.</dd>
+          <dt>PROTOTYPE-BRIEF.txt</dt><dd>Read first: approved design, requirements and prototype limitations.</dd>
+          <dt>RFQ.txt and RFQ.json</dt><dd>The quote request and preferences for this approved revision. RFQ.txt can be copied into a supplier inquiry.</dd>
+          <dt>package.json</dt><dd>File inventory and hashes for checking package contents.</dd>
+          <dt>evidence/</dt><dd>acceptance.json, manifest.json, requirements.json, checks.json and reference.json. Refinements also include initial-acceptance.json and initial-manifest.json.</dd>
+          <dt>input/</dt><dd>reference.step and datums.json retain the mounting reference. A refinement also includes baseline.step, its approved starting geometry.</dd>
+        </dl>
+        <p>No printer-ready G-code or dimensioned manufacturing drawing is included. Keep all files together for recreating the CAD.</p>
+      </details>
+      <h3>Copy a supplier request</h3>
+      <p>Attach the CAD, PROTOTYPE-BRIEF.txt and RFQ.txt from the same ZIP. This template asks for a quote; it does not place an order.</p>
+      <label for="supplier-prompt">Request template</label>
+      <textarea id="supplier-prompt" rows="8" readonly>Please review the attached WorldKinetics CAD for one shape-and-fit prototype. Use the exact revision and millimeter units in PROTOTYPE-BRIEF.txt and RFQ.txt. Follow any quantity, material, finish and delivery preferences in RFQ.txt; ask me about missing details rather than assuming.
+Please recommend a suitable process and material and flag printability, mounting hardware, tolerance or strength concerns. Do not change the protected mounting interface or required finger clearance without my approval.
+Please quote parts, setup fees, shipping and taxes separately, and distinguish production time from transit time. This is an untested physical prototype. Please obtain my approval before modifying the CAD or placing an order.</textarea>
+      <button id="copy-supplier-prompt" type="button">Copy request</button><p id="supplier-copy-status" role="status"></p>
+      <h3>Choose a supplier</h3>
+      <ul class="wk-supplier-links">
+        <li><a href="https://craftcloud3d.com/" target="_blank" rel="noopener noreferrer">Craftcloud</a><span>Start here to compare prototype offers. Upload your CAD to see available prices and lead times.</span></li>
+        <li><a href="https://www.xometry.com/capabilities/3d-printing-service/" target="_blank" rel="noopener noreferrer">Xometry</a><span>Request another quote with your process, material and quantity preferences.</span></li>
+        <li><a href="https://www.protolabs.com/services/3d-printing/" target="_blank" rel="noopener noreferrer">Protolabs</a><span>Request a prototype quote and confirm the available turnaround for your part.</span></li>
+      </ul>
+      <p>Actual cost and delivery require a supplier quote. Nothing is uploaded or sent automatically.</p>
+    </section>
     <noscript><p class="wk-notice">JavaScript is required to connect the workspace and inspect 3D designs.</p></noscript>
   </main>
 </body>

@@ -368,3 +368,14 @@ if (initialMode !== 'live') {
     else switchMode('live');
   });
 }
+
+element('copy-supplier-prompt').addEventListener('click', async () => {
+  const prompt = element<HTMLTextAreaElement>('supplier-prompt');
+  try {
+    await navigator.clipboard.writeText(prompt.value);
+    element('supplier-copy-status').textContent = 'Copied. Attach the CAD and brief from your approved package before sending.';
+  } catch {
+    prompt.focus(); prompt.select();
+    element('supplier-copy-status').textContent = 'Select and copy the request above. Clipboard access was unavailable.';
+  }
+}, { signal: listeners.signal });

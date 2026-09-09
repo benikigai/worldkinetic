@@ -351,3 +351,7 @@
 .wk-making-overview { max-width: 72ch; margin: -8px 0 24px; font-size: 16px; line-height: 1.6; }
 .wk-making-steps { padding-left: 22px; line-height: 1.6; }
 .wk-making-steps li { margin-bottom: 12px; }
+
+#get-it-made { margin-top: 32px; max-width: 960px; scroll-margin-top: 24px; }
+.wk-package-contents dt { font-weight: 600; margin-top: 16px; }
+.wk-package-contents dd { margin: 4px 0 0; line-height: 1.6; }

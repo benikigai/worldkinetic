@@ -62,8 +62,15 @@ class ConsumerPageAcceptance(unittest.TestCase):
         text = files.text().lower()
         for label in ['print it myself', 'get a prototype', 'make multiple', 'no automatic upload or order', 'hardware and threads are not designed']:
             self.assertIn(label, text)
-        links = [n for n in files.walk() if n.tag == 'a']
+        links = [n for n in files.walk() if n.tag == 'a' and n.attrs.get('href', '').startswith('https://')]
         self.assertEqual(len(links), 3)
+        guide = self.node('get-it-made')
+        self.assertNotIn('hidden', guide.attrs)
+        self.assertNotIn('data-live-only', guide.attrs)
+        self.assertFalse(self.collapsed_ancestor(guide))
+        for filename in ['candidate.step', 'preview.stl', 'RFQ.txt', 'PROTOTYPE-BRIEF.txt', 'package.json']:
+            self.assertIn(filename, guide.text())
+        self.assertIn('readonly', self.node('supplier-prompt').attrs)
         self.assertFalse(self.collapsed_ancestor(self.node('making-suppliers')))
         self.assertIn('choose a supplier', self.node('making-overview').text().lower())
         self.assertEqual(text.count('quote required'), 6)
