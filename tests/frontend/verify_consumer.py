@@ -40,7 +40,7 @@ class ConsumerPageAcceptance(unittest.TestCase):
             self.assertEqual(node.tag, 'button')
             self.assertEqual(node.attrs.get('type'), 'button')
             self.assertIn(label, node.text().lower())
-        self.assertIn('use this design', self.node('live-accept').text().lower())
+        self.assertIn('approve design', self.node('live-accept').text().lower())
         self.assertIn('before', self.node('live-comparison').text().lower())
         self.assertIn('your design', self.node('live-comparison').text().lower())
 

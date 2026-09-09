@@ -88,8 +88,13 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       makingRevision = acceptedForMaking;
     }
     element<HTMLButtonElement>('make-package').disabled = !s.canDownload || packageBusy;
-    element('live-inputs').hidden = filesReady;
-    text('live-title', filesReady ? 'Your design is ready' : 'What would you like to change?');
+    const reviewing = s.canAccept;
+    element('live-inputs').hidden = filesReady || reviewing;
+    element('live-review-request').hidden = !reviewing;
+    text('live-review-guidance', refining ? 'Check the shape and sizes, then approve this design to get its files.' : 'Check the shape and sizes, then approve this design. To refine it, choose Make another change after approval.');
+    const reviewedRun = b?.runs.find(item => item.runId === candidate?.runId);
+    text('live-reviewed-idea', reviewedRun?.instruction ?? 'Request unavailable for this design.');
+    text('live-title', filesReady ? 'Your design is ready' : reviewing ? 'Review your design' : 'What would you like to change?');
     const status = s.error ? 'The demo is offline. Your draft is safe. Try Check status.'
       : s.loading ? 'Checking your design…'
         : s.busy ? 'Saving…'
@@ -101,7 +106,7 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
                   : 'This request could not be completed. No new design was approved.'
                   : filesReady ? 'Approved and ready to download.'
                     : candidate?.status === 'rejected' ? 'Some checks failed. Review them below.'
-                      : s.canAccept ? 'Compare the shape and checks, then use this design.'
+                      : s.canAccept ? 'Check the shape and sizes, then approve the design.'
                         : b?.executionMode !== 'live' ? 'New designs are unavailable. You can view saved results.'
                           : 'Describe your idea or use Sample prompt.';
     text('live-status', status);
@@ -113,10 +118,11 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
       element<HTMLButtonElement>(id).disabled = action !== name;
       element(id).hidden = action !== name;
     }
-    element('live-review-sizes').hidden = false;
+    element('live-review-sizes').hidden = reviewing;
+    text('live-review-sizes', action === 'run' ? refining ? 'Create updated design' : 'Create design' : 'Submit idea');
     element<HTMLButtonElement>('live-review-sizes').disabled = action !== 'review' && action !== 'run';
     element('live-run').hidden = true;
-    instruction.disabled = Boolean(s.busy || s.pendingAction || b?.design?.activeRunId);
+    instruction.disabled = Boolean(reviewing || s.busy || s.pendingAction || b?.design?.activeRunId);
     const submitted = currentRun?.instruction;
     element('live-submitted').hidden = !submitted;
     text('live-submitted', submitted ? `Submitted idea: ${submitted}` : '');
@@ -137,14 +143,14 @@ export function mountLive(controller: LiveWorkspaceController, signal: AbortSign
     element('live-refresh').hidden = filesReady && !s.error;
     element('live-reconnect').hidden = !s.error || !/event|stream|cursor/i.test(s.error);
     if (action === 'confirm') text('live-status', 'Confirm the sizes below before submitting your design request.');
-    if (action === 'run' && !failedRun) text('live-status', 'Sizes confirmed. Submit your idea to start creating.');
+    if (action === 'run' && !failedRun) text('live-status', 'Sizes confirmed. Create your design when ready.');
     text('live-confirm', 'Confirm sizes');
     text('live-run', refining ? 'Create updated design' : 'Create design');
     text('live-run-gate', s.pendingAction ? 'Check status before retrying the last request.'
       : !filesReady && !s.draft.instruction.trim() && !b?.design?.activeRunId && !s.canAccept ? 'Enter your idea, then select Submit idea.' : '');
     text('live-accept-gate', s.canAccept && !display.canAccept ? 'Show Your design and wait for it to load.' : '');
     text('live-export-gate', s.canDownload ? 'These files belong to your accepted design, even while you inspect an earlier design.'
-      : 'Files become available after you explicitly use a checked design with the current sizes.');
+      : 'Approve a checked design to get its files.');
     if (handle) {
       const brief = requirements.setup.geometry.sampleRequirements;
       text('live-requirements', 'Sample brief');

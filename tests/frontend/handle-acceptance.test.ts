@@ -294,12 +294,18 @@ for (const recovery of ['direct', 'refresh', 'retry'] as const) test(`public han
     for (const modifier of ['shiftKey','altKey','ctrlKey','metaKey','isComposing']) { assert.equal(node('live-request').key({[modifier]:true}),false); assert.equal(node('live-size-review').open,false); }
     node('live-request').key({repeat:true}); assert.equal(node('live-size-review').open,false);
     assert.equal(node('live-request').key({}),true); assert.equal(mutations(),0); assert.equal(node('live-size-review').hidden,false); assert.equal(node('live-size-review').open,true); assert.match(node('live-fixed').textContent,/Hardware unspecified\./);
-    node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0);
+    node('live-confirm').click(); await settled(); assert.equal(mutations(),1); assert.equal(s.state.runs.length,0); assert.equal(node('live-review-sizes').textContent,'Create design');
     node('live-request').key({}); node('live-request').key({}); await settled(); assert.equal(s.state.runs.length,1,'Repeated submission cannot create a second logical run');
     assert.equal(node('live-request').disabled,true,'Submitted idea is frozen while active');
     assert.equal(node('live-review-sizes').disabled,true);
     assert.match(node('live-submitted').textContent,/Submitted idea: Create a cabinet handle/);
     await s.complete(); await s.controller.refresh();
+    assert.equal(node('live-inputs').hidden,true,'Review does not show an editable prompt without a submit action');
+    assert.equal(node('live-review-request').hidden,false);
+    assert.equal(node('live-title').textContent,'Review your design');
+    assert.equal(node('live-reviewed-idea').textContent,s.state.runs[0].instruction,'Review shows the request for the displayed revision');
+    assert.equal(node('live-review-sizes').hidden,true);
+    assert.equal(node('live-request').disabled,true);
     assert.equal(node('live-accept').hidden,true,'Completion cannot accept an unseen design');
     assert.ok(previewKey); ui.rendered(previewKey); assert.equal(node('live-accept').hidden,false);
     node('live-accept').click(); await settled(); assert.equal(s.history.acceptances.length,1);
