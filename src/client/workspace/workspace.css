@@ -337,3 +337,8 @@
 .wk-workspace .theme-option { width: 32px; height: 32px; min-height: 32px; padding: 3px; border-radius: 50%; background: transparent; }
 .wk-workspace .theme-option[aria-pressed="true"] { border-color: var(--accent); background: var(--panel); }
 @media (max-width: 460px) { .wk-workspace .theme-option { width: 28px; height: 28px; min-height: 28px; padding: 2px; } }
+
+.wk-handle-reference { margin: 16px 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.wk-handle-reference figcaption { font-size: 14px; font-weight: 500; }
+.wk-handle-reference svg { display: block; width: 100%; height: auto; margin: 6px 0; }
+.wk-handle-reference p { color: var(--muted); font-size: 12px; line-height: 1.5; }

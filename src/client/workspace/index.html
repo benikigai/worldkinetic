@@ -64,11 +64,30 @@
           <p id="live-status" role="status" aria-live="polite">Connecting to the design service...</p>
           <p id="live-submitted" hidden></p><p id="live-attempt" hidden></p>
           <button id="live-sample" class="wk-sample" type="button">Try a sample</button>
+          <figure class="wk-handle-reference" aria-labelledby="handle-reference-caption">
+            <figcaption id="handle-reference-caption">Example handle · sample sizes</figcaption>
+            <svg viewBox="0 0 340 210" role="img" aria-label="Illustrative cabinet handle. Sample requirements: mounting centers 96 millimeters apart, finger gap at least 25 millimeters, overall length at most 140 millimeters. Not a measured photograph or generated CAD.">
+              <rect x="24" y="145" width="292" height="12" rx="2" fill="var(--panel-strong)" stroke="var(--line)"/>
+              <path d="M60 145V92 Q170 52 280 92V145" fill="none" stroke="var(--muted)" stroke-width="18" stroke-linejoin="round"/>
+              <path d="M48 145H72M268 145H292" stroke="var(--text)" stroke-width="5" stroke-linecap="round"/>
+              <g fill="none" stroke="var(--accent)" stroke-width="1.2">
+                <path d="M60 156v30M280 156v30" stroke-dasharray="3 3"/>
+                <path d="M60 180H280M60 175v10M280 175v10"/>
+                <path d="M43 42H297M43 37v10M297 37v10"/>
+                <path d="M169 92v43M164 92h10M164 135h10"/>
+              </g>
+              <g fill="var(--text)" font-family="Helvetica, Arial, sans-serif" font-size="14" text-anchor="middle">
+                <text x="170" y="27">140 mm max overall length</text>
+                <text x="170" y="202">96 mm between mounting centers</text>
+                <text x="229" y="117">25 mm min</text><text x="229" y="134">finger gap</text>
+              </g>
+            </svg>
+            <p>Illustration of the brief, not measured CAD. Mounting hardware is unspecified.</p>
+          </figure>
           </div>
           <div id="live-length-field" hidden><label for="live-length">Requested length / mm (26 to 200)</label><input id="live-length" type="number" min="26" max="200" step="any" inputmode="decimal" aria-describedby="live-length-note"><p id="live-length-note">Confirm the exact length before creating a design.</p></div>
           <details id="live-size-review" class="wk-size-review" hidden><summary>Sizes to keep</summary>
             <h3 id="live-requirements">Sizes to keep</h3><p id="live-fixed"></p>
-            <figure class="wk-mount-brief"><figcaption>Sample mounting brief</figcaption><svg viewBox="0 0 280 95" role="img" aria-label="Two mounting axes, 96 millimeters apart. Sample brief, not measured generated geometry."><g fill="none" stroke="currentColor"><path d="M32 10v48M248 10v48" stroke-dasharray="4 3"/><path d="M32 67h216M32 61v12M248 61v12"/></g><text x="140" y="89" text-anchor="middle">96 mm between mounts</text></svg></figure>
           </details>
           <button id="live-confirm" class="wk-primary" type="button" disabled>Confirm sizes</button>
           <button id="live-run" class="wk-primary" type="button" disabled>Create design</button>
