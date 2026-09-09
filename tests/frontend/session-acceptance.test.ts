@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createSessionClient, createWorkspaceTransport } from '../../src/client/workspace/session.js';
 import { CONTRACT_VERSION } from '../../src/shared/contracts-v2.js';
 const status = (workspaceId = 'workspace_test') => ({ contractVersion: CONTRACT_VERSION, accessMode: 'invite', authenticated: true,
-  runsPerSession: 4, runsPerLaunch: 12, workspaceId, runsRemaining: 4, launchRunsRemaining: 12,
+  runsPerSession: 3, runsPerLaunch: 3, workspaceId, runsRemaining: 3, launchRunsRemaining: 3,
   busy: false, expiresAt: new Date(Date.now() + 3600000).toISOString(), canStartNewDesign: true });
 const wire = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } });
 
